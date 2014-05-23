@@ -1,12 +1,24 @@
-(load "/Users/bouche/Documents/OpenMusic/OM6/branches/OM-Sequencer-Project/om-scheduler.lisp")
-(load "/Users/bouche/Documents/OpenMusic/OM6/branches/OM-Sequencer-Project/om-event-engine.lisp")
-(load "/Users/bouche/Documents/OpenMusic/OM6/branches/OM-Sequencer-Project/om-sequencer-scheduler.lisp")
-(load "/Users/bouche/Documents/OpenMusic/OM6/branches/OM-Sequencer-Project/om-thread-pool.lisp")
-(load "/Users/bouche/Documents/OpenMusic/OM6/branches/OM-Sequencer-Project/sch-maquette_link-patch.lisp")
+(in-package :om)
 
-(in-package :sch)
-(init-thread-pool 8)
+(defvar  *omsequencer-files* nil)
 
+(setf *omsequencer-files* 
+      '("scheduler;om-scheduler"
+        "scheduler;om-sequencer-scheduler"
+        "worker;om-thread-pool"
+        "worker;om-event-engine"
+        "maquettelink;sch-maquette_link-patch"))
+
+(eval-when (eval compile load)
+  (mapc #'(lambda (filename) 
+            (compile&load (namestring (make-local-path *load-pathname* filename)))) 
+        *omsequencer-files*))
+
+(sch::init-sequencer-scheduler)
+(sch::init-thread-pool 8)
+
+
+#|
 (setq *task-tree* (list
                    (make-t-task :name "END"
                                 :routine #'(lambda (a) (print "----Tree computation done----") (sleep 3)
@@ -56,5 +68,5 @@
                                                     )))))
 
 (setf *treetest* (build-t-tree *task-tree*))
-
+|#
 ;(setq *om-sequencer-queue* nil)

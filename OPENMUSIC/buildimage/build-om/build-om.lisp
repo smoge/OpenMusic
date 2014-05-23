@@ -254,6 +254,7 @@
 (load-om-projects '("07-omspace"))
 (load-om-projects '("09-harmonicproject"))
 (load-om-projects '("10-sheet"))
+(load-om-projects '("11-omsequencer"))
 
 
 
