@@ -72,7 +72,8 @@
                                  (push (list self 0 nil nil nil) *ms-list-to-play*)
                                  (player-start :midishare)
                                  (pop *ms-list-to-play*)
-                                 (sch::compute-tree sch::*treetest*)))
+                                 ;(sch::compute-tree sch::*treetest*)
+                                 ))
                             ((= (free-store elem) 3)
                              #'(lambda (self) 
                                  (print (format nil "STARTING TASK at ~A (delay of ~Ams)" 
