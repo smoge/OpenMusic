@@ -18,7 +18,7 @@ This kind of scheduler should be used to efficiently run tasks which won't be mo
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (cl:defpackage "Scheduler"
   (:nicknames "SCH")
-   (:use "COMMON-LISP" "CL-USER" "OpenMusic" "OM-API" "LISPWORKS" "HCL" "OM-LISP"))
+   (:use "COMMON-LISP" "CL-USER" "OM" "OM-API" "LISPWORKS" "HCL" "OM-LISP"))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (in-package :sch)
 
