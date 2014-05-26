@@ -42,7 +42,7 @@
                                  (print (format nil "STARTING TASK at ~A (delay of ~Ams)" 
                                                 (sch::get-clock-time sch::*om-sequencer-scheduler*) 
                                                 (- (sch::get-clock-time sch::*om-sequencer-scheduler*) (offset elem))))
-                                 (push (list self 0 nil nil nil) *ms-list-to-play*)
+                                 (push (list (sch::om-task-object self) 0 nil nil nil) *ms-list-to-play*)
                                  (player-start :midishare)
                                  (pop *ms-list-to-play*)))
                             ((= (free-store elem) 1)
@@ -50,7 +50,7 @@
                                  (print (format nil "STARTING TASK at ~A (delay of ~Ams)" 
                                                 (sch::get-clock-time sch::*om-sequencer-scheduler*) 
                                                 (- (sch::get-clock-time sch::*om-sequencer-scheduler*) (offset elem))))
-                                 (push (list self 0 nil nil nil) *ms-list-to-play*)
+                                 (push (list (sch::om-task-object self) 0 nil nil nil) *ms-list-to-play*)
                                  (player-start :midishare)
                                  (pop *ms-list-to-play*)
                                  (setf (offset elem) (+ *reschedule-ms* (offset elem)))
@@ -69,7 +69,7 @@
                                  (print (format nil "STARTING TASK at ~A (delay of ~Ams)" 
                                                 (sch::get-clock-time sch::*om-sequencer-scheduler*) 
                                                 (- (sch::get-clock-time sch::*om-sequencer-scheduler*) (offset elem))))
-                                 (push (list self 0 nil nil nil) *ms-list-to-play*)
+                                 (push (list (sch::om-task-object self) 0 nil nil nil) *ms-list-to-play*)
                                  (player-start :midishare)
                                  (pop *ms-list-to-play*)
                                  ;(sch::compute-tree sch::*treetest*)
@@ -79,7 +79,7 @@
                                  (print (format nil "STARTING TASK at ~A (delay of ~Ams)" 
                                                 (sch::get-clock-time sch::*om-sequencer-scheduler*) 
                                                 (- (sch::get-clock-time sch::*om-sequencer-scheduler*) (offset elem))))
-                                 (push (list self 0 nil nil nil) *ms-list-to-play*)
+                                 (push (list (sch::om-task-object self) 0 nil nil nil) *ms-list-to-play*)
                                  (player-start :midishare)
                                  (pop *ms-list-to-play*)
                                  (progn 
@@ -90,7 +90,7 @@
                                  (print (format nil "STARTING TASK at ~A (delay of ~Ams)" 
                                                 (sch::get-clock-time sch::*om-sequencer-scheduler*) 
                                                 (- (sch::get-clock-time sch::*om-sequencer-scheduler*) (offset elem))))
-                                 (push (list self 0 nil nil nil) *ms-list-to-play*)
+                                 (push (list (sch::om-task-object self) 0 nil nil nil) *ms-list-to-play*)
                                  (player-start :midishare)
                                  (pop *ms-list-to-play*)
                                  (progn 
@@ -100,7 +100,7 @@
                                  (print (format nil "STARTING TASK at ~A (delay of ~Ams)" 
                                                 (sch::get-clock-time sch::*om-sequencer-scheduler*) 
                                                 (- (sch::get-clock-time sch::*om-sequencer-scheduler*) (offset elem))))
-                                 (push (list self 0 nil nil nil) *ms-list-to-play*)
+                                 (push (list (sch::om-task-object self) 0 nil nil nil) *ms-list-to-play*)
                                  (player-start :midishare)
                                  (pop *ms-list-to-play*)
                                  (progn 

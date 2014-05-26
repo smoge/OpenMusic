@@ -7,7 +7,8 @@
         "scheduler;om-sequencer-scheduler"
         "worker;om-thread-pool"
         "worker;om-event-engine"
-        "maquettelink;sch-maquette_link-patch"))
+        ;"maquettelink;sch-maquette_link-patch"
+        ))
 
 (eval-when (eval compile load)
   (mapc #'(lambda (filename) 

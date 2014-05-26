@@ -82,29 +82,30 @@ Tasks are defined by the "om-task" structure :
 (defmethod om-start-scheduler ((self om-sequencer-scheduler) &optional time)
   (when (or (not (om-sequencer-scheduler-process self)) (eq (mp:process-state (om-sequencer-scheduler-process self)) :killed))
     (hcl:avoid-gc)
-    (setf (om-sequencer-scheduler-state self) :play
-          (om-sequencer-scheduler-start-time self) (or time (get-internal-real-time))
-          (om-sequencer-scheduler-ref-time self) (om-sequencer-scheduler-start-time self)
-          (om-sequencer-scheduler-process self) (if (= *om-sequencer-scheduler-type* SCH_SYNCHRONOUS)
-                                                    (mp:process-run-function 
-                                                     (format nil "~A synchronous process" (om-sequencer-scheduler-name self)) 
-                                                     nil 'check-sequencer-event-sync)
-                                                  (mp:process-run-function 
-                                                   (format nil "~A asynchronous process" (om-sequencer-scheduler-name self)) 
-                                                   nil 'check-sequencer-event-async)))))
+    (if (setf (om-sequencer-scheduler-state self) :play
+              (om-sequencer-scheduler-start-time self) (or time (get-internal-real-time))
+              (om-sequencer-scheduler-ref-time self) (om-sequencer-scheduler-start-time self)
+              (om-sequencer-scheduler-process self) (if (= *om-sequencer-scheduler-type* SCH_SYNCHRONOUS)
+                                                        (mp:process-run-function 
+                                                         (format nil "~A synchronous process" (om-sequencer-scheduler-name self)) 
+                                                         nil 'check-sequencer-event-sync)
+                                                      (mp:process-run-function 
+                                                       (format nil "~A asynchronous process" (om-sequencer-scheduler-name self)) 
+                                                       nil 'check-sequencer-event-async)))
+        "Sequencer play...")))
 
 ;;;Pause a sequencer scheduler. The optional time slot is used to synchronise multiple schedulers.
 (defmethod om-pause-scheduler ((self om-sequencer-scheduler) &optional time)
-  (call-next-method))
+  (if (call-next-method) "Sequencer pause..."))
 
 ;;;Continue a sequencer scheduler. The optional time slot is used to synchronise multiple schedulers.
 (defmethod om-continue-scheduler ((self om-sequencer-scheduler) &optional time)
-  (call-next-method))
+  (if (call-next-method) "Sequencer continue..."))
 
 ;;;Stop a sequencer scheduler and set it's queue position to 0.
 (defmethod om-stop-scheduler ((self om-sequencer-scheduler))
   (setf (om-sequencer-scheduler-queue-position *om-sequencer-scheduler*) 0)
-  (call-next-method))
+  (if (call-next-method) "Sequencer stop..."))
 
 ;;;Jump to a specific timed location
 (defmethod om-jump-scheduler ((self om-sequencer-scheduler) time)
