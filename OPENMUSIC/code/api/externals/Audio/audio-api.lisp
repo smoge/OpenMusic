@@ -85,22 +85,43 @@
            (sndfile-handle (sf::sf_open path sf::SFM_READ sfinfo))
            (size (fli::dereference (cffi:foreign-slot-pointer sfinfo '(:struct |libsndfile|::sf_info) 'sf::frames) :type :int :index #+powerpc 1 #-powerpc 0))
            (channels (fli::dereference (cffi:foreign-slot-pointer sfinfo '(:struct |libsndfile|::sf_info) 'sf::channels) :type :int :index #+powerpc 1 #-powerpc 0))
-           ;(sr (fli::dereference (cffi:foreign-slot-pointer sfinfo '(:struct |libsndfile|::sf_info) 'sf::samplerate) :type :int :index #+powerpc 1 #-powerpc 0))
-           ;(format (fli::dereference (cffi:foreign-slot-pointer sfinfo '(:struct |libsndfile|::sf_info) 'sf::format) :type :int :index #+powerpc 1 #-powerpc 0))
-           ;(skip (cffi:foreign-slot-value sfinfo '(:struct |libsndfile|::sf_info) 'sf::seekable))
            ;;;Variables liées au calcul de waveform
            (buffer-size (* window channels))
            (buffer (fli::allocate-foreign-object :type :float :nelems buffer-size))   ;Fenêtrage du son
-           ;(MaxArray (make-array (list channels (ceiling size window)) :element-type 'single-float :initial-element 0.0))   ;Tableau pour stocker les max
            (indxmax (1- (ceiling size window)))
            (frames-read 0)
-           maxi)
-      (loop for indx from 0 do ;(print (list indx "/" (ceiling size window)))
+           maxi) (print "mjh")
+      (loop for indx from 0 do
             (setq frames-read (sf::sf-readf-float sndfile-handle buffer window))
             (dotimes (n channels)
               (dotimes (i window)
                 (setq maxi (max (abs (fli:dereference buffer :type :float :index (+ n (* channels i)))) (or maxi 0.0))))
-              ;(setf (aref MaxArray n (min indx indxmax)) maxi)
+              (setf (fli:dereference ptr :index (+ indx (* n (ceiling size window)))) maxi)
+              (setq maxi 0.0))
+            while (= frames-read window))
+      (fli:free-foreign-object buffer)
+      (sf::sf_close sndfile-handle))))
+
+(defun om-fill-sound-display-array (path ptr &optional (window 128))
+  ;;;Ouverture d'un descripteur libsndfile
+  (cffi:with-foreign-object (sfinfo '(:struct |libsndfile|::sf_info))
+    ;;;Initialisation du descripteur
+    (setf (cffi:foreign-slot-value sfinfo '(:struct |libsndfile|::sf_info) 'sf::format) 0)
+    (let* (;;;Remplissage du descripteur et affectation aux variables temporaires
+           (sndfile-handle (sf::sf_open path sf::SFM_READ sfinfo))
+           (size (fli::dereference (cffi:foreign-slot-pointer sfinfo '(:struct |libsndfile|::sf_info) 'sf::frames) :type :int :index #+powerpc 1 #-powerpc 0))
+           (channels (fli::dereference (cffi:foreign-slot-pointer sfinfo '(:struct |libsndfile|::sf_info) 'sf::channels) :type :int :index #+powerpc 1 #-powerpc 0))
+           ;;;Variables liées au calcul de waveform
+           (buffer-size (* window channels))
+           (buffer (fli::allocate-foreign-object :type :float :nelems buffer-size))   ;Fenêtrage du son
+           (indxmax (1- (ceiling size window)))
+           (frames-read 0)
+           maxi)
+      (loop for indx from 0 do
+            (setq frames-read (sf::sf-readf-float sndfile-handle buffer window))
+            (dotimes (n channels)
+              (dotimes (i window)
+                (setq maxi (max (abs (fli:dereference buffer :type :float :index (+ n (* channels i)))) (or maxi 0.0))))
               (setf (fli:dereference ptr :index (+ indx (* n (ceiling size window)))) maxi)
               (setq maxi 0.0))
             while (= frames-read window))

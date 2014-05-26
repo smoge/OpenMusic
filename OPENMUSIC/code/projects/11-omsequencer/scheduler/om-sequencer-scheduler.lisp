@@ -56,6 +56,7 @@ Tasks are defined by the "om-task" structure :
   (id nil :type string)
   (object nil)
   (event #'(lambda (self)) :type function)
+  ;(callback #'(lambda (self)) :type function)
   (readyp nil :type boolean)
   (timestamp 0 :type integer))
 
@@ -188,7 +189,8 @@ Tasks are defined by the "om-task" structure :
   (mp:with-lock ((om-sequencer-scheduler-queue-lock *om-sequencer-scheduler*))
     (let ((task (cadr (nth (om-sequencer-scheduler-queue-position *om-sequencer-scheduler*) *om-sequencer-queue*))))
       (om-sequencer-scheduler-queue-position *om-sequencer-scheduler*)
-      (when (and task (om-task-readyp task)) (funcall (om-task-event task) (om-task-object task)))))
+      (when (and task (om-task-readyp task)) 
+        (funcall (om-task-event task) task))))
   ;(when (>= (incf (om-sequencer-scheduler-queue-position *om-sequencer-scheduler*)) (length *om-sequencer-queue*))
   ;  (om-stop-scheduler *om-sequencer-scheduler*))
   ;(incf (om-sequencer-scheduler-queue-position *om-sequencer-scheduler*))

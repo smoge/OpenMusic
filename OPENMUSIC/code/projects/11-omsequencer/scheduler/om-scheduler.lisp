@@ -134,9 +134,11 @@ This kind of scheduler should be used to efficiently run tasks which won't be mo
 
 ;;;Get the current time of a scheduler
 (defmethod get-clock-time ((self om-scheduler))
-  (if (eq (om-scheduler-state self) :pause)
-      (om-scheduler-pause-time self)
-    (+ (om-scheduler-offset self) (- (get-internal-real-time) (om-scheduler-ref-time self)))))
+  (cond ((eq (om-scheduler-state self) :pause)
+         (om-scheduler-pause-time self))
+        ((eq (om-scheduler-state self) :stop) 0)
+        (t
+         (+ (om-scheduler-offset self) (- (get-internal-real-time) (om-scheduler-ref-time self))))))
 
 ;;;Get elapsed time since the scheduler started (can be different form the clock time becaus eof jumps)
 (defmethod get-elapsed-time ((self om-scheduler))
