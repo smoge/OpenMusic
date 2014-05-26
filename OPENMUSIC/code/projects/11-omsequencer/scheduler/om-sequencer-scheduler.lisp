@@ -221,6 +221,14 @@ Tasks are defined by the "om-task" structure :
        (list (om-task-timestamp self) self (om-task-id self))))
     (restore-main-scheduler-cursor)))
 
+;;;Unschedule a task
+(defmethod unschedule-sequencer-task ((self om-task))
+  (let ((pos (position (om-task-id self) *om-sequencer-queue* :key 'caddr :test 'equalp)))
+    (when pos 
+      (progn
+        (mp:with-lock ((om-sequencer-scheduler-queue-lock *om-sequencer-scheduler*))
+          (setq *om-sequencer-queue* (remove-nth *om-sequencer-queue* pos)))))))
+
 ;;;Reschedule a task. It removes it from the queue and reschedule it with an updated timestamp.
 (defmethod reschedule-sequencer-task ((self om-task) new-time)
   (setf (om-task-timestamp self) new-time)
@@ -230,6 +238,7 @@ Tasks are defined by the "om-task" structure :
         (mp:with-lock ((om-sequencer-scheduler-queue-lock *om-sequencer-scheduler*))
           (setq *om-sequencer-queue* (remove-nth *om-sequencer-queue* pos)))
         (schedule-sequencer-task self)))))
+
 
 ;;;Generate a unique ID.
 (defun generate-task-id ()
