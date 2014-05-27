@@ -9,7 +9,7 @@ A basic scheduler is defined by the "om-scheduler" structure :
    - "tick" : the tick of the "process",
    - "process" : the process which runs popping events,
    - "state" : state of the scheduler, ie. :stop, :pause, :play,
-   - "queue" : the event-queue,
+   - "queue" : the event-queue, which must look like ((timestamp1 function1 &rest args) (timestamp2 function2 &rest args)...)
    - "queue-lock" : a lock which is grabbed and then released by any process acting on the scheduler queue.
 
 This kind of scheduler should be used to efficiently run tasks which won't be modified after the execution started. The task events are popped from it's queue.
@@ -140,7 +140,7 @@ This kind of scheduler should be used to efficiently run tasks which won't be mo
         (t
          (+ (om-scheduler-offset self) (- (get-internal-real-time) (om-scheduler-ref-time self))))))
 
-;;;Get elapsed time since the scheduler started (can be different form the clock time becaus eof jumps)
+;;;Get elapsed time since the scheduler started (can be different form the clock time because of jumps)
 (defmethod get-elapsed-time ((self om-scheduler))
   (- (get-internal-real-time) (om-scheduler-start-time self)))
 
@@ -166,7 +166,8 @@ This kind of scheduler should be used to efficiently run tasks which won't be mo
 ;;;Execute an event from a scheduler queue
 (defmethod execute-scheduler-event ((self om-scheduler))
   (mp:with-lock ((om-scheduler-queue-lock self))
-    (funcall (or
-              (cadr (pop (om-scheduler-queue self)))
-              #'(lambda ())))))
+    (let* ((task (pop (om-scheduler-queue self)))
+           (fct (nth 1 task))
+           (data (nth 2 task)))
+      (if fct (if data (apply fct data) (funcall fct))))))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

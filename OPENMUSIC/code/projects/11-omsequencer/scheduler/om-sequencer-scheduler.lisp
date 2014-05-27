@@ -13,7 +13,9 @@ This list can be modified and it's access is locked while it's being read, so op
 Tasks are defined by the "om-task" structure :
    - "name" : a task name,
    - "id" : an unique ID, generally used to reschedule tasks,
-   - "event" : a lambda function representing the triggering of the task, typically this function needs to achieve it's goal instantly (no computations),
+   - "event" : a lambda function representing the triggering of the task, typically this function needs to achieve it's goal instantly (not much computations).
+               this function will be called with the task itself as an argument. So it needs 1 and only 1 argument.
+   - "data" : a list of additional data if needed,
    - "readyp" : if the task needs computations to be triggered, the boolean readyp must be filled to know if the computation is achieved,
    - "timestamp" : time at which the task needs to be triggered.
 |#
@@ -54,9 +56,9 @@ Tasks are defined by the "om-task" structure :
 (defstruct (om-task)
   (name "om-task" :type string)
   (id nil :type string)
-  (object nil)
   (event #'(lambda (self)) :type function)
-  ;(callback #'(lambda (self)) :type function)
+  (object nil)
+  (data nil)
   (readyp nil :type boolean)
   (timestamp 0 :type integer))
 

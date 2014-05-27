@@ -76,7 +76,6 @@ inspired by : http://software.intel.com/fr-fr/articles/Thread-pool
 
 (defun resume-thread-pool ()
   (setf (thread-pool-state *thread-pool*) :running))
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;Thread methods and functions
 (defmethod thread-exec ((self thread))
   (loop
@@ -85,7 +84,7 @@ inspired by : http://software.intel.com/fr-fr/articles/Thread-pool
      (setf (t-task-state (thread-task self)) :running)
      (setf (t-task-result (thread-task self))
            (if (t-task-data (thread-task self))
-               (funcall (t-task-routine (thread-task self)) (t-task-data (thread-task self)))
+               (apply (t-task-routine (thread-task self)) (t-task-data (thread-task self)))
              (funcall (t-task-routine (thread-task self)))))
      (if (t-task-callback (thread-task self)) (funcall (t-task-callback (thread-task self)) (thread-task self)))
      (setf (t-task-state (thread-task self)) :stop

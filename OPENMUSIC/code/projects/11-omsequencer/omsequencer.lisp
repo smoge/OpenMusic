@@ -17,6 +17,7 @@
 
 (sch::init-sequencer-scheduler)
 (sch::init-thread-pool 8)
+(evt::init-om-event-engine)
 
 
 #|
