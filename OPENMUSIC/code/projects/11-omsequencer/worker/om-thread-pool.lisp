@@ -11,8 +11,20 @@ inspired by : http://software.intel.com/fr-fr/articles/Thread-pool
 
 (in-package :sch)
 
+(export
+ '(;;;Structure
+   build-t-task
+
+   ;;;Tools
+   send-task-thread-pool-bottom
+   send-task-thread-pool-top
+
+   ;;;Variables
+   *thread-pool*) :sch)
+
 (defvar *thread-pool* nil)
 (defvar *thread-pool-queue* nil)
+(defvar *t-task-pool* nil)
 (defvar *optimum-worker-count* nil)
 
 (defconstant *max-worker-count* (expt 2 6))
@@ -22,7 +34,7 @@ inspired by : http://software.intel.com/fr-fr/articles/Thread-pool
 (defstruct (t-task)
   (name "t-task" :type string)
   (state :init)
-  (routine nil :type function)
+  (routine #'(lambda ()) :type function)
   (data nil)
   (result nil)
   (callback nil :type (or null function)))
@@ -54,7 +66,8 @@ inspired by : http://software.intel.com/fr-fr/articles/Thread-pool
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;Transport functions
 (defun init-thread-pool (&optional worker-count)
   (setq *thread-pool* (make-thread-pool)
-        *thread-pool-queue* (make-thread-pool-queue))
+        *thread-pool-queue* (make-thread-pool-queue)
+        *optimum-worker-count* (get-cpu-count))
   (setf (thread-pool-threads *thread-pool*) (loop for i from 1 to (or worker-count *default-worker-count*) collect
                                                   (let ((thread (make-thread)))
                                                     (setf (thread-process thread)
@@ -62,8 +75,9 @@ inspired by : http://software.intel.com/fr-fr/articles/Thread-pool
                                                            (format nil "OM-Worker ~d" i) nil
                                                            'thread-exec thread))
                                                     thread))
-        (thread-pool-count *thread-pool*) (or worker-count *min-worker-count*)
-        (thread-pool-dispatcher *thread-pool*) (mp:process-run-function "OM-Dispatcher" nil 'dispatch-work)))
+        (thread-pool-count *thread-pool*) (or worker-count *optimum-worker-count*)
+        (thread-pool-dispatcher *thread-pool*) (mp:process-run-function "OM-Dispatcher" nil 'dispatch-work))
+  (dotimes (i 20) (push (make-t-task) *t-task-pool*)))
 
 (defun abort-thread-pool ()
   (loop for thr in (thread-pool-threads *thread-pool*) do
@@ -87,6 +101,7 @@ inspired by : http://software.intel.com/fr-fr/articles/Thread-pool
                (apply (t-task-routine (thread-task self)) (t-task-data (thread-task self)))
              (funcall (t-task-routine (thread-task self)))))
      (if (t-task-callback (thread-task self)) (funcall (t-task-callback (thread-task self)) (thread-task self)))
+     (push (clean-t-task (thread-task self)) *t-task-pool*)
      (setf (t-task-state (thread-task self)) :stop
            (thread-task self) nil)
      (decf (thread-pool-init *thread-pool*)))
@@ -127,6 +142,23 @@ inspired by : http://software.intel.com/fr-fr/articles/Thread-pool
   (setf (thread-task self) task)
   (mp:process-poke (thread-process self)))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;User Tools
+(defun build-t-task (&key (name "t-task") routine data callback)
+  (let ((task (or (pop *t-task-pool*) (make-t-task))))
+    (setf (t-task-name self) name
+          (t-task-routine self) routine
+          (t-task-data self) data
+          (t-task-callback self) callback)
+    task))
+
+(defmethod clean-t-task ((self t-task))
+  (setf (t-task-name self) "t-task"
+        (t-task-state self) :init
+        (t-task-routine self) nil
+        (t-task-data self) nil
+        (t-task-result self) nil
+        (t-task-callback self) nil)
+  self)
+
 (defmethod send-task-thread-pool-top ((self t-task))
   (mp::with-lock ((thread-pool-queue-lock *thread-pool-queue*))
     (push self (thread-pool-queue-tasks *thread-pool-queue*)))

@@ -31,7 +31,8 @@ Tasks are defined by the "om-task" structure :
    get-om-sequencer-scheduler
 
    ;;;Task tools
-   make-om-task
+   build-om-task
+   release-om-task
    schedule-sequencer-task
    reschedule-sequencer-task
    generate-task-id
@@ -44,6 +45,7 @@ Tasks are defined by the "om-task" structure :
 (defvar *om-sequencer-scheduler* nil)
 (defvar *om-sequencer-queue* nil)
 (defvar *om-sequencer-alarm* nil)
+(defvar *om-task-pool* nil)
 
 (defconstant SCH_ASYNCHRONOUS 0)
 (defconstant SCH_SYNCHRONOUS 1)
@@ -64,11 +66,13 @@ Tasks are defined by the "om-task" structure :
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;Init and Abort
 (defun init-sequencer-scheduler ()
+  (when (not *om-task-pool*)
+    (setq *om-task-pool* (loop for i from 1 to 100 collect (make-om-task))))
   (when (not *om-sequencer-scheduler*)
-    (setq *om-sequencer-scheduler*
-          (make-om-sequencer-scheduler
-           :name "om-sequencer-scheduler"
-           :tick 0.001))))
+    (setq *om-sequencer-scheduler* (make-om-sequencer-scheduler
+                                    :name "om-sequencer-scheduler"
+                                    :tick 0.001))))
+
 
 (defun abort-sequencer-scheduler ()
   (when (typep (om-sequencer-scheduler-process *om-sequencer-scheduler*) 'mp::process)
@@ -212,6 +216,42 @@ Tasks are defined by the "om-task" structure :
 ;;;Remove a nth element of a list.
 (defun remove-nth (list n)
   (remove-if (constantly t) list :start n :end (1+ n)))
+
+;;;Get a new om-task : it looks if there is some free available structure, or it builds a new one.
+(defun build-om-task (&key (name "om-task") id (event #'(lambda (self))) object data (readyp t) (timestamp 0))
+  (let ((task (or (pop *om-task-pool*) (make-om-task))))
+    (setf (om-task-name task) name
+          (om-task-id task) id
+          (om-task-event task) event
+          (om-task-object task) object
+          (om-task-data task) data
+          (om-task-readyp task) readyp
+          (om-task-timestamp task) timestamp)
+    task))
+
+;;;Cleans a task structure
+(defmethod clean-om-task ((self om-task))
+  (setf (om-task-name task) "om-task"
+        (om-task-id task) nil
+        (om-task-event task) #'(lambda (self))
+        (om-task-object task) nil
+        (om-task-data task) nil
+        (om-task-readyp task) t
+        (om-task-timestamp task) 0)
+  self)
+
+;;;Release a task (ie. clean it and push it back in the pool)
+(defmethod release-om-task ((self om-task))
+  (push (clean-om-task self) *om-task-pool*))
+
+(defstruct (om-task)
+  (name "om-task" :type string)
+  (id nil :type string)
+  (event #'(lambda (self)) :type function)
+  (object nil)
+  (data nil)
+  (readyp t :type boolean)
+  (timestamp 0 :type integer))
 
 ;;;Schedule a task. According to it's timestamp, it pushes it int the right place of the queue.
 (defmethod schedule-sequencer-task ((self om-task))
