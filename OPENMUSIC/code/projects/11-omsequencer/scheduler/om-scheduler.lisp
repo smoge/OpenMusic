@@ -59,29 +59,32 @@ This kind of scheduler should be used to efficiently run tasks which won't be mo
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;Transport functions
 ;;;Start one scheduler. The optional time slot is used to synchronise multiple schedulers.
 (defmethod om-start-scheduler ((self om-scheduler) &optional time)
-  (hcl:avoid-gc)
-  (setf (om-scheduler-state self) :play
-        (om-scheduler-start-time self) (round (or time (get-internal-real-time)))
-        (om-scheduler-ref-time self) (om-scheduler-start-time self)
-        (om-scheduler-process self) (mp:process-run-function (format nil "~A process" (om-scheduler-name self)) nil 'check-scheduler-event self)))
+  (when (eq (om-scheduler-state self) :stop)
+    (hcl:avoid-gc)
+    (setf (om-scheduler-state self) :play
+          (om-scheduler-start-time self) (round (or time (get-internal-real-time)))
+          (om-scheduler-ref-time self) (om-scheduler-start-time self)
+          (om-scheduler-process self) (mp:process-run-function (format nil "~A process" (om-scheduler-name self)) nil 'check-scheduler-event self))))
 
 ;;;Pause one scheduler. The optional time slot is used to synchronise multiple schedulers.
 (defmethod om-pause-scheduler ((self om-scheduler) &optional time)
-  (setf (om-scheduler-pause-time self) (round (if time
-                                                  (+ (om-scheduler-offset self) (- time (om-scheduler-start-time self)))
-                                                (get-clock-time self)))
-        (om-scheduler-state self) :pause)
-  (hcl:normal-gc))
+  (when (eq (om-scheduler-state self) :play)
+    (setf (om-scheduler-pause-time self) (round (if time
+                                                    (+ (om-scheduler-offset self) (- time (om-scheduler-start-time self)))
+                                                  (get-clock-time self)))
+          (om-scheduler-state self) :pause)
+    (hcl:normal-gc)))
 
 ;;;Continue one scheduler. The optional time slot is used to synchronise multiple schedulers.
 (defmethod om-continue-scheduler ((self om-scheduler) &optional time)
-  (hcl:avoid-gc)
-  (setf (om-scheduler-state self) :play
-        (om-scheduler-ref-time self) (round (if time
+  (when (eq (om-scheduler-state self) :pause)  
+    (hcl:avoid-gc)
+    (setf (om-scheduler-state self) :play
+          (om-scheduler-ref-time self) (round (if time
                                                   (+ (om-scheduler-offset self) (- time (om-scheduler-pause-time self)))
                                                 (+ (om-scheduler-offset self) (- (get-internal-real-time) (om-scheduler-pause-time self)))))
-        (om-scheduler-start-time self) (- (get-internal-real-time) (+ (om-scheduler-pause-time self) (om-scheduler-ref-time self))))
-  (mp:process-unstop (om-scheduler-process self)))
+          (om-scheduler-start-time self) (- (get-internal-real-time) (+ (om-scheduler-pause-time self) (om-scheduler-ref-time self))))
+    (mp:process-unstop (om-scheduler-process self))))
 
 ;;;Stop one scheduler.
 (defmethod om-stop-scheduler ((self om-scheduler))
