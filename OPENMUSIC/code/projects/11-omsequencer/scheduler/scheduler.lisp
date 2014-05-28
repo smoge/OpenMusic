@@ -1,7 +1,7 @@
 #|
 Basic scheduler.
 
-A basic scheduler is defined by the "om-scheduler" structure :
+A basic scheduler is defined by the "scheduler" structure :
    - "name" : a name,
    - "start-time" : the time at which the scheduler started (absolute : from the get-internal-real-time function),
    - "pause-time" : the time at which the scheduler paused (relative : from get-internal-real-time - start-time),
@@ -26,25 +26,25 @@ This kind of scheduler should be used to efficiently run tasks which won't be mo
 
 (export 
  '(;;;Structure
-   make-om-scheduler
+   make-scheduler
 
    ;;;Transport
-   om-start-scheduler
-   om-start-multiple-scheduler
-   om-pause-scheduler
-   om-pause-multiple-scheduler
-   om-continue-scheduler
-   om-continue-multiple-scheduler
-   om-stop-scheduler
-   om-stop-multiple-scheduler
+   start-scheduler
+   start-multiple-scheduler
+   pause-scheduler
+   pause-multiple-scheduler
+   continue-scheduler
+   continue-multiple-scheduler
+   stop-scheduler
+   stop-multiple-scheduler
 
    ;;;Tools
    scheduler-auto-tick-setting
    get-clock-time
    change-scheduler-tick) :sch)
 
-(defstruct (om-scheduler)
-  (name "om-scheduler" :type string)
+(defstruct (scheduler)
+  (name "scheduler" :type string)
   (start-time 0 :type integer)
   (ref-time 0 :type integer)
   (pause-time 0 :type integer)
@@ -53,68 +53,68 @@ This kind of scheduler should be used to efficiently run tasks which won't be mo
   (process nil :type (or mp::process null))
   (state :stop :type symbol)
   (queue nil :type list)
-  (queue-lock (mp::make-lock :name "om-scheduler-lock") :type mp::lock))
+  (queue-lock (mp::make-lock :name "scheduler-lock") :type mp::lock))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;Transport functions
 ;;;Start one scheduler. The optional time slot is used to synchronise multiple schedulers.
-(defmethod om-start-scheduler ((self om-scheduler) &optional time)
-  (when (eq (om-scheduler-state self) :stop)
+(defmethod start-scheduler ((self scheduler) &optional time)
+  (when (eq (scheduler-state self) :stop)
     (hcl:avoid-gc)
-    (setf (om-scheduler-state self) :play
-          (om-scheduler-start-time self) (round (or time (get-internal-real-time)))
-          (om-scheduler-ref-time self) (om-scheduler-start-time self)
-          (om-scheduler-process self) (mp:process-run-function (format nil "~A process" (om-scheduler-name self)) nil 'check-scheduler-event self))))
+    (setf (scheduler-state self) :play
+          (scheduler-start-time self) (round (or time (get-internal-real-time)))
+          (scheduler-ref-time self) (scheduler-start-time self)
+          (scheduler-process self) (mp:process-run-function (format nil "~A process" (scheduler-name self)) nil 'check-scheduler-event self))))
 
 ;;;Pause one scheduler. The optional time slot is used to synchronise multiple schedulers.
-(defmethod om-pause-scheduler ((self om-scheduler) &optional time)
-  (when (eq (om-scheduler-state self) :play)
-    (setf (om-scheduler-pause-time self) (round (if time
-                                                    (+ (om-scheduler-offset self) (- time (om-scheduler-start-time self)))
+(defmethod pause-scheduler ((self scheduler) &optional time)
+  (when (eq (scheduler-state self) :play)
+    (setf (scheduler-pause-time self) (round (if time
+                                                    (+ (scheduler-offset self) (- time (scheduler-start-time self)))
                                                   (get-clock-time self)))
-          (om-scheduler-state self) :pause)
+          (scheduler-state self) :pause)
     (hcl:normal-gc)))
 
 ;;;Continue one scheduler. The optional time slot is used to synchronise multiple schedulers.
-(defmethod om-continue-scheduler ((self om-scheduler) &optional time)
-  (when (eq (om-scheduler-state self) :pause)  
+(defmethod continue-scheduler ((self scheduler) &optional time)
+  (when (eq (scheduler-state self) :pause)  
     (hcl:avoid-gc)
-    (setf (om-scheduler-state self) :play
-          (om-scheduler-ref-time self) (round (if time
-                                                  (+ (om-scheduler-offset self) (- time (om-scheduler-pause-time self)))
-                                                (+ (om-scheduler-offset self) (- (get-internal-real-time) (om-scheduler-pause-time self)))))
-          (om-scheduler-start-time self) (- (get-internal-real-time) (+ (om-scheduler-pause-time self) (om-scheduler-ref-time self))))
-    (mp:process-unstop (om-scheduler-process self))))
+    (setf (scheduler-state self) :play
+          (scheduler-ref-time self) (round (if time
+                                                  (+ (scheduler-offset self) (- time (scheduler-pause-time self)))
+                                                (+ (scheduler-offset self) (- (get-internal-real-time) (scheduler-pause-time self)))))
+          (scheduler-start-time self) (- (get-internal-real-time) (+ (scheduler-pause-time self) (scheduler-ref-time self))))
+    (mp:process-unstop (scheduler-process self))))
 
 ;;;Stop one scheduler.
-(defmethod om-stop-scheduler ((self om-scheduler))
-  (setf (om-scheduler-state self) :stop)
-  (when (om-scheduler-process self)
-    (mp:process-kill (om-scheduler-process self)))
+(defmethod stop-scheduler ((self scheduler))
+  (setf (scheduler-state self) :stop)
+  (when (scheduler-process self)
+    (mp:process-kill (scheduler-process self)))
   (hcl:normal-gc))
 
 ;;;Start multiple schedulers simultaneously.
-(defmethod om-start-multiple-scheduler ((self list))
+(defmethod start-multiple-scheduler ((self list))
   (let ((time (get-internal-real-time)))
     (loop for scheduler in self do
-          (om-start-scheduler scheduler time))))
+          (start-scheduler scheduler time))))
 
 ;;;Pause multiple schedulers simultaneously.
-(defmethod om-pause-multiple-scheduler ((self list))
+(defmethod pause-multiple-scheduler ((self list))
   (let ((time (get-internal-real-time)))
     (loop for scheduler in self do
-          (om-pause-scheduler scheduler time))))
+          (pause-scheduler scheduler time))))
 
 ;;;Continue multiple schedulers simultaneously.
-(defmethod om-continue-multiple-scheduler ((self list))
+(defmethod continue-multiple-scheduler ((self list))
   (let ((time (get-internal-real-time)))
     (loop for scheduler in self do
-          (om-pause-scheduler scheduler time))))
+          (pause-scheduler scheduler time))))
 
 ;;;Stop multiple schedulers simultaneously.
-(defmethod om-stop-multiple-scheduler ((self list))
+(defmethod stop-multiple-scheduler ((self list))
   (loop for scheduler in self do
-        (om-stop-scheduler scheduler)))
+        (stop-scheduler scheduler)))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
@@ -127,49 +127,49 @@ This kind of scheduler should be used to efficiently run tasks which won't be mo
     res))
 
 ;;;Auto-set a scheduler tick according to it's queue (taking the GCD of the timestamps).
-(defmethod scheduler-auto-tick-setting ((self om-scheduler))
-  (if (om-scheduler-queue self)
-      (setf (om-scheduler-tick self)
+(defmethod scheduler-auto-tick-setting ((self scheduler))
+  (if (scheduler-queue self)
+      (setf (scheduler-tick self)
             (/ (let (timelist)
-                 (setq timelist (loop for evt in (om-scheduler-queue self) collect (car evt)))
+                 (setq timelist (loop for evt in (scheduler-queue self) collect (car evt)))
                  (gcdlist timelist)) 1000.0))
     (print "The scheduler-auto-tick-setting can't work with an empty queue.")))
 
 ;;;Get the current time of a scheduler
-(defmethod get-clock-time ((self om-scheduler))
-  (cond ((eq (om-scheduler-state self) :pause)
-         (om-scheduler-pause-time self))
-        ((eq (om-scheduler-state self) :stop) 0)
+(defmethod get-clock-time ((self scheduler))
+  (cond ((eq (scheduler-state self) :pause)
+         (scheduler-pause-time self))
+        ((eq (scheduler-state self) :stop) 0)
         (t
-         (+ (om-scheduler-offset self) (- (get-internal-real-time) (om-scheduler-ref-time self))))))
+         (+ (scheduler-offset self) (- (get-internal-real-time) (scheduler-ref-time self))))))
 
 ;;;Get elapsed time since the scheduler started (can be different form the clock time because of jumps)
-(defmethod get-elapsed-time ((self om-scheduler))
-  (- (get-internal-real-time) (om-scheduler-start-time self)))
+(defmethod get-elapsed-time ((self scheduler))
+  (- (get-internal-real-time) (scheduler-start-time self)))
 
 ;;;Change a scheduler tick.
-(defmethod change-scheduler-tick ((self om-scheduler) tick-s)
-  (setf (om-scheduler-tick self) (coerce (max tick-s 0.001) 'single-float))
-  (mp:process-stop (om-scheduler-process self))
-  (mp:process-unstop (om-scheduler-process self)))
+(defmethod change-scheduler-tick ((self scheduler) tick-s)
+  (setf (scheduler-tick self) (coerce (max tick-s 0.001) 'single-float))
+  (mp:process-stop (scheduler-process self))
+  (mp:process-unstop (scheduler-process self)))
 
 ;;;Check if the next event of a scheduler queue needs to be played. If queue is empty, stop the scheduler.
 ;;;If the scheduler state was set to pause, pause the process.
-(defmethod check-scheduler-event ((self om-scheduler))
+(defmethod check-scheduler-event ((self scheduler))
   (loop
-   (loop while (and (om-scheduler-queue self) 
-                    (<= (caar (om-scheduler-queue self))
+   (loop while (and (scheduler-queue self) 
+                    (<= (caar (scheduler-queue self))
                         (get-clock-time self)))
          do
          (execute-scheduler-event self))
-   (when (not (om-scheduler-queue self)) (om-stop-scheduler self))
-   (when (eq (om-scheduler-state self) :pause) (mp:process-stop (om-scheduler-process self)))
-   (mp:process-wait-with-timeout (format nil "Sleeping for ~As" (om-scheduler-tick self)) (om-scheduler-tick self))))
+   (when (not (scheduler-queue self)) (stop-scheduler self))
+   (when (eq (scheduler-state self) :pause) (mp:process-stop (scheduler-process self)))
+   (mp:process-wait-with-timeout (format nil "Sleeping for ~As" (scheduler-tick self)) (scheduler-tick self))))
 
 ;;;Execute an event from a scheduler queue
-(defmethod execute-scheduler-event ((self om-scheduler))
-  (mp:with-lock ((om-scheduler-queue-lock self))
-    (let* ((task (pop (om-scheduler-queue self)))
+(defmethod execute-scheduler-event ((self scheduler))
+  (mp:with-lock ((scheduler-queue-lock self))
+    (let* ((task (pop (scheduler-queue self)))
            (fct (nth 1 task))
            (data (nth 2 task)))
       (if fct (if data (apply fct data) (funcall fct))))))

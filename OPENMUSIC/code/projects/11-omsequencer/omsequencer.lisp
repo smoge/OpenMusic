@@ -3,8 +3,8 @@
 (defvar *omsequencer-files* nil)
 
 (setf *omsequencer-files* 
-      '("scheduler;om-scheduler"
-        "scheduler;om-sequencer-scheduler"
+      '("scheduler;scheduler"
+        "scheduler;sequencer-scheduler"
         "worker;om-thread-pool"
         "worker;om-event-engine"
         ;"maquettelink;sch-maquette_link-patch"
