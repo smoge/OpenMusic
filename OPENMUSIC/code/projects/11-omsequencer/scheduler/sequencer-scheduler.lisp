@@ -52,7 +52,7 @@ Tasks are defined by the "sch-task" structure :
 
 (defvar *sequencer-scheduler-type* SCH_SYNCHRONOUS)
 
-(defstruct (sequencer-scheduler (:include om-scheduler))
+(defstruct (sequencer-scheduler (:include scheduler))
   (queue-position 0 :type integer))
 
 (defstruct (sch-task)

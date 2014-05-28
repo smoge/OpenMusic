@@ -5,8 +5,8 @@
 (setf *omsequencer-files* 
       '("scheduler;scheduler"
         "scheduler;sequencer-scheduler"
-        "worker;om-thread-pool"
-        "worker;om-event-engine"
+        "worker;thread-pool"
+        "worker;event-engine"
         ;"maquettelink;sch-maquette_link-patch"
         ))
 
@@ -17,4 +17,4 @@
 
 (sch::init-sequencer-scheduler)
 (sch::init-thread-pool 8)
-(evt::init-om-event-engine)
+(evt::init-event-engine)

@@ -72,11 +72,11 @@ inspired by : http://software.intel.com/fr-fr/articles/Thread-pool
                                                   (let ((thread (make-thread)))
                                                     (setf (thread-process thread)
                                                           (mp:process-run-function
-                                                           (format nil "OM-Worker ~d" i) nil
+                                                           (format nil "TP-Worker ~d" i) nil
                                                            'thread-exec thread))
                                                     thread))
         (thread-pool-count *thread-pool*) (or worker-count *optimum-worker-count*)
-        (thread-pool-dispatcher *thread-pool*) (mp:process-run-function "OM-Dispatcher" nil 'dispatch-work))
+        (thread-pool-dispatcher *thread-pool*) (mp:process-run-function "TP-Dispatcher" nil 'dispatch-work))
   (dotimes (i 20) (push (make-t-task) *t-task-pool*)))
 
 (defun abort-thread-pool ()
@@ -130,7 +130,7 @@ inspired by : http://software.intel.com/fr-fr/articles/Thread-pool
   (let ((thread (make-thread)))
     (setf (thread-process thread)
           (mp:process-run-function
-           (format nil "OM-Worker ~d" (1+ (length (thread-pool-threads *thread-pool*)))) nil
+           (format nil "TP-Worker ~d" (1+ (length (thread-pool-threads *thread-pool*)))) nil
            'thread-exec thread))
     (push thread (nthcdr (length (thread-pool-threads *thread-pool*)) (thread-pool-threads *thread-pool*)))
     (incf (thread-pool-count *thread-pool*))))
@@ -203,7 +203,7 @@ inspired by : http://software.intel.com/fr-fr/articles/Thread-pool
             (set-children-callbacks self child)))))
 
 (defmethod compute-tree ((self t-tree))
-  (setf (t-tree-dispatcher self) (mp:process-run-function "OM-Task-tree-Dispatcher" nil 'dispatch-tree self)))
+  (setf (t-tree-dispatcher self) (mp:process-run-function "TP-tree-Dispatcher" nil 'dispatch-tree self)))
 
 (defmethod dispatch-tree ((self t-tree))
   (let ((max (reduce #'max (mapcar #'length (t-tree-packs self)))))
