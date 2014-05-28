@@ -1,9 +1,9 @@
 #|
 Sequencer scheduler.
 
-This scheduler structure is a child of the "om-scheduler" structure, with 1 more slots : 
+This scheduler structure is a child of the "scheduler" structure, with 1 more slots : 
    - "queue-position" : an integer which represents the current position in the *sequencer-queue*.
-The om-sequencer-scheduler process can be asynchronous or synchronous, when the om-scheduler process is always synchronous.
+The sequencer-scheduler process can be asynchronous or synchronous, when the scheduler process is always synchronous.
 To change the process behaviour, set the global variable *sequencer-scheduler-type* to the constant SCH_SYNCHRONOUS or SCH_ASYNCHRONOUS (default is SCH_SYNCHRONOUS).
 The change will take effect at the next start.
 
@@ -26,9 +26,6 @@ Tasks are defined by the "sch-task" structure :
  '(;;;Structure
    init-sequencer-scheduler
    abort-sequencer-scheduler
-
-   ;;;Tools
-   get-om-sequencer-scheduler
 
    ;;;Task tools
    build-sch-task
@@ -84,7 +81,7 @@ Tasks are defined by the "sch-task" structure :
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;Transport functions
 ;;;Start a sequencer scheduler with the type set by *sequencer-scheduler-type* (synchronous or asynchronous).
 ;;;The optional time slot is used to synchronise multiple schedulers.
-(defmethod om-start-scheduler ((self sequencer-scheduler) &optional time)
+(defmethod start-scheduler ((self sequencer-scheduler) &optional time)
   (when (or (not (sequencer-scheduler-process self)) (eq (mp:process-state (sequencer-scheduler-process self)) :killed))
     (hcl:avoid-gc)
     (if (setf (sequencer-scheduler-state self) :play
@@ -100,30 +97,26 @@ Tasks are defined by the "sch-task" structure :
         "Sequencer play...")))
 
 ;;;Pause a sequencer scheduler. The optional time slot is used to synchronise multiple schedulers.
-(defmethod om-pause-scheduler ((self sequencer-scheduler) &optional time)
+(defmethod pause-scheduler ((self sequencer-scheduler) &optional time)
   (if (call-next-method) "Sequencer pause..."))
 
 ;;;Continue a sequencer scheduler. The optional time slot is used to synchronise multiple schedulers.
-(defmethod om-continue-scheduler ((self sequencer-scheduler) &optional time)
+(defmethod continue-scheduler ((self sequencer-scheduler) &optional time)
   (if (call-next-method) "Sequencer continue..."))
 
 ;;;Stop a sequencer scheduler and set it's queue position to 0.
-(defmethod om-stop-scheduler ((self sequencer-scheduler))
+(defmethod stop-scheduler ((self sequencer-scheduler))
   (setf (sequencer-scheduler-queue-position *sequencer-scheduler*) 0)
   (if (call-next-method) "Sequencer stop..."))
 
 ;;;Jump to a specific timed location
-(defmethod om-jump-scheduler ((self sequencer-scheduler) time)
+(defmethod jump-scheduler ((self sequencer-scheduler) time)
   (setf (sequencer-scheduler-ref-time self) (- (get-internal-real-time) time))
   (restore-main-scheduler-cursor))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;Scheduler Tools
-;;;Get the *sequencer-scheduler* instance
-(defun get-sequencer-scheduler ()
-  *sequencer-scheduler*)
-
 ;;;Get the current time of a scheduler.
 (defmethod get-clock-time ((self sequencer-scheduler))
   (call-next-method))
@@ -146,10 +139,10 @@ Tasks are defined by the "sch-task" structure :
        1000)))
 
 (defmethod change-scheduler-tick ((self sequencer-scheduler) tick-s)
-  (setf (om-scheduler-tick self) (coerce (max tick-s 0.001) 'single-float))
+  (setf (scheduler-tick self) (coerce (max tick-s 0.001) 'single-float))
   (when (= *sequencer-scheduler-type* SCH_SYNCHRONOUS)
-    (mp:process-stop (om-scheduler-process self))
-    (mp:process-unstop (om-scheduler-process self))))
+    (mp:process-stop (scheduler-process self))
+    (mp:process-unstop (scheduler-process self))))
 
 ;;;Restore the queue position after modifying the queue. 
 ;;;If asynchronous, wake up the sleeping process so it sleeps again with an updated alarm clock.
@@ -173,7 +166,7 @@ Tasks are defined by the "sch-task" structure :
  ;        do
  ;        (execute-task-event))
    ;(when (>= (sequencer-scheduler-queue-position *sequencer-scheduler*) (length *sequencer-queue*))
-   ;  (om-stop-scheduler *sequencer-scheduler*))
+   ;  (stop-scheduler *sequencer-scheduler*))
    (when (eq (sequencer-scheduler-state *sequencer-scheduler*) :pause) 
      (mp:process-stop (sequencer-scheduler-process *sequencer-scheduler*)))
    (mp:process-wait-with-timeout (format nil "Sleeping for ~As" (sequencer-scheduler-tick *sequencer-scheduler*))     
@@ -198,7 +191,7 @@ Tasks are defined by the "sch-task" structure :
       (when (and task (sch-task-readyp task)) 
         (funcall (sch-task-event task) task))))
   ;(when (>= (incf (sequencer-scheduler-queue-position *sequencer-scheduler*)) (length *sequencer-queue*))
-  ;  (om-stop-scheduler *sequencer-scheduler*))
+  ;  (stop-scheduler *sequencer-scheduler*))
   ;(incf (sequencer-scheduler-queue-position *sequencer-scheduler*))
   (restore-main-scheduler-cursor) ;;;pas top
   )
@@ -220,7 +213,7 @@ Tasks are defined by the "sch-task" structure :
 (defun build-sch-task (&key (name "sch-task") id (event #'(lambda (self))) object data (readyp t) (timestamp 0))
   (let ((task (or (pop *sch-task-pool*) (make-sch-task))))
     (setf (sch-task-name task) name
-          (sch-task-id task) id
+          (sch-task-id task) (or id (generate-task-id))
           (sch-task-event task) event
           (sch-task-object task) object
           (sch-task-data task) data

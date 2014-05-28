@@ -4,7 +4,9 @@
 
 (setf *omsequencer-files* 
       '("scheduler;scheduler"
+        "scheduler;scheduler-api"
         "scheduler;sequencer-scheduler"
+        "scheduler;sequencer-scheduler-api"
         "worker;thread-pool"
         "worker;event-engine"
         ;"maquettelink;sch-maquette_link-patch"

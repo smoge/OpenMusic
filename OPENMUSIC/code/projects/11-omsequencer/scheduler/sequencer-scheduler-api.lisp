@@ -1,0 +1,68 @@
+(in-package :om)
+
+
+(defun om-init-sequencer-scheduler ()
+  (sch:init-sequencer-scheduler))
+(defun om-abort-sequencer-scheduler ()
+  (sch:abort-sequencer-scheduler))
+
+(defun om-get-sequencer-scheduler ()
+  sch:*sequencer-scheduler*)
+(defun om-get-sequencer-scheduler-type ()
+  sch:*sequencer-scheduler-type*)
+(defun om-get-sequencer-scheduler-queue ()
+  sch:*sequencer-queue*)
+(defmethod om-get-sequencer-scheduler-queue-position ((self sch::sequencer-scheduler))
+  (sch::sequencer-scheduler-queue-position self))
+
+
+(defun om-build-sequencer-task (&key name id event object data (readyp t) timestamp)
+  (sch:build-sch-task :name name :id id :event event :object object :data data :readyp readyp :timestamp timestamp))
+
+(defmethod om-release-sequencer-task ((self sch::sch-task))
+  (sch:release-sch-task self))
+
+(defmethod om-schedule-sequencer-task ((self sch::sch-task))
+  (sch:schedule-sch-task self))
+(defmethod om-reschedule-sequencer-task ((self sch::sch-task) new-time)
+  (sch:reschedule-sch-task self new-time))
+
+
+
+
+(defmethod om-get-sequencer-task-name ((self sch::sch-task))
+  (sch::sch-task-name self))
+(defmethod om-set-sequencer-task-name ((self sch::sch-task) name)
+  (setf (sch::sch-task-name self) name))
+
+(defmethod om-get-sequencer-task-id ((self sch::sch-task))
+  (sch::sch-task-id self))
+(defmethod om-set-sequencer-task-id ((self sch::sch-task) id)
+  (setf (sch::sch-task-id self) id))
+
+(defmethod om-get-sequencer-task-fun ((self sch::sch-task))
+  (sch::sch-task-event self))
+(defmethod om-set-sequencer-task-fun ((self sch::sch-task) fun)
+  (setf (sch::sch-task-event self) fun))
+
+(defmethod om-get-sequencer-task-obj ((self sch::sch-task))
+  (sch::sch-task-object self))
+(defmethod om-set-sequencer-task-obj ((self sch::sch-task) object)
+  (setf (sch::sch-task-object self) object))
+
+(defmethod om-get-sequencer-task-data ((self sch::sch-task))
+  (sch::sch-task-data self))
+(defmethod om-set-sequencer-task-data ((self sch::sch-task) data)
+  (setf (sch::sch-task-data self) data))
+
+(defmethod om-get-sequencer-task-timestamp ((self sch::sch-task))
+  (sch::sch-task-timestamp self))
+(defmethod om-set-sequencer-task-timestamp ((self sch::sch-task) timestamp)
+  (setf (sch::sch-task-timestamp self) timestamp))
+
+(defmethod om-sequencer-task-readyp ((self sch::sch-task))
+  (sch::sch-task-readyp self))
+(defmethod om-sequencer-task-ready ((self sch::sch-task))
+  (setf (sch::sch-task-readyp self) t))
+(defmethod om-sequencer-task-not-ready ((self sch::sch-task))
+  (setf (sch::sch-task-readyp self) nil))
