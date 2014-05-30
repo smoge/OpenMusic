@@ -18,6 +18,8 @@ Tasks are defined by the "sch-task" structure :
    - "data" : a list of additional data if needed,
    - "readyp" : if the task needs computations to be triggered, the boolean readyp must be filled to know if the computation is achieved,
    - "timestamp" : time at which the task needs to be triggered.
+
+Author : D.Bouche
 |#
 
 (in-package :sch)

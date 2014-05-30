@@ -15,6 +15,11 @@ inspired by : http://software.intel.com/fr-fr/articles/Thread-pool
  '(;;;Structure
    build-t-task
 
+   init-thread-pool
+   abort-thread-pool
+   pause-thread-pool
+   resume-thread-pool
+
    ;;;Tools
    send-task-thread-pool-bottom
    send-task-thread-pool-top
@@ -34,7 +39,7 @@ inspired by : http://software.intel.com/fr-fr/articles/Thread-pool
 (defstruct (t-task)
   (name "t-task" :type string)
   (state :init)
-  (routine #'(lambda ()) :type function)
+  (routine #'(lambda ()) :type (or null function))
   (data nil)
   (result nil)
   (callback nil :type (or null function)))
@@ -100,7 +105,7 @@ inspired by : http://software.intel.com/fr-fr/articles/Thread-pool
            (if (t-task-data (thread-task self))
                (apply (t-task-routine (thread-task self)) (t-task-data (thread-task self)))
              (funcall (t-task-routine (thread-task self)))))
-     (if (t-task-callback (thread-task self)) (funcall (t-task-callback (thread-task self)) (thread-task self)))
+     (if (t-task-callback (thread-task self)) (funcall (t-task-callback (thread-task self)) (t-task-result (thread-task self))))
      (push (clean-t-task (thread-task self)) *t-task-pool*)
      (setf (t-task-state (thread-task self)) :stop
            (thread-task self) nil)
@@ -144,10 +149,10 @@ inspired by : http://software.intel.com/fr-fr/articles/Thread-pool
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;User Tools
 (defun build-t-task (&key (name "t-task") routine data callback)
   (let ((task (or (pop *t-task-pool*) (make-t-task))))
-    (setf (t-task-name self) name
-          (t-task-routine self) routine
-          (t-task-data self) data
-          (t-task-callback self) callback)
+    (setf (t-task-name task) name
+          (t-task-routine task) routine
+          (t-task-data task) data
+          (t-task-callback task) callback)
     task))
 
 (defmethod clean-t-task ((self t-task))

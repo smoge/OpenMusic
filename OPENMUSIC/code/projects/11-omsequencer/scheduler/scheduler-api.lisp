@@ -1,8 +1,16 @@
+#|
+Scheduler API (cf. scheduler.lisp)
+
+Author : D.Bouche
+Ircam (C) 2014
+|#
+
+
 (in-package :om)
 
 ;;;=============================================================================================Scheduler Structure
 (defun om-make-scheduler (&key (name "scheduler") (offset 0) (tick 0.01) queue)
-  (sch:make-scheduler :name name :offset offset :tick (coerce (max tick 0.001) 'single-float)))
+  (sch:make-scheduler :name name :offset offset :tick (coerce (max tick 0.001) 'single-float) :queue queue))
 
 (defmethod om-get-scheduler-name ((self sch::scheduler))
   (sch::scheduler-name self))
@@ -17,7 +25,7 @@
 (defmethod om-get-scheduler-tick ((self sch::scheduler))
   (sch::scheduler-tick self))
 (defmethod om-set-scheduler-tick ((self sch::scheduler) tick)
-  (setf (sch::scheduler-tick self) tick))
+  (sch:change-scheduler-tick tick))
 
 (defmethod om-get-scheduler-queue ((self sch::scheduler))
   (sch::scheduler-queue self))

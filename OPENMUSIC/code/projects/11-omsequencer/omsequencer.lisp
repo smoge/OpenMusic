@@ -8,7 +8,9 @@
         "scheduler;sequencer-scheduler"
         "scheduler;sequencer-scheduler-api"
         "worker;thread-pool"
+        "worker;thread-pool-api"
         "worker;event-engine"
+        "worker;event-engine-api"
         ;"maquettelink;sch-maquette_link-patch"
         ))
 
@@ -17,6 +19,6 @@
             (compile&load (namestring (make-local-path *load-pathname* filename)))) 
         *omsequencer-files*))
 
-(sch::init-sequencer-scheduler)
-(sch::init-thread-pool 8)
-(evt::init-event-engine)
+(om-init-sequencer-scheduler)
+(om-init-thread-pool 8)
+(om-init-event-engine)
