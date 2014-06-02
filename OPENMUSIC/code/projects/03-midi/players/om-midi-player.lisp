@@ -23,7 +23,7 @@
                 (if (caller player) (get-edit-param (caller player) 'outport)))))
     ;(print params)
     (if (equal port :default) (setf port *def-midi-out*))
-    (mapcar #'(lambda (evt) 
+    (mapcar #'(lambda (evt)
               ;  (call-next-method engine player evt (+ (or (car interval) 0) (om-midi::midi-evt-date evt)) interval params)
                 (schedule-task player 
                                #'(lambda () 

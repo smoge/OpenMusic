@@ -18,7 +18,9 @@ Ircam (C) 2014
   sch:*sequencer-scheduler*)
 
 (defun om-get-sequencer-scheduler-type ()
-  sch:*sequencer-scheduler-type*)
+  (if (eq sch:*sequencer-scheduler-type* sch::sch_synchronous)
+      (values sch::sch_synchronous :synchronous)
+    (values sch::sch_asynchronous :asynchronous)))
 (defun om-set-sequencer-scheduler-type (type)
   (if (eq type :synchronous) 
       (setq sch:*sequencer-scheduler-type* sch::sch_synchronous) 
@@ -34,7 +36,13 @@ Ircam (C) 2014
 
 ;;;=============================================================================================Sequencer Task Structure
 (defun om-build-sequencer-task (&key name id event object data (readyp t) timestamp)
-  (sch:build-sch-task :name name :id id :event event :object object :data data :readyp readyp :timestamp timestamp))
+  (sch:build-sch-task :name (or name "sch-task") 
+                      :id (or id (sch:generate-task-id)) 
+                      :event (or event #'(lambda (self))) 
+                      :object object 
+                      :data data 
+                      :readyp readyp 
+                      :timestamp (or timestamp 0)))
 
 (defmethod om-release-sequencer-task ((self sch::sch-task))
   (sch:release-sch-task self))

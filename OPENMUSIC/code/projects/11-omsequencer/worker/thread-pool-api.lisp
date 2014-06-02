@@ -61,19 +61,22 @@ Ircam (C) 2014
 
 (defmacro om-build-t-task-callback (&body body)
   "Builds a callback to be called after a task execution. Use the 'self' variable name to use the result of the task in your callback" 
-  `#'(lambda (self) ,@body))
+  `#'(lambda (result) ,@body))
 
 ;;;=============================================================================================Thread Pool Entry Points
 (defmethod om-send-t-task-bottom ((self sch::t-task))
   (sch:send-task-thread-pool-bottom self))
+(defmethod om-send-t-task-bottom ((self (eql :error)))
+  (om-message-abort "Error : The task you submitted is invalid."))
 
 (defmethod om-send-t-task-top ((self sch::t-task))
   (sch:send-task-thread-pool-top self))
+(defmethod om-send-t-task-top ((self (eql :error)))
+  (om-message-abort "Error : The task you submitted is invalid."))
 
-(defmacro om-with-thread-pool (&optional callback &body body)
-  "Sends the body to the thread pool. The callback must be a lambda function produced by om-build-t-task-callback : it we be called after body execution."
-  `(om-send-t-task-bottom 
-    (om-build-t-task 
-     :routine #'(lambda () ,@body)
-     :callback ,callback)))
-
+(defmethod om-with-thread-pool ((routine function) (data list) (callback function) &optional (asap nil))
+  "The 'routine' function is called with the 'data' list, so the number of arguments of 'routine' must be equal to the length of 'data'.
+The 'callback' function will be called after 'routine' execution and must be a 1 arg function. Use the result of 'routine' in 'callback' with the variable name 'result'."
+  (if asap
+      (om-send-t-task-top (om-build-t-task :routine routine :data data :callback callback))
+    (om-send-t-task-bottom (om-build-t-task :routine routine :data data :callback callback))))

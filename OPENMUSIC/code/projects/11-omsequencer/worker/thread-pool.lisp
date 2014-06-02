@@ -88,7 +88,8 @@ inspired by : http://software.intel.com/fr-fr/articles/Thread-pool
   (loop for thr in (thread-pool-threads *thread-pool*) do
         (mp:process-kill (thread-process thr)))
   (mp:process-kill (thread-pool-dispatcher *thread-pool*))
-  (setq *thread-pool* nil))
+  (setq *thread-pool* nil
+        *t-task-pool* nil))
 
 (defun pause-thread-pool ()
   (setf (thread-pool-state *thread-pool*) :pause))
@@ -148,12 +149,14 @@ inspired by : http://software.intel.com/fr-fr/articles/Thread-pool
   (mp:process-poke (thread-process self)))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;User Tools
 (defun build-t-task (&key (name "t-task") routine data callback)
-  (let ((task (or (pop *t-task-pool*) (make-t-task))))
-    (setf (t-task-name task) name
-          (t-task-routine task) routine
-          (t-task-data task) data
-          (t-task-callback task) callback)
-    task))
+  (if (and (= (length data) (length (cadr (function-lambda-expression routine)))) (= (length (cadr (function-lambda-expression callback))) 1))
+      (let ((task (or (pop *t-task-pool*) (make-t-task))))
+        (setf (t-task-name task) name
+              (t-task-routine task) routine
+              (t-task-data task) data
+              (t-task-callback task) callback)
+        task)
+    :error))
 
 (defmethod clean-t-task ((self t-task))
   (setf (t-task-name self) "t-task"

@@ -133,7 +133,8 @@ This kind of scheduler should be used to efficiently run tasks which won't be mo
             (/ (let (timelist)
                  (setq timelist (loop for evt in (scheduler-queue self) collect (car evt)))
                  (gcdlist timelist)) 1000.0))
-    (print "The scheduler-auto-tick-setting can't work with an empty queue.")))
+    (print "The scheduler-auto-tick-setting can't work with an empty queue."))
+  self)
 
 ;;;Get the current time of a scheduler
 (defmethod get-clock-time ((self scheduler))
