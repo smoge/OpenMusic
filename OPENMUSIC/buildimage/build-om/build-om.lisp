@@ -255,6 +255,7 @@
 (load-om-projects '("09-harmonicproject"))
 (load-om-projects '("10-sheet"))
 (load-om-projects '("11-omsequencer"))
+(load "/Users/bouche/Documents/OpenMusic/OM/OPENMUSIC/code/projects/12-omnika/ImproteK\&co/improtek/sources/LoadImprotek.lisp")
 
 
 
