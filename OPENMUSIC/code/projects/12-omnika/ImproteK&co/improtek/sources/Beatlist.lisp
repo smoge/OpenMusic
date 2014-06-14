@@ -370,28 +370,28 @@
 ;by M.C.
 ;WARNING: for older versions with "multiple beats" -> if label has a 3rd element, it MUST be the duration in number of beats
 (defun beats->chseq (beatlist refbeatvalue deltachords)
-   (let (chords beatvalue
-         lonset 
+  (let (chords beatvalue
+               lonset 
          ;last-note 
-         (beats (loop for beat in beatlist
-                      for eventlist = (MidiSet beat)
-                      for label = (HarmLabel beat)
-                      for onset = 0 then (+ onset beatvalue)
-                      do (setf beatvalue              ; beatvalue of previous beat for shifting onset 
-                               (if (and (listp label) (third label)) (* refbeatvalue (third label)) 
-                                   refbeatvalue))    ;if label does not contain informations on the number of beats,
+               (beats (loop for beat in beatlist
+                            for eventlist = (MidiSet beat)
+                            for label = (HarmLabel beat)
+                            for onset = 0 then (+ onset beatvalue)
+                            do (setf beatvalue              ; beatvalue of previous beat for shifting onset 
+                                     (if (and (listp label) (third label)) (* refbeatvalue (third label)) 
+                                       refbeatvalue))    ;if label does not contain informations on the number of beats,
                                                      ;the chords has the same duration as refbeatvalue
-                      ;;;;;;do (format *om-stream* "~a ~a~%" (HarmLabel beat) beatvalue)
-                      append (loop for event in eventlist
-                                   collect (list (first event) (+ onset (second event)) (third event) (fourth event) 
+                            ;;;;;;do (format *om-stream* "~a ~a~%" (HarmLabel beat) beatvalue)
+                            append (loop for event in eventlist
+                                         collect (list (first event) (+ onset (second event)) (third event) (fourth event) 
                                                  ;(1+ 
-                                                  (fifth event)      ;)
-                                                 )))))
-     (setf chords (make-quanti-chords beats deltachords)
-         lonset (mapcar 'offset chords))
+                                                       (fifth event)      ;)
+                                                       )))))
+    (setf chords (make-quanti-chords beats deltachords)
+          lonset (mapcar 'offset chords))
     (make-instance 'chord-seq
-      :lmidic chords
-      :lonset lonset )))
+                   :lmidic chords
+                   :lonset lonset )))
 
 
 (defun beats->5list (beatlist beatvalue deltachords)
