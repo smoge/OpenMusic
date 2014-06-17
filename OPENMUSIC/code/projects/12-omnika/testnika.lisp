@@ -103,13 +103,14 @@ But :
                            #'(lambda (chseq handler) (play-chord-seq chseq) (incf (play-pos handler)))
                            (list (beats->chseq (list elem) (beat-dur self) 0) self))))))))
 
+#|
 (progn 
   (setq *test-impro-handler* (build-impro-handler :name "TestNika" :scenario *scenario* :db-path *database-path* :beat-dur 330))
   (play-impro-handler *test-impro-handler*))
 ;(stop-impro-handler *test-impro-handler*)
 
 ;(car (last (sch::scheduler-queue (player-scheduler *test-impro-handler*))))
-
+|#
 
 
 
