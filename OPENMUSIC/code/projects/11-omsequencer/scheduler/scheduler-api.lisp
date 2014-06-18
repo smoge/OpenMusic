@@ -34,6 +34,9 @@ Ircam (C) 2014
 (defmethod om-set-scheduler-queue ((self sch::scheduler) queue)
   (setf (sch::scheduler-queue self) queue))
 
+(defmethod om-get-scheduler-lock ((self sch::scheduler))
+  (sch::scheduler-queue-lock self))
+
 (defmethod om-get-scheduler-state ((self sch::scheduler))
   (sch::scheduler-state self))
 ;;;=============================================================================================Transport functions for a single scheduler
