@@ -99,14 +99,10 @@
 
       (when (eq self *test-solo-handler*)
           (setq tmpchseq (beats->chseq (beat-list self) (beat-dur self) 0))
-          (setf (lmidic *display-chord-seq*) (lmidic tmpchseq)
-                (lonset *display-chord-seq*) (nthcar (length (lmidic tmpchseq)) (lonset tmpchseq))
-                (ldur *display-chord-seq*) (nthcar (length (lmidic tmpchseq)) (ldur tmpchseq))
-                (lvel *display-chord-seq*) (nthcar (length (lmidic tmpchseq)) (lvel tmpchseq))
-                (loffset *display-chord-seq*) (nthcar (length (lmidic tmpchseq)) (loffset tmpchseq))
-                (lchan *display-chord-seq*) (nthcar (length (lmidic tmpchseq)) (lchan tmpchseq))
-                (legato *display-chord-seq*) (legato tmpchseq))
-          (eval *display-chord-seq*))
+          (om-send tmpchseq :solo))
+      (when (eq self *test-accomp-handler*)
+          (setq tmpchseq (beats->chseq (beat-list self) (beat-dur self) 0))
+          (om-send tmpchseq :accomp))
       
       (when result-beats-list
         (setq result-schedlist (midi->schedlist (beats->midi result-beats-list (beat-dur self) 0 (* beat-index (beat-dur self))) self))
@@ -188,15 +184,18 @@
 
 ;;;Démarrer un handler de solo + un handler d'accompagnement :
 (progn 
-  (setq *test-solo-handler* (build-impro-handler :name "TestNika" :scenario *scenario-degeu* :db-path *db-path-solo1* :beat-dur 330))
-  (setq *test-accomp-handler* (build-impro-handler :name "TestNika1" :scenario *scenario-degeu* :db-path *db-path-accomp1* :beat-dur 330))
+  (setq *test-solo-handler* (build-impro-handler :name "TestNika" :scenario *scenario-original* :db-path *db-path-solo1* :beat-dur 330))
+  (setq *test-accomp-handler* (build-impro-handler :name "TestNika1" :scenario *scenario-original* :db-path *db-path-accomp1* :beat-dur 330))
   (setq *test-solo-handler-scheduler* (init-impro-handler *test-solo-handler*))
   (setq *test-accomp-handler-scheduler* (init-impro-handler *test-accomp-handler*))
   (om-start-multiple-scheduler (list *test-solo-handler-scheduler* *test-accomp-handler-scheduler*)))
 
+(setf (lmidic *display-chord-seq*) (list 6500 6800))
+
+
 ;;;Solo only
 (progn
-  (setq *test-solo-handler* (build-impro-handler :name "TestNika" :scenario *scenario-degeu* :db-path *db-path-solo1* :beat-dur 330))
+  (setq *test-solo-handler* (build-impro-handler :name "TestNika" :scenario *scenario-original* :db-path *db-path-solo1* :beat-dur 330))
   (setq *test-solo-handler-scheduler* (init-impro-handler *test-solo-handler*))
   (om-start-scheduler *test-solo-handler-scheduler*))
 
