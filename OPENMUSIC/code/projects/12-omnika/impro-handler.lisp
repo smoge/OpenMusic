@@ -1,5 +1,5 @@
 (in-package :om)
-
+(setq *slotlist* (nthcdr 16 (mapcar 'slot-definition-name (class-effective-slots (class-of (make-instance 'chord-seq :lmidic (list (om-random 6000 7000))))))))
 
 ;;;=================================================================================;;;
 ;;;====================================SCENARIOS====================================;;;
@@ -48,6 +48,17 @@
   (midi-send-evt evt)
   (incf (play-pos handler)))
 
+(defmethod copy-chseq-data ((self chord-seq) cs)
+  (let* ((class (class-of self))
+         (slot-definitions (class-effective-slots class))
+         (slot-names (mapcar 'slot-definition-name slot-definitions)))
+    (dolist (slot slot-names)
+      (when (not (eq 'associated-box slot))
+        (setf (slot-value cs slot)
+              (slot-value self slot))
+        (notify-change cs)))
+    t))
+
 ;;;================================================================================================;;;
 ;;;====================================IMPRO HANDLER DE LA MORT====================================;;;
 ;;;================================================================================================;;;
@@ -86,7 +97,7 @@
 (defmethod proceed-impro-handler ((self impro-handler))
   (let* ((beat-index (beat-index self))
          (scenario-suffix (nthcdr beat-index (expand_grid (scenario self))))
-         result-beats-list result-schedlist result-length tmpchseq)
+         result-beats-list result-schedlist result-length tmp-chseq)
     (when (< beat-index (beat-max self))
       (setq result-beats-list (improvize-loop-next-factor (rtimprovizer self)
                                                           scenario-suffix
@@ -96,13 +107,13 @@
       (setf (beat-list self) (append (nthcar beat-index (beat-list self)) result-beats-list) ;(nthcdr (+ beat-index result-length) (beat-list self)))
             (empty-pos self) (length (beat-list self))
             (beat-index self) (+ beat-index result-length))
+      
 
+      (setq tmp-chseq (beats->chseq (beat-list self) (beat-dur self) 0))
       (when (eq self *test-solo-handler*)
-          (setq tmpchseq (beats->chseq (beat-list self) (beat-dur self) 0))
-          (om-send tmpchseq :solo))
+        (copy-chseq-data tmp-chseq *solo-chord*))
       (when (eq self *test-accomp-handler*)
-          (setq tmpchseq (beats->chseq (beat-list self) (beat-dur self) 0))
-          (om-send tmpchseq :accomp))
+        (copy-chseq-data tmp-chseq *accomp-chord*))
       
       (when result-beats-list
         (setq result-schedlist (midi->schedlist (beats->midi result-beats-list (beat-dur self) 0 (* beat-index (beat-dur self))) self))
@@ -171,49 +182,54 @@
     (player-start :midishare)
     (pop *ms-list-to-play*)))
 
-#|
-(when (eq self *test-solo-handler*)
-          (setq tmpchseq (beats->chseq (beat-list self) (beat-dur self) 0))
-          (loop for slot in (hcl:class-slots 'chord-seq)
-                for slot-name = (slot-definite-name slot)
-                for slot-value = (slot-value object slot-name) do
-                (setf (slot-value *display-chord-seq* slot-name) slot-value)
-                )
-          (eval *display-chord-seq*))
-
 
 ;;;Démarrer un handler de solo + un handler d'accompagnement :
-(progn 
+(defun start-full-impro ()
   (setq *test-solo-handler* (build-impro-handler :name "TestNika" :scenario *scenario-original* :db-path *db-path-solo1* :beat-dur 330))
   (setq *test-accomp-handler* (build-impro-handler :name "TestNika1" :scenario *scenario-original* :db-path *db-path-accomp1* :beat-dur 330))
   (setq *test-solo-handler-scheduler* (init-impro-handler *test-solo-handler*))
   (setq *test-accomp-handler-scheduler* (init-impro-handler *test-accomp-handler*))
   (om-start-multiple-scheduler (list *test-solo-handler-scheduler* *test-accomp-handler-scheduler*)))
 
-(setf (lmidic *display-chord-seq*) (list 6500 6800))
-
-
 ;;;Solo only
-(progn
+(defun start-solo-impro ()
   (setq *test-solo-handler* (build-impro-handler :name "TestNika" :scenario *scenario-original* :db-path *db-path-solo1* :beat-dur 330))
   (setq *test-solo-handler-scheduler* (init-impro-handler *test-solo-handler*))
   (om-start-scheduler *test-solo-handler-scheduler*))
 
+;;;Accomp only
+(defun start-accomp-impro ()
+  (setq *test-accomp-handler* (build-impro-handler :name "TestNika1" :scenario *scenario-original* :db-path *db-path-accomp1* :beat-dur 330))
+  (setq *test-accomp-handler-scheduler* (init-impro-handler *test-accomp-handler*))
+  (om-start-scheduler *test-accomp-handler-scheduler*))
+
 ;;;Stopper ces mêmes bouzins :
-(progn
+(defun stop-full-impro ()
   (stop-impro-handler *test-solo-handler*)
   (stop-impro-handler *test-accomp-handler*))
+(defun stop-solo-impro ()
+  (stop-impro-handler *test-solo-handler*))
+(defun stop-accomp-impro ()
+  (stop-impro-handler *test-accomp-handler*))
+
 
 ;;;Lancer un process qui s'amuse à changer de scénario du solo toutes les secondes, l'insolent. Bien penser à le tuer sinon il s'arrête jamais le con!
-(setq *scenario-switcher* (mp:process-run-function "change scenar" nil #'(lambda (hnd)
-                                                                           (loop
-                                                                            (setf (scenario hnd) *scenario-subst1*)
-                                                                            (mp::process-wait-with-timeout "jesuisfou" 1)
-                                                                            (setf (scenario hnd) *scenario-subst2*)
-                                                                            (mp::process-wait-with-timeout "jesuisfou" 1))) 
-                                                   *test-solo-handler*))
-(mp:process-kill *scenario-switcher*)
-|#
+(defun start-scenario-switcher ()
+  (setq *scenario-switcher* (mp:process-run-function "change scenar" nil #'(lambda (hnd)
+                                                                             (loop
+                                                                              (setf (scenario hnd) *scenario-subst1*)
+                                                                              (mp::process-wait-with-timeout "jesuisfou" 1)
+                                                                              (setf (scenario hnd) *scenario-subst2*)
+                                                                              (mp::process-wait-with-timeout "jesuisfou" 1))) 
+                                                     *test-solo-handler*)))
+
+(defun stop-scenario-switcher ()
+  (mp:process-kill *scenario-switcher*))
+
+;;;réinitialiser les chord-seq du display
+(defun reinit-chord-display ()
+  (copy-chseq-data (make-instance 'chord-seq :lmidic (list (om-random 6000 7000))) *solo-chord*)
+  (copy-chseq-data (make-instance 'chord-seq :lmidic (list (om-random 6000 7000))) *accomp-chord*))
 
 ;thread-beats pour clean les onset
 
