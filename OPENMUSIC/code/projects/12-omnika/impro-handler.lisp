@@ -1,7 +1,5 @@
 (in-package :om)
 
-;;;/!\/!\/!\/!\COPYRIGHT MARC CHEMILLIER & DIMITRI BOUCHE/!\/!\/!\/!\
-;;;/!\/!\/!\/!\/!\/!\/!\TOUS DROITS RESERVES/!\/!\/!\/!\/!\/!\/!\/!\/!\
 
 ;;;=================================================================================;;;
 ;;;====================================SCENARIOS====================================;;;
@@ -86,38 +84,49 @@
 
 
 (defmethod proceed-impro-handler ((self impro-handler))
-  (ignore-errors
-    (let* ((beat-index (beat-index self))
-           (scenario-suffix (nthcdr beat-index (expand_grid (scenario self))))
-           result-beats-list result-schedlist result-length)
-      (when (< beat-index (beat-max self))
-        (setq result-beats-list (improvize-loop-next-factor (rtimprovizer self)
-                                                            scenario-suffix
-                                                            (beat-dur self) 
-                                                            beat-index)
-              result-length (length result-beats-list)) 
-        (setf (beat-list self) (append (nthcar beat-index (beat-list self)) result-beats-list) ;(nthcdr (+ beat-index result-length) (beat-list self)))
-              (empty-pos self) (length (beat-list self))
-              (beat-index self) (+ beat-index result-length))
-        (when result-beats-list
-          (setq result-schedlist (midi->schedlist (beats->midi result-beats-list (beat-dur self) 0 (* beat-index (beat-dur self))) self))
-          (if (om-get-scheduler-queue (player-scheduler self))
-              (mp:with-lock ((om-get-scheduler-lock (player-scheduler self)))
-                (let* ((queue (om-get-scheduler-queue (player-scheduler self)))
-                       (indx (or (position (caar result-schedlist) queue :test '<= :key 'car) (length queue)))
-                       (queue-prefix (nthcar indx queue))
-                       (queue-suffix (nthcdr indx queue))
-                       evt notes-off)
-                  (loop for elem in queue-suffix do
-                        (setq evt (caar (last elem)))
-                        (if (and (eq (type-of evt) 'om-midi::midi-evt) (eq (om-midi:midi-evt-type evt) :keyoff))
-                            (push elem notes-off)))
-                  (setq result-schedlist (sort (append result-schedlist notes-off) '< :key #'car))
-                  (om-set-scheduler-queue (player-scheduler self) (append (nthcar indx queue) result-schedlist))))
-            (om-set-scheduler-queue (player-scheduler self) result-schedlist)))) t)))
+  (let* ((beat-index (beat-index self))
+         (scenario-suffix (nthcdr beat-index (expand_grid (scenario self))))
+         result-beats-list result-schedlist result-length tmpchseq)
+    (when (< beat-index (beat-max self))
+      (setq result-beats-list (improvize-loop-next-factor (rtimprovizer self)
+                                                          scenario-suffix
+                                                          (beat-dur self) 
+                                                          beat-index)
+            result-length (length result-beats-list)) 
+      (setf (beat-list self) (append (nthcar beat-index (beat-list self)) result-beats-list) ;(nthcdr (+ beat-index result-length) (beat-list self)))
+            (empty-pos self) (length (beat-list self))
+            (beat-index self) (+ beat-index result-length))
+
+      (when (eq self *test-solo-handler*)
+          (setq tmpchseq (beats->chseq (beat-list self) (beat-dur self) 0))
+          (setf (lmidic *display-chord-seq*) (lmidic tmpchseq)
+                (lonset *display-chord-seq*) (nthcar (length (lmidic tmpchseq)) (lonset tmpchseq))
+                (ldur *display-chord-seq*) (nthcar (length (lmidic tmpchseq)) (ldur tmpchseq))
+                (lvel *display-chord-seq*) (nthcar (length (lmidic tmpchseq)) (lvel tmpchseq))
+                (loffset *display-chord-seq*) (nthcar (length (lmidic tmpchseq)) (loffset tmpchseq))
+                (lchan *display-chord-seq*) (nthcar (length (lmidic tmpchseq)) (lchan tmpchseq))
+                (legato *display-chord-seq*) (legato tmpchseq))
+          (eval *display-chord-seq*))
+      
+      (when result-beats-list
+        (setq result-schedlist (midi->schedlist (beats->midi result-beats-list (beat-dur self) 0 (* beat-index (beat-dur self))) self))
+        (if (om-get-scheduler-queue (player-scheduler self))
+            (mp:with-lock ((om-get-scheduler-lock (player-scheduler self)))
+              (let* ((queue (om-get-scheduler-queue (player-scheduler self)))
+                     (indx (or (position (caar result-schedlist) queue :test '<= :key 'car) (length queue)))
+                     (queue-prefix (nthcar indx queue))
+                     (queue-suffix (nthcdr indx queue))
+                     evt notes-off)
+                (loop for elem in queue-suffix do
+                      (setq evt (caar (last elem)))
+                      (if (and (eq (type-of evt) 'om-midi::midi-evt) (eq (om-midi:midi-evt-type evt) :keyoff))
+                          (push elem notes-off)))
+                (setq result-schedlist (sort (append result-schedlist notes-off) '< :key #'car))
+                (om-set-scheduler-queue (player-scheduler self) (append (nthcar indx queue) result-schedlist))))
+          (om-set-scheduler-queue (player-scheduler self) result-schedlist)))) t))
 
 (defmethod (setf beat-pos) (new-beat-pos (handler impro-handler)) 
-  (print (list "Beat-pos n°" new-beat-pos "/" (empty-pos handler)))
+  ;(print (list "Beat-pos n°" new-beat-pos "/" (empty-pos handler)))
   (setf (slot-value handler 'beat-pos) new-beat-pos)
   (if (and (< (- (empty-pos handler) new-beat-pos) (epsilon handler))
            (< (empty-pos handler) (beat-max handler)))
@@ -135,7 +144,6 @@
             (slot-value handler 'beat-index) switch-pos
             (slot-value handler 'beat-max) (length (expand_grid new-scenario)))
       (proceed-impro-handler handler))))
-
 
 (defmethod init-impro-handler ((self impro-handler) &optional (start-pos 0))
   (let* ((i 0)
@@ -168,6 +176,16 @@
     (pop *ms-list-to-play*)))
 
 #|
+(when (eq self *test-solo-handler*)
+          (setq tmpchseq (beats->chseq (beat-list self) (beat-dur self) 0))
+          (loop for slot in (hcl:class-slots 'chord-seq)
+                for slot-name = (slot-definite-name slot)
+                for slot-value = (slot-value object slot-name) do
+                (setf (slot-value *display-chord-seq* slot-name) slot-value)
+                )
+          (eval *display-chord-seq*))
+
+
 ;;;Démarrer un handler de solo + un handler d'accompagnement :
 (progn 
   (setq *test-solo-handler* (build-impro-handler :name "TestNika" :scenario *scenario-degeu* :db-path *db-path-solo1* :beat-dur 330))
@@ -175,6 +193,12 @@
   (setq *test-solo-handler-scheduler* (init-impro-handler *test-solo-handler*))
   (setq *test-accomp-handler-scheduler* (init-impro-handler *test-accomp-handler*))
   (om-start-multiple-scheduler (list *test-solo-handler-scheduler* *test-accomp-handler-scheduler*)))
+
+;;;Solo only
+(progn
+  (setq *test-solo-handler* (build-impro-handler :name "TestNika" :scenario *scenario-degeu* :db-path *db-path-solo1* :beat-dur 330))
+  (setq *test-solo-handler-scheduler* (init-impro-handler *test-solo-handler*))
+  (om-start-scheduler *test-solo-handler-scheduler*))
 
 ;;;Stopper ces mêmes bouzins :
 (progn
@@ -189,8 +213,9 @@
                                                                             (setf (scenario hnd) *scenario-subst2*)
                                                                             (mp::process-wait-with-timeout "jesuisfou" 1))) 
                                                    *test-solo-handler*))
+(mp:process-kill *scenario-switcher*)
 |#
 
 ;thread-beats pour clean les onset
 
-
+ 
