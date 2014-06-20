@@ -10,7 +10,8 @@
 
 
 (require-library "RepMus")
-(load "/Users/bouche/Documents/OpenMusic/OM/OPENMUSIC/code/projects/12-omimpro/ImproteK\&co/bordeaux-threads/bordeaux-threads.lisp")
+
+(load (make-pathname :directory (append (butlast (pathname-directory *load-pathname*)) '("bordeaux-threads")) :name "bordeaux-threads.lisp"))
 (require-library "bordeaux-threads")
 
 (defvar *improtek-source-dir* nil)
