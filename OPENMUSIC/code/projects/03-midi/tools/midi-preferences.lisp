@@ -20,6 +20,9 @@
 
 ;;;==============================================
 
+; (find-pref-module :midi)
+
+
 (defmethod put-preferences ((iconID (eql :midi)))
   (let ((modulepref (find-pref-module iconID)))
     (setf *def-midi-in* (get-pref modulepref :midi-in))

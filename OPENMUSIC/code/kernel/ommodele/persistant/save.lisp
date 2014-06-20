@@ -185,9 +185,10 @@
 (defmethod omNG-save ((self function) &optional (values? nil)) 
    nil)
 
-(defmethod omNG-save ((self array) &optional (values? nil)) 
-   (declare (ignore values?))  
-   self)
+;(defmethod omNG-save ((self array) &optional (values? nil)) (declare (ignore values?)) self)
+
+(defmethod omNG-save ((self string) &optional (values? nil)) (declare (ignore values?)) self)
+
 
 (defmethod omNG-save ((self number) &optional (values? nil)) 
    (declare (ignore values?))  self)
@@ -216,6 +217,8 @@
 
 (defmethod omNG-save ((self symbol) &optional (values? nil)) (declare (ignore values?)) 
   `',self)
+
+
 
 ;; (setf lll '(("a" 1) ("b" 2) ("c" 3)))
 ;; (omng-save lll)
