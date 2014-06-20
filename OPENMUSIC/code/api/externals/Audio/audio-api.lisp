@@ -122,7 +122,12 @@
             (dotimes (n channels)
               (dotimes (i window)
                 (setq maxi (max (abs (fli:dereference buffer :type :float :index (+ n (* channels i)))) (or maxi 0.0))))
+<<<<<<< HEAD
               (setf (fli:dereference ptr :index (+ indx (* n (ceiling size window)))) maxi)
+=======
+              ;(setf (aref MaxArray n (min indx indxmax)) maxi)
+              (setf (fli:dereference ptr :index (+ (min indx indxmax) (* n (ceiling size window)))) maxi)
+>>>>>>> master
               (setq maxi 0.0))
             while (= frames-read window))
       (fli:free-foreign-object buffer)
