@@ -246,7 +246,7 @@
 
 
 (load-om-kernel)
-(load "/Users/bouche/Documents/OpenMusic/OM/OPENMUSIC/code/projects/12-omnika/object-in-box.lisp")
+(load "/Users/bouche/Documents/OpenMusic/OM/OPENMUSIC/code/projects/12-omimpro/object-in-box.lisp")
 (load-om-projects '("01-basicproject" "02-musicproject"))
 (load-om-projects '("03-midi"))
 (load-om-projects '("05-mathtools"))
@@ -255,9 +255,7 @@
 (load-om-projects '("09-harmonicproject"))
 (load-om-projects '("10-sheet"))
 (load-om-projects '("11-omsequencer"))
-(load "/Users/bouche/Documents/OpenMusic/OM/OPENMUSIC/code/projects/12-omnika/ImproteK\&co/improtek/sources/LoadImprotek.lisp")
-(load "/Users/bouche/Documents/OpenMusic/OM/OPENMUSIC/code/projects/12-omnika/impro-handler.lisp")
-
+(load-om-projects '("12-omimpro"))
 
 
 (push :om *features*)
