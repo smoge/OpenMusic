@@ -43,11 +43,7 @@
                 
 ;-----------Containers---------------------------- 
 "classes/container"   
-<<<<<<< HEAD
 
-=======
-                
->>>>>>> master
 ;-----------Modele-------------------------------- 
 "ommodele/genfunmetaclass"                                     
 "ommodele/metaclasses"   
@@ -80,8 +76,6 @@
 "ommodele/ombasicobjects/boxes/classtreeboxes"  
 "ommodele/ombasicobjects/ompackage"   
 "ommodele/ombasicobjects/omlib" 
-
-
                        
 ;----------- Editor Frames------------------------------- 
 
