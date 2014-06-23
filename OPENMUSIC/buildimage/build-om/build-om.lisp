@@ -246,7 +246,6 @@
 
 
 (load-om-kernel)
-(compile&load (make-pathname :directory (append (pathname-directory cl-user::*om-src-directory*) '("code" "projects" "12-omimpro")) :name "object-in-box"))
 (load-om-projects '("01-basicproject" "02-musicproject"))
 (load-om-projects '("03-midi"))
 (load-om-projects '("05-mathtools"))
