@@ -106,7 +106,7 @@
                           (push elem notes-off)))
                 (setq result-schedlist (sort (append result-schedlist notes-off) '< :key #'car))
                 (om-set-scheduler-queue (player-scheduler self) (append (nthcar indx queue) result-schedlist))))
-          (om-set-scheduler-queue (player-scheduler self) result-schedlist)))) t))
+          (om-set-scheduler-queue (player-scheduler self) result-schedlist))))))
 
 (defmethod (setf beat-pos) (new-beat-pos (handler impro-handler)) 
   ;(print (list "Beat-pos n°" new-beat-pos "/" (empty-pos handler)))
