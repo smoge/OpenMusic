@@ -124,7 +124,7 @@
 
 ;----boxes
 
-(defmethod update-boxes (oldbox newbox)
+(defun update-boxes (oldbox newbox)
   (setf (value newbox) (eval (omNG-copy (value oldbox)))) 
   (setf (frame-position newbox) (borne-position (frame-position oldbox)))
   (setf (frame-size newbox) (frame-size oldbox))

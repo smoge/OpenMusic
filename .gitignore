@@ -4,11 +4,6 @@
 *.ofasl
 *.nfasl
 *.ufasl
-<<<<<<< HEAD
-=======
-*.lisp~
-*.lisp#
->>>>>>> master
 
 release-osx
 release-src

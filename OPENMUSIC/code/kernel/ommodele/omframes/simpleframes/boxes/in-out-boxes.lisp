@@ -442,15 +442,9 @@
    (declare (ignore numout))
    (if *compiling-macro-boite* (defval self) (in-symbol self)))
 
-(defmethod omNG-box-value ((self OMIn) &optional (numout nil))
+(defmethod omNG-box-value ((self OMIn) &optional (numout 0))
    (declare (ignore numout))
-   (if numout 
-       (nth numout (current-box-value self))
-     (current-box-value self)))
-
-;;; OMout does not store values (?)
-(defmethod current-box-value ((self OMin) &optional (numout nil))
-  (list (eval (defval self))))
+   (eval (defval self)))
 
 (defmethod get-default-input-val ((self OMIn)) nil) 
 (defmethod do-add-one-input ((self OMIN))  nil)
@@ -535,13 +529,7 @@
 
 (defmethod omNG-box-value ((self OMout) &optional (numout 0))
    (declare (ignore numout))
-   (setf (value self) (mapcar 'omng-box-value (inputs self))))
-
-;;; OMout does not store values (?)
-(defmethod current-box-value ((self OMout) &optional (numout nil))
-  (if numout (nth numout (value self))
-    (value self)))
-
+   (omng-box-value (first (inputs self))))
 
 (defmethod omNG-add-element ((self OMPatch) (elem OMOut))
    "When you add a new output to the patch 'self' you must update all ompatchboxes attached to 'self'."

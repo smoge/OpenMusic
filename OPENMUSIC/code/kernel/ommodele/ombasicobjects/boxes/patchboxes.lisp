@@ -33,7 +33,7 @@
 ;---------------------------------------
 ;Boxes in a Patch
 ;---------------------------------------
-(defclass OMBoxcall (#-om-reactive OMBox #+om-reactive OMReactiveBox)
+(defclass OMBoxcall (OMBox) 
    ((allow-lock :initform nil  :accessor allow-lock)
     (doc :initform "no documentation" :accessor doc)
     (mycontainer :initform nil  :accessor mycontainer)
@@ -137,8 +137,8 @@ for all boxes in the patch after an evaluation.#ev-once-p#")
    "Reset the ev-once flag in 'self'. Used after one evaluation."
    (when (equal (allow-lock self) "&") 
      (setf (ev-once-p self) nil)
-     (setf (value self) nil))
-   )
+     (setf (value self) nil)
+     ))
 
 
 ;The graphics connections are in ...SimpleFrames;boxesconnections.lisp
@@ -150,7 +150,6 @@ for all boxes in the patch after an evaluation.#ev-once-p#")
        (setf (nth 2 (connected? (nth numin (inputs target)))) lines))
      (setf (nth 3 (connected? (nth numin (inputs target))))
            (if (null col) 0 col))))
-
 
 (defmethod connect-ctrl ((self OMBoxcall) input numout)
   (setf (connected? input) (list self numout nil 0)))
@@ -314,10 +313,6 @@ for all boxes in the patch after an evaluation.#ev-once-p#")
       (multiple-value-list (apply (reference self) args))
     (multiple-value-list (special-value self args))))
   
-
-(defmethod current-box-value ((self OMBoxCall) &optional (numout nil))
-  (if numout (nth numout (value self)) (value self)))
-
 (defmethod omNG-box-value ((self OMBoxcall) &optional (numout 0))
    "Eval the output indexed by 'numout' for the box 'self'. In this method we call the generic function reference of 'self'."
    (handler-bind ((error #'(lambda (c)
@@ -328,9 +323,7 @@ for all boxes in the patch after an evaluation.#ev-once-p#")
                                (clear-after-error self)
                                (om-abort)))))
      (cond
-      ((equal (allow-lock self) "l") 
-       (setf (value self) (list (special-lambda-value self (reference self))))
-       (car (value self)))
+      ((equal (allow-lock self) "l") (special-lambda-value self (reference self)))
       ((equal (allow-lock self) "o") (fdefinition (reference self)))
       ((and (equal (allow-lock self) "x") (value self)) (nth numout (value self)))
       ((and (equal (allow-lock self) "&") (ev-once-p self)) (nth numout (value self)))
@@ -538,10 +531,6 @@ for all boxes in the patch after an evaluation.#ev-once-p#")
    (when (equal (allow-lock self) "&") 
      (setf (ev-once-p self) nil)))
 
-(defmethod current-box-value ((self OMBoxRelatedWClass) &optional (numout nil))
-  (if numout 
-      (and (value self) (rep-editor (value self) numout))
-    (value self)))
 
 (defmethod omNG-box-value ((self OMBoxRelatedWClass) &optional (numout 0))
    "Eval a factory."
@@ -577,6 +566,7 @@ for all boxes in the patch after an evaluation.#ev-once-p#")
                  (when (equal (allow-lock self) "&")
                    (setf (ev-once-p self) t))
                  (rep-editor (value self) numout)))))))))
+
 
 (defmethod do-add-one-input ((self OMBoxRelatedWClass)) nil)
 (defmethod do-delete-one-input ((self OMBoxRelatedWClass))  nil)
@@ -1099,15 +1089,14 @@ for all boxes in the patch after an evaluation.#ev-once-p#")
                                (clear-after-error self)
                                (om-abort)))))
      (cond
-      ;((and (equal (allow-lock self) "x") (value self)) (rep-editor (value self) numout))
-      ((equal (allow-lock self) "x") (om-beep-msg "!! Locked 'slots' box do nothing !!"))
+      ((and (equal (allow-lock self) "x") (value self)) (rep-editor (value self) numout ))
       ((and (equal (allow-lock self) "&") (ev-once-p self)) (rep-editor (value self) numout ))
       ((and (equal (allow-lock self) "o")) (reference self))
       (t (if (not (connected? (first (inputs self))))
            (progn
              (om-beep-msg "The first paremeter in a slot box should always be connected")
              nil)
-           (let ((theobj (omNG-box-value (first (inputs self)))))
+           (let ((theobj (omNG-box-value  (first (inputs self)))))
              (mapc #'(lambda (input)
                        (when (connected? input)
                          (let ((val (omNG-box-value  input)))
@@ -1116,8 +1105,8 @@ for all boxes in the patch after an evaluation.#ev-once-p#")
              (when (equal (allow-lock self) "&")
                (setf (ev-once-p self) t)
                (setf (value self) theobj))
-             ;(when (equal (allow-lock self) "x")
-             ;  (setf (value self) theobj))
+             (when (equal (allow-lock self) "x")
+               (setf (value self) theobj))
              (rep-editor theobj numout))))))
 )
 
@@ -1216,9 +1205,7 @@ for all boxes in the patch after an evaluation.#ev-once-p#")
                                (clear-after-error self)
                                (om-abort)))))
      (cond
-      ((equal (allow-lock self) "l") 
-       (setf (value self) (list (special-lambda-value self (reference self))))
-       (car (value self)))
+      ((equal (allow-lock self) "l") (special-lambda-value self (reference self)))
       ((equal (allow-lock self) "o") (omNG-make-new-lispfun (reference self)))
       ((and (value self) (equal (allow-lock self) "x")) (nth 0 (value self)))
       ((and (equal (allow-lock self) "&") (ev-once-p self)) (nth 0 (value self)))
@@ -1240,10 +1227,6 @@ for all boxes in the patch after an evaluation.#ev-once-p#")
              (setf (value self) rep))
            (when (equal (allow-lock self) "x")
              (setf (value self) rep))
-           ;;;; TEST
-           (when (and (equal (allow-lock self) nil)) ;  #+om-reactive(active self))
-             (setf (value self) rep))
-           ;;;;
            (nth 0 rep))))))
 
 ;-------------Edition
@@ -1370,21 +1353,11 @@ for all boxes in the patch after an evaluation.#ev-once-p#")
    (gen-code (value self) 0))
      
 ;-------------Evaluation
-
-(defmethod current-box-value ((self OMBoxTypeCall) &optional num-out)
-  (let ((v (if (consp (value self))
-               (eval (omng-copy (value self))) ;;; copy in order to avoid side-effects
-             (value self))))
-    (if num-out v (list v))  ;;; numout = called from an output, otherwise eval-box
-    ))
-
-;;; do not ecvaluate: get the value
 (defmethod omNG-box-value ((self OMBoxTypeCall) &optional num-out)
-  (current-box-value self num-out))
-
-
-
-
+   (declare (ignore num-out))
+   (if (consp (value self))
+     (eval (omng-copy (value self)))
+     (value self)))
 
 ;;; EDITION       
 
