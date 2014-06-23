@@ -493,8 +493,17 @@
      (box-draw-connections self nil)
      (omG-select (redraw-frame self))))
 
+
 (defmethod eval-box ((self omboxframe))
-  (format *om-stream* "OM => ~S~%" (omng-box-value (object self))))
+  (omng-box-value (object self))
+  (let ((v (current-box-value (object self) nil)))
+    (if (consp v) 
+        (if (> (length v) 1)
+            (format *om-stream* "OM => [ ~{~S ~}]~%" v)
+          (format *om-stream* "OM => ~S~%" (car v)))
+      (format *om-stream* "OM => ~S~%" v)))
+  )
+
 
 
 
@@ -669,7 +678,8 @@
    (om-invalidate-view self)
    (setf (lock-button self) nil)
    (setf (allow-lock (object self)) nil)
-   (setf (value (object self)) nil))
+   ;;; (setf (value (object self)) nil)
+   )
 
 (defmethod show-fun-code ((self omboxframe))
   (om-edit-definition (reference (object self))))

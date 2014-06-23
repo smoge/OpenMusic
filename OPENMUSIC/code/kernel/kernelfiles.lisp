@@ -43,6 +43,7 @@
                                 
 ;-----------Containers---------------------------- 
 "classes/container"   
+"classes/objects"   
 
 ;-----------Modele-------------------------------- 
 "ommodele/genfunmetaclass"                                     
@@ -71,6 +72,9 @@
 "ommodele/ombasicobjects/omfolder"         
 "ommodele/ombasicobjects/omworkspace" 
 "ommodele/ombasicobjects/boxes/ombox"  
+
+"reactive/reactive-boxes"
+
 "ommodele/ombasicobjects/boxes/patchboxes" 
 "ommodele/ombasicobjects/boxes/temporalboxes" 
 "ommodele/ombasicobjects/boxes/classtreeboxes"  
@@ -125,6 +129,9 @@
 "boxes/file-utils"
 "boxes/dialog-item-boxes"
 "boxes/receive-box"
+
+"reactive/reactive-behaviours"
+"reactive/send-receive"
 
 ;-----------Aux windows------------------------------ 
 "graphics/infowindow"
