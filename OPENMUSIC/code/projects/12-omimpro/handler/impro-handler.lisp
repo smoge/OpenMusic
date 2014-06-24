@@ -1,7 +1,7 @@
 (in-package :om)
 (setq *slotlist* (nthcdr 16 (mapcar 'slot-definition-name (class-effective-slots (class-of (make-instance 'chord-seq :lmidic (list (om-random 6000 7000))))))))
 
-
+;(start-full-impro)
 ;;;===================================================================================================;;;
 ;;;====================================BEATS TRANSLATION FUNCTIONS====================================;;;
 ;;;===================================================================================================;;;
@@ -24,6 +24,14 @@
   (midi-send-evt evt)
   (incf (play-pos handler)))
 
+(defmethod refresh-maquette ((self ommaquette))
+ (loop for b in (boxes self) do
+       (omNG-box-value b))
+ (let ((panel (editorframe self)))
+   (when panel
+     (update-after-mark panel))
+   ))
+
 (defmethod copy-chseq-data ((self chord-seq) cs)
   (let* ((class (class-of self))
          (slot-definitions (class-effective-slots class))
@@ -32,9 +40,9 @@
       (when (not (eq 'associated-box slot))
         (setf (slot-value cs slot)
               (slot-value self slot))
-        (notify-change cs)))
+        (notify-change cs)
+        (refresh-maquette *display-maquette*)))
     t))
-
 ;;;================================================================================================;;;
 ;;;====================================IMPRO HANDLER DE LA MORT====================================;;;
 ;;;================================================================================================;;;
@@ -165,29 +173,34 @@
   (setq *test-accomp-handler* (build-impro-handler :name "TestNika1" :scenario *scenario-original* :db-path *db-path-accomp1* :beat-dur 330))
   (setq *test-solo-handler-scheduler* (init-impro-handler *test-solo-handler*))
   (setq *test-accomp-handler-scheduler* (init-impro-handler *test-accomp-handler*))
-  (om-start-multiple-scheduler (list *test-solo-handler-scheduler* *test-accomp-handler-scheduler*)))
+  (om-start-multiple-scheduler (list *test-solo-handler-scheduler* *test-accomp-handler-scheduler*))
+  (editor-play (editor (editorframe *display-maquette*))))
 
 ;;;Solo only
 (defun start-solo-impro ()
   (setq *test-solo-handler* (build-impro-handler :name "TestNika" :scenario *scenario-original* :db-path *db-path-solo1* :beat-dur 330))
   (setq *test-solo-handler-scheduler* (init-impro-handler *test-solo-handler*))
-  (om-start-scheduler *test-solo-handler-scheduler*))
+  (om-start-scheduler *test-solo-handler-scheduler*)
+  (editor-play (editor (editorframe *display-maquette*))))
 
 ;;;Accomp only
 (defun start-accomp-impro ()
   (setq *test-accomp-handler* (build-impro-handler :name "TestNika1" :scenario *scenario-original* :db-path *db-path-accomp1* :beat-dur 330))
   (setq *test-accomp-handler-scheduler* (init-impro-handler *test-accomp-handler*))
-  (om-start-scheduler *test-accomp-handler-scheduler*))
+  (om-start-scheduler *test-accomp-handler-scheduler*)
+  (editor-play (editor (editorframe *display-maquette*))))
 
 ;;;Stopper ces mêmes bouzins :
 (defun stop-full-impro ()
   (stop-impro-handler *test-solo-handler*)
-  (stop-impro-handler *test-accomp-handler*))
+  (stop-impro-handler *test-accomp-handler*)
+  (editor-stop (editor (editorframe *display-maquette*))))
 (defun stop-solo-impro ()
-  (stop-impro-handler *test-solo-handler*))
+  (stop-impro-handler *test-solo-handler*)
+  (editor-stop (editor (editorframe *display-maquette*))))
 (defun stop-accomp-impro ()
-  (stop-impro-handler *test-accomp-handler*))
-
+  (stop-impro-handler *test-accomp-handler*)
+  (editor-stop (editor (editorframe *display-maquette*))))
 
 ;;;Lancer un process qui s'amuse à changer de scénario du solo toutes les secondes, l'insolent. Bien penser à le tuer sinon il s'arrête jamais le con!
 (defun start-scenario-switcher ()
@@ -208,5 +221,7 @@
   (copy-chseq-data (make-instance 'chord-seq :lmidic (list (om-random 6000 7000))) *accomp-chord*))
 
 ;thread-beats pour clean les onset
+
+
 
  
