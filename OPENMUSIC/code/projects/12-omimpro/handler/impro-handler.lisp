@@ -80,7 +80,8 @@ This object can automate improvization generation based on the rtimprovizer clas
                                                           bdur 
                                                           beat-index)
             result-length (length result-beats-list))
-
+      
+      ;;;Stretch to the  desired tempo
       (loop for bt in result-beats-list do
             (setf (MidiSet bt) (timestretch (MidiSet bt) (/ bdur (duration bt)))
                   (duration bt) bdur))
@@ -98,21 +99,21 @@ This object can automate improvization generation based on the rtimprovizer clas
       ;;;///DISPLAY HACK
       
       (when result-beats-list
-        (setq result-schedlist (midi->schedlist (beats->midi result-beats-list bdur 0 (* beat-index bdur)) self))
-        (if (om-get-scheduler-queue (player-scheduler self))
-            (mp:with-lock ((om-get-scheduler-lock (player-scheduler self)))
-              (let* ((queue (om-get-scheduler-queue (player-scheduler self)))
-                     (indx (or (position (caar result-schedlist) queue :test '<= :key 'car) (length queue)))
-                     (queue-prefix (nthcar indx queue))
-                     (queue-suffix (nthcdr indx queue))
-                     evt notes-off)
-                (loop for elem in queue-suffix do
-                      (setq evt (caar (last elem)))
-                      (if (and (eq (type-of evt) 'om-midi::midi-evt) (eq (om-midi:midi-evt-type evt) :keyoff))
-                          (push elem notes-off)))
-                (setq result-schedlist (sort (append result-schedlist notes-off) '< :key #'car))
-                (om-set-scheduler-queue (player-scheduler self) (append (nthcar indx queue) result-schedlist))))
-          (om-set-scheduler-queue (player-scheduler self) result-schedlist)))) t))
+        (when (setq result-schedlist (midi->schedlist (beats->midi result-beats-list bdur 0 (* beat-index bdur)) self))
+          (if (om-get-scheduler-queue (player-scheduler self))
+              (mp:with-lock ((om-get-scheduler-lock (player-scheduler self)))
+                (let* ((queue (om-get-scheduler-queue (player-scheduler self)))
+                       (indx (or (position (caar result-schedlist) queue :test '<= :key 'car) (length queue)))
+                       (queue-prefix (nthcar indx queue))
+                       (queue-suffix (nthcdr indx queue))
+                       evt notes-off)
+                  (loop for elem in queue-suffix do
+                        (setq evt (caar (last elem)))
+                        (if (and (eq (type-of evt) 'om-midi::midi-evt) (eq (om-midi:midi-evt-type evt) :keyoff))
+                            (push elem notes-off)))
+                  (setq result-schedlist (sort (append result-schedlist notes-off) '< :key #'car))
+                  (om-set-scheduler-queue (player-scheduler self) (append (nthcar indx queue) result-schedlist))))
+            (om-set-scheduler-queue (player-scheduler self) result-schedlist))))) t))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;Tools
 ;;;Translate a beat-list to a midi-evts-list
@@ -121,16 +122,17 @@ This object can automate improvization generation based on the rtimprovizer clas
 
 ;;;Translate a midi-evts-list to a scheduler list
 (defun midi->schedlist (midi-evt-list handler)
-  (let* ((l1 (loop for evt in midi-evt-list collect
-                   (list (om-midi::midi-evt-date evt) 
-                         'midi-send-handler-evt (list evt handler))))
-         (dur (beat-dur handler))
-         (tmin (* (ceiling (caar l1) dur) dur))
-         (tmax (* (ceiling (caar (last l1)) dur) dur))
-         (tlist (loop for i from tmin to tmax by dur collect 
-                      (let ((time i))
-                        (list time #'(lambda (hnd) (setf (beat-pos hnd) (floor time dur))) (list handler))))))
-    (sort (append l1 tlist) '< :key #'car)))
+  (if midi-evt-list
+      (let* ((l1 (loop for evt in midi-evt-list collect
+                       (list (om-midi::midi-evt-date evt) 
+                             'midi-send-handler-evt (list evt handler))))
+             (dur (beat-dur handler))
+             (tmin (* (ceiling (caar l1) dur) dur))
+             (tmax (* (ceiling (caar (last l1)) dur) dur))
+             (tlist (loop for i from tmin to tmax by dur collect 
+                          (let ((time i))
+                            (list time #'(lambda (hnd) (setf (beat-pos hnd) (floor time dur))) (list handler))))))
+        (sort (append l1 tlist) '< :key #'car))))
 
 ;;;Function to play a midi event and increase the play position
 (defun midi-send-handler-evt (evt handler)
