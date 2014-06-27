@@ -47,7 +47,7 @@ Ircam (C) 2014
   (sch:pause-scheduler self))
 
 (defmethod om-continue-scheduler ((self sch::scheduler))
-  (sch:pause-scheduler self))
+  (sch:continue-scheduler self))
 
 (defmethod om-stop-scheduler ((self sch::scheduler))
   (sch:stop-scheduler self))

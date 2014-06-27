@@ -109,7 +109,7 @@ This kind of scheduler should be used to efficiently run tasks which won't be mo
 (defmethod continue-multiple-scheduler ((self list))
   (let ((time (get-internal-real-time)))
     (loop for scheduler in self do
-          (pause-scheduler scheduler time))))
+          (continue-scheduler scheduler time))))
 
 ;;;Stop multiple schedulers simultaneously.
 (defmethod stop-multiple-scheduler ((self list))
