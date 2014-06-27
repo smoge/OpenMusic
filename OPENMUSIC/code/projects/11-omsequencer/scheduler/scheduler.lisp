@@ -12,7 +12,7 @@ A basic scheduler is defined by the "scheduler" structure :
    - "queue" : the event-queue, which must look like ((timestamp1 function1 &rest args) (timestamp2 function2 &rest args)...)
    - "queue-lock" : a lock which is grabbed and then released by any process acting on the scheduler queue.
 
-This kind of scheduler should be used to efficiently run tasks which won't be modified after the execution started. The task events are popped from it's queue.
+This kind of scheduler should be used to efficiently run tasks for which past events won't be modified after the execution started. The task events are popped from it's queue.
 |#
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
