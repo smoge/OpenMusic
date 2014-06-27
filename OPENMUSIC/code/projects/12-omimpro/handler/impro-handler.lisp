@@ -170,6 +170,12 @@ This object can automate improvization generation based on the rtimprovizer clas
   (om-stop-scheduler (player-scheduler self)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;Démo Jérôme
+(defvar *test-solo-handler* nil)
+(defvar *test-accomp-handler* nil)
+(defvar *test-solo-handler-scheduler* nil)
+(defvar *test-accomp-handler-scheduler* nil)
+(defvar *display-maquette* nil)
+
 ;;;Solo + Accomp
 (defun start-full-impro ()
   (setq *test-solo-handler* (build-impro-handler :name "Nika SOLO" :scenario *scenario-original* :db-path *db-path-solo1* :beat-dur 330))
