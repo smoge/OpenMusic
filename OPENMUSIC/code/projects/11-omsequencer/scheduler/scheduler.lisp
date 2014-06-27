@@ -60,7 +60,6 @@ This kind of scheduler should be used to efficiently run tasks which won't be mo
 ;;;Start one scheduler. The optional time slot is used to synchronise multiple schedulers.
 (defmethod start-scheduler ((self scheduler) &optional time)
   (when (eq (scheduler-state self) :stop)
-    (hcl:avoid-gc)
     (setf (scheduler-state self) :play
           (scheduler-start-time self) (round (or time (get-internal-real-time)))
           (scheduler-ref-time self) (scheduler-start-time self)
@@ -69,29 +68,24 @@ This kind of scheduler should be used to efficiently run tasks which won't be mo
 ;;;Pause one scheduler. The optional time slot is used to synchronise multiple schedulers.
 (defmethod pause-scheduler ((self scheduler) &optional time)
   (when (eq (scheduler-state self) :play)
-    (setf (scheduler-pause-time self) (round (if time
-                                                    (+ (scheduler-offset self) (- time (scheduler-start-time self)))
-                                                  (get-clock-time self)))
-          (scheduler-state self) :pause)
-    (hcl:normal-gc)))
+    (setf (scheduler-pause-time self) (get-clock-time self time)
+          (scheduler-state self) :pause)))
 
 ;;;Continue one scheduler. The optional time slot is used to synchronise multiple schedulers.
 (defmethod continue-scheduler ((self scheduler) &optional time)
   (when (eq (scheduler-state self) :pause)  
-    (hcl:avoid-gc)
     (setf (scheduler-state self) :play
           (scheduler-ref-time self) (round (if time
                                                   (+ (scheduler-offset self) (- time (scheduler-pause-time self)))
                                                 (+ (scheduler-offset self) (- (get-internal-real-time) (scheduler-pause-time self)))))
           (scheduler-start-time self) (- (get-internal-real-time) (+ (scheduler-pause-time self) (scheduler-ref-time self))))
-    (mp:process-unstop (scheduler-process self))))
+    (mp:process-unstop (scheduler-process self))))s
 
 ;;;Stop one scheduler.
 (defmethod stop-scheduler ((self scheduler))
   (setf (scheduler-state self) :stop)
   (when (scheduler-process self)
-    (mp:process-kill (scheduler-process self)))
-  (hcl:normal-gc))
+    (mp:process-kill (scheduler-process self))))
 
 ;;;Start multiple schedulers simultaneously.
 (defmethod start-multiple-scheduler ((self list))
@@ -137,12 +131,12 @@ This kind of scheduler should be used to efficiently run tasks which won't be mo
   self)
 
 ;;;Get the current time of a scheduler
-(defmethod get-clock-time ((self scheduler))
+(defmethod get-clock-time ((self scheduler) &optional internal-time)
   (cond ((eq (scheduler-state self) :pause)
          (scheduler-pause-time self))
         ((eq (scheduler-state self) :stop) 0)
         (t
-         (+ (scheduler-offset self) (- (get-internal-real-time) (scheduler-ref-time self))))))
+         (+ (scheduler-offset self) (- (or internal-time (get-internal-real-time)) (scheduler-ref-time self))))))
 
 ;;;Get elapsed time since the scheduler started (can be different form the clock time because of jumps)
 (defmethod get-elapsed-time ((self scheduler))
