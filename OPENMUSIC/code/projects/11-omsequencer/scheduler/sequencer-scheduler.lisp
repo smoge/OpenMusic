@@ -120,7 +120,7 @@ Author : D.Bouche
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;Scheduler Tools
 ;;;Get the current time of a scheduler.
-(defmethod get-clock-time ((self sequencer-scheduler))
+(defmethod get-clock-time ((self sequencer-scheduler) &optional internal-time)
   (call-next-method))
 
 ;;;Get the current queue position of a sequencer scheduler.

@@ -79,7 +79,7 @@ This kind of scheduler should be used to efficiently run tasks for which past ev
                                                   (+ (scheduler-offset self) (- time (scheduler-pause-time self)))
                                                 (+ (scheduler-offset self) (- (get-internal-real-time) (scheduler-pause-time self)))))
           (scheduler-start-time self) (- (get-internal-real-time) (+ (scheduler-pause-time self) (scheduler-ref-time self))))
-    (mp:process-unstop (scheduler-process self))))s
+    (mp:process-unstop (scheduler-process self))))
 
 ;;;Stop one scheduler.
 (defmethod stop-scheduler ((self scheduler))
