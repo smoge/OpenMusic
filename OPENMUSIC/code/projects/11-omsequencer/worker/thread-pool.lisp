@@ -77,11 +77,11 @@ inspired by : http://software.intel.com/fr-fr/articles/Thread-pool
                                                   (let ((thread (make-thread)))
                                                     (setf (thread-process thread)
                                                           (mp:process-run-function
-                                                           (format nil "TP-Worker ~d" i) nil
+                                                           (format nil "OM - TP Worker ~d" i) nil
                                                            'thread-exec thread))
                                                     thread))
         (thread-pool-count *thread-pool*) (or worker-count *optimum-worker-count*)
-        (thread-pool-dispatcher *thread-pool*) (mp:process-run-function "TP-Dispatcher" nil 'dispatch-work))
+        (thread-pool-dispatcher *thread-pool*) (mp:process-run-function "OM - TP Dispatcher" nil 'dispatch-work))
   (dotimes (i 20) (push (make-t-task) *t-task-pool*)))
 
 (defun abort-thread-pool ()
@@ -92,10 +92,14 @@ inspired by : http://software.intel.com/fr-fr/articles/Thread-pool
         *t-task-pool* nil))
 
 (defun pause-thread-pool ()
-  (setf (thread-pool-state *thread-pool*) :pause))
+  (setf (thread-pool-state *thread-pool*) :pause)
+  (loop for thr in (thread-pool-threads *thread-pool*) do
+        (mp:process-stop (thread-process thr))))
 
 (defun resume-thread-pool ()
-  (setf (thread-pool-state *thread-pool*) :running))
+  (setf (thread-pool-state *thread-pool*) :running)
+  (loop for thr in (thread-pool-threads *thread-pool*) do
+        (mp:process-unstop (thread-process thr))))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;Thread methods and functions
 (defmethod thread-exec ((self thread))
   (loop
@@ -136,7 +140,7 @@ inspired by : http://software.intel.com/fr-fr/articles/Thread-pool
   (let ((thread (make-thread)))
     (setf (thread-process thread)
           (mp:process-run-function
-           (format nil "TP-Worker ~d" (1+ (length (thread-pool-threads *thread-pool*)))) nil
+           (format nil "OM - TP Worker ~d" (1+ (length (thread-pool-threads *thread-pool*)))) nil
            'thread-exec thread))
     (push thread (nthcdr (length (thread-pool-threads *thread-pool*)) (thread-pool-threads *thread-pool*)))
     (incf (thread-pool-count *thread-pool*))))
@@ -211,7 +215,7 @@ inspired by : http://software.intel.com/fr-fr/articles/Thread-pool
             (set-children-callbacks self child)))))
 
 (defmethod compute-tree ((self t-tree))
-  (setf (t-tree-dispatcher self) (mp:process-run-function "TP-tree-Dispatcher" nil 'dispatch-tree self)))
+  (setf (t-tree-dispatcher self) (mp:process-run-function "OM - TP tree Dispatcher" nil 'dispatch-tree self)))
 
 (defmethod dispatch-tree ((self t-tree))
   (let ((max (reduce #'max (mapcar #'length (t-tree-packs self)))))

@@ -68,55 +68,58 @@ This object can automate improvization generation based on the rtimprovizer clas
     (player-scheduler self)))
  
 
+(defmethod force-proceed-impro-handler ((self impro-handler))
+  (setf (beat-index self) (+ (beat-pos self) (epsilon self)))
+  (proceed-impro-handler self))
+
 ;;;Run one generation step
 (defmethod proceed-impro-handler ((self impro-handler))
-  (ignore-errors
-    (let* ((beat-index (beat-index self))
-           (scenario-suffix (nthcdr beat-index (expanded-scenario self)))
-           (bdur (beat-dur self))
-           result-beats-list result-schedlist result-length tmp-chseq queue)
-      ;;;When improvization is not over
-      (when (< beat-index (beat-max self))
-        ;;;Run improvization as far as possible
-        (setq result-beats-list (improvize-loop-next-factor (rtimprovizer self)
-                                                            scenario-suffix
-                                                            bdur 
-                                                            beat-index)
-              result-length (length result-beats-list))
-        ;;;Stretch the result beat list to the desired tempo
-        (loop for bt in result-beats-list do
-              (setf (MidiSet bt) (timestretch (MidiSet bt) (/ bdur (duration bt)))
-                    (duration bt) bdur))
-        ;;;Add the generated beat list to the handler beat-list, set the new empty position and the next generation index
-        (setf (beat-list self) (append (nthcar beat-index (beat-list self)) result-beats-list)
-              (empty-pos self) (length (beat-list self))
-              (beat-index self) (+ beat-index result-length))
-        ;;;Display hack, only for Jerome's demo
-        (setq tmp-chseq (beats->chseq (beat-list self) bdur 0))
-        (when (eq self *test-solo-handler*)
-          (copy-chseq-data tmp-chseq *solo-chord*))
-        (when (eq self *test-accomp-handler*)
-          (copy-chseq-data tmp-chseq *accomp-chord*))
-        ;;;When the generation gave a non-null result
-        (when result-beats-list
-          ;;;Turn the result beat list into a scheduling list
-          (when (setq result-schedlist (midi->schedlist (beats->midi result-beats-list bdur 0 (* beat-index bdur)) self))
-            ;;;Set the player-scheduler queue accrding to new values
-            (mp:with-lock ((om-get-scheduler-lock (player-scheduler self)))
-              ;;;If the player scheduler has a non-null queue, cut the non-processed queue at the right place, keeping only the note-off midi events, and mix with the new queue + sort.
-              (if (setq queue (om-get-scheduler-queue (player-scheduler self)))
-                  (let* ((indx (or (position (caar result-schedlist) queue :test '<= :key 'car) (length queue)))
-                         (queue-prefix (nthcar indx queue))
-                         (queue-suffix (nthcdr indx queue))
-                         evt notes-off)
-                    (loop for elem in queue-suffix do
-                          (setq evt (caar (last elem)))
-                          (if (and (eq (type-of evt) 'om-midi::midi-evt) (eq (om-midi:midi-evt-type evt) :keyoff))
-                              (push elem notes-off)))
-                    (setq result-schedlist (sort (append result-schedlist notes-off) '< :key #'car))
-                    (om-set-scheduler-queue (player-scheduler self) (append (nthcar indx queue) result-schedlist)))
-                ;;;If the player scheduler has no queue, set it to the result queue
-                (om-set-scheduler-queue (player-scheduler self) result-schedlist)))))) t)))
+  (let* ((beat-index (beat-index self))
+         (scenario-suffix (nthcdr beat-index (expanded-scenario self)))
+         (bdur (beat-dur self))
+         result-beats-list result-schedlist result-length tmp-chseq queue)
+    ;;;When improvization is not over
+    (when (< beat-index (beat-max self))
+      ;;;Run improvization as far as possible
+      (setq result-beats-list (improvize-loop-next-factor (rtimprovizer self)
+                                                          scenario-suffix
+                                                          bdur 
+                                                          beat-index)
+            result-length (length result-beats-list))
+      ;;;Stretch the result beat list to the desired tempo
+      (loop for bt in result-beats-list do
+            (setf (MidiSet bt) (timestretch (MidiSet bt) (/ bdur (duration bt)))
+                  (duration bt) bdur))
+      ;;;Add the generated beat list to the handler beat-list, set the new empty position and the next generation index
+      (setf (beat-list self) (append (nthcar beat-index (beat-list self)) result-beats-list)
+            (empty-pos self) (length (beat-list self))
+            (beat-index self) (+ beat-index result-length))
+      ;;;Display hack, only for Jerome's demo
+      (setq tmp-chseq (beats->chseq (beat-list self) bdur 0))
+      (when (eq self *test-solo-handler*)
+        (copy-chseq-data tmp-chseq *solo-chord*))
+      (when (eq self *test-accomp-handler*)
+        (copy-chseq-data tmp-chseq *accomp-chord*))
+      ;;;When the generation gave a non-null result
+      (when result-beats-list
+        ;;;Turn the result beat list into a scheduling list
+        (when (setq result-schedlist (midi->schedlist (beats->midi result-beats-list bdur 0 (* beat-index bdur)) self))
+          ;;;Set the player-scheduler queue accrding to new values
+          (mp:with-lock ((om-get-scheduler-lock (player-scheduler self)))
+            ;;;If the player scheduler has a non-null queue, cut the non-processed queue at the right place, keeping only the note-off midi events, and mix with the new queue + sort.
+            (if (setq queue (om-get-scheduler-queue (player-scheduler self)))
+                (let* ((indx (or (position (caar result-schedlist) queue :test '<= :key 'car) (length queue)))
+                       (queue-prefix (nthcar indx queue))
+                       (queue-suffix (nthcdr indx queue))
+                       evt notes-off)
+                  (loop for elem in queue-suffix do
+                        (setq evt (caar (last elem)))
+                        (if (and (eq (type-of evt) 'om-midi::midi-evt) (eq (om-midi:midi-evt-type evt) :keyoff))
+                            (push elem notes-off)))
+                  (setq result-schedlist (sort (append result-schedlist notes-off) '< :key #'car))
+                  (om-set-scheduler-queue (player-scheduler self) (append (nthcar indx queue) result-schedlist)))
+              ;;;If the player scheduler has no queue, set it to the result queue
+              (om-set-scheduler-queue (player-scheduler self) result-schedlist)))))) t))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;Tools
 ;;;Translate a beat-list to a midi-evts-list
