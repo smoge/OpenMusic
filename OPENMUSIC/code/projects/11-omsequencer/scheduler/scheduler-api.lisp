@@ -75,7 +75,9 @@ Ircam (C) 2014
 (defmethod om-get-clock-time ((self sch::scheduler))
   (sch:get-clock-time self))
 
-(defmethod om-with-scheduler ((queue list))
+(defmethod om-with-scheduler ((queue list) &optional tick)
   "Starts a scheduler that will handle the 'queue' list execution. 
 Queue is of type : ((timestamp1 Function1 &optional Datalist1) (timestamp2 Function2 &optional Datalist2)...)"
-  (om-start-scheduler (om-autoset-scheduler-tick (om-make-scheduler :queue queue))))
+  (if tick
+      (om-start-scheduler (om-make-scheduler :queue queue :tick tick))
+    (om-start-scheduler (om-autoset-scheduler-tick (om-make-scheduler :queue queue)))))
