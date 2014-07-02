@@ -36,6 +36,12 @@ Author : D.Bouche
    reschedule-sch-task
    generate-task-id
 
+   ;;;Object tools
+   build-sch-object
+   release-sch-object
+   schedule-sch-object
+   reschedule-sch-object
+
    ;;;Variables
    *sequencer-scheduler*
    *sequencer-scheduler-type*
@@ -45,6 +51,7 @@ Author : D.Bouche
 (defvar *sequencer-queue* nil)
 (defvar *sequencer-alarm* nil)
 (defvar *sch-task-pool* nil)
+(defvar *sch-object-pool* nil)
 
 (defconstant SCH_ASYNCHRONOUS 0)
 (defconstant SCH_SYNCHRONOUS 1)
@@ -54,11 +61,17 @@ Author : D.Bouche
 (defstruct (sequencer-scheduler (:include scheduler))
   (queue-position 0 :type integer))
 
+(defstruct (sch-object)
+  (name "sch-object" :type string)
+  (id nil :type string)
+  (tasklist nil :type list)
+  (duration 0 :type integer)
+  (timestamp 0 :type integer))
+
 (defstruct (sch-task)
   (name "sch-task" :type string)
   (id nil :type string)
-  (event #'(lambda (self)) :type function)
-  (object nil)
+  (event #'(lambda (data)) :type function)
   (data nil)
   (readyp nil :type boolean)
   (timestamp 0 :type integer))
@@ -66,7 +79,9 @@ Author : D.Bouche
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;Init and Abort
 (defun init-sequencer-scheduler ()
   (when (not *sch-task-pool*)
-    (setq *sch-task-pool* (loop for i from 1 to 100 collect (make-sch-task))))
+    (setq *sch-task-pool* (loop for i from 1 to 150 collect (make-sch-task))))
+  (when (not *sch-object-pool*)
+    (setq *sch-object-pool* (loop for i from 1 to 50 collect (make-sch-object))))
   (when (not *sequencer-scheduler*)
     (setq *sequencer-scheduler* (make-sequencer-scheduler
                                     :name "sequencer-scheduler"
@@ -190,8 +205,8 @@ Author : D.Bouche
   (mp:with-lock ((sequencer-scheduler-queue-lock *sequencer-scheduler*))
     (let ((task (cadr (nth (sequencer-scheduler-queue-position *sequencer-scheduler*) *sequencer-queue*))))
       (sequencer-scheduler-queue-position *sequencer-scheduler*)
-      (when (and task (sch-task-readyp task)) 
-        (funcall (sch-task-event task) task))))
+      (when (and task (sch-task-readyp task))
+        (if (sch-task-data task) (apply (sch-task-event task) (sch-task-data task)) (funcall (sch-task-event task) task)))))
   ;(when (>= (incf (sequencer-scheduler-queue-position *sequencer-scheduler*)) (length *sequencer-queue*))
   ;  (stop-scheduler *sequencer-scheduler*))
   ;(incf (sequencer-scheduler-queue-position *sequencer-scheduler*))
@@ -212,26 +227,24 @@ Author : D.Bouche
   (remove-if (constantly t) list :start n :end (1+ n)))
 
 ;;;Get a new sch-task : it looks if there is some free available structure, or it builds a new one.
-(defun build-sch-task (&key (name "sch-task") id (event #'(lambda (self))) object data (readyp t) (timestamp 0))
+(defun build-sch-task (&key (name "sch-task") id (event #'(lambda (data))) data (readyp t) (timestamp 0))
   (let ((task (or (pop *sch-task-pool*) (make-sch-task))))
     (setf (sch-task-name task) name
           (sch-task-id task) (or id (generate-task-id))
           (sch-task-event task) event
-          (sch-task-object task) object
-          (sch-task-data task) data
+          (sch-task-data task) (if (listp data) data (list data))
           (sch-task-readyp task) readyp
           (sch-task-timestamp task) timestamp)
     task))
 
 ;;;Cleans a task structure
 (defmethod clean-sch-task ((self sch-task))
-  (setf (sch-task-name task) "sch-task"
-        (sch-task-id task) nil
-        (sch-task-event task) #'(lambda (self))
-        (sch-task-object task) nil
-        (sch-task-data task) nil
-        (sch-task-readyp task) t
-        (sch-task-timestamp task) 0)
+  (setf (sch-task-name self) "sch-task"
+        (sch-task-id self) nil
+        (sch-task-event self) #'(lambda (data))
+        (sch-task-data self) nil
+        (sch-task-readyp self) t
+        (sch-task-timestamp self) 0)
   self)
 
 ;;;Release a task (ie. clean it and push it back in the pool)
@@ -278,6 +291,51 @@ Author : D.Bouche
           (random (expt 16 4))
           (random (expt 16 6))
           (random (expt 16 6))))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;Object Tools
+;;;Get a new sch-object : it looks if there is some free available structure, or it builds a new one.
+(defun build-sch-object (&key (name "sch-object") id tasklist (duration 0) (timestamp 0))
+  (let ((obj (or (pop *sch-object-pool*) (make-sch-object))))
+    (setf (sch-object-name obj) name
+          (sch-object-id obj) (or id (generate-task-id))
+          (sch-object-tasklist obj) tasklist
+          (sch-object-duration obj) duration
+          (sch-object-timestamp obj) timestamp)
+    obj))
+
+;;;Cleans an object structure
+(defmethod clean-sch-object ((self sch-object))
+  (setf (sch-object-name self) "sch-object"
+        (sch-object-id self) nil
+        (sch-object-tasklist self) nil
+        (sch-object-duration self) 0
+        (sch-object-timestamp self) 0)
+  self)
+
+;;;Release an object (ie. clean it and push it back in the pool)
+(defmethod release-sch-object ((self sch-object))
+  (push (clean-sch-object self) *sch-object-pool*))
+
+;;;Schedule an object. It schedules all it's tasks.
+(defmethod schedule-sch-object ((self sch-object))
+  (loop for task in (sch-object-tasklist self) do
+        (schedule-sch-task task)))
+
+;;;Reschedule an object. It reschedules all it's tasks.
+(defmethod reschedule-sch-object ((self sch-object) new-time)
+  (let ((delay (- new-time (sch-task-timestamp self))))
+    (setf (sch-task-timestamp self) new-time)
+    (loop for task in (sch-object-tasklist self) do
+          (reschedule-sch-task task (+ (sch-task-timestamp task) delay)))))
+
+(defmethod unschedule-sch-object ((self sch-object))
+  (loop for task in (sch-object-tasklist self) do
+        (unschedule-sch-task task)))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;Scheduler Tools
 
 ;;;QUEUE ORDER TESTS FUNCTIONS

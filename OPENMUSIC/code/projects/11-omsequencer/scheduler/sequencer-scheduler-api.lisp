@@ -5,7 +5,6 @@ Author : D.Bouche
 Ircam (C) 2014
 |#
 
-
 (in-package :om)
 
 ;;;=============================================================================================Sequencer Scheduler Structure
@@ -19,8 +18,8 @@ Ircam (C) 2014
 
 (defun om-get-sequencer-scheduler-type ()
   (if (eq sch:*sequencer-scheduler-type* sch::sch_synchronous)
-      (values sch::sch_synchronous :synchronous)
-    (values sch::sch_asynchronous :asynchronous)))
+      (values :synchronous sch::sch_synchronous)
+    (values :asynchronous sch::sch_asynchronous)))
 (defun om-set-sequencer-scheduler-type (type)
   (if (eq type :synchronous) 
       (setq sch:*sequencer-scheduler-type* sch::sch_synchronous) 
@@ -34,12 +33,71 @@ Ircam (C) 2014
 (defmethod om-get-sequencer-scheduler-queue-position ((self sch::sequencer-scheduler))
   (sch::sequencer-scheduler-queue-position self))
 
+;;;=============================================================================================Sequencer Scheduler Transport
+(defmethod om-start-sequencer-scheduler ((self sch::sequencer-scheduler) &optional time)
+  (sch:start-scheduler self time))
+
+(defmethod om-pause-sequencer-scheduler ((self sch::sequencer-scheduler) &optional time)
+  (sch:pause-scheduler self time))
+
+(defmethod om-continue-sequencer-scheduler ((self sch::sequencer-scheduler) &optional time)
+  (sch:continue-scheduler self time))
+
+(defmethod om-stop-sequencer-scheduler ((self sch::sequencer-scheduler))
+  (sch:stop-scheduler self))
+
+(defmethod om-jump-sequencer-scheduler ((self sch::sequencer-scheduler) time)
+  (sch::jump-scheduler self time))
+
+;;;=============================================================================================Sequencer Object Structure
+(defun om-build-sequencer-object (&key name id tasklist (duration 0) (timestamp 0))
+  (sch:build-sch-object :name (or name "sch-object") 
+                        :id (or id (sch:generate-task-id)) 
+                        :tasklist tasklist 
+                        :duration (or duration 0) 
+                        :timestamp (or timestamp 0)))
+
+(defmethod om-release-sequencer-object ((self sch::sch-object))
+  (sch:release-sch-object self))
+
+(defmethod om-get-sequencer-object-name ((self sch::sch-object))
+  (sch::sch-object-name self))
+(defmethod om-set-sequencer-object-name ((self sch::sch-object) name)
+  (setf (sch::sch-object-name self) name))
+
+(defmethod om-get-sequencer-object-id ((self sch::sch-object))
+  (sch::sch-object-id self))
+(defmethod om-set-sequencer-object-id ((self sch::sch-object) id)
+  (setf (sch::sch-object-id self) id))
+
+(defmethod om-get-sequencer-object-tasklist ((self sch::sch-object))
+  (sch::sch-object-tasklist self))
+(defmethod om-set-sequencer-object-tasklist ((self sch::sch-object) tasklist)
+  (setf (sch::sch-object-tasklist self) tasklist))
+
+(defmethod om-get-sequencer-object-duration ((self sch::sch-object))
+  (sch::sch-object-duration self))
+(defmethod om-set-sequencer-object-duration ((self sch::sch-object) duration)
+  (setf (sch::sch-object-duration self) duration))
+
+(defmethod om-get-sequencer-object-timestamp ((self sch::sch-object))
+  (sch::sch-object-timestamp self))
+(defmethod om-set-sequencer-object-timestamp ((self sch::sch-object) timestamp)
+  (setf (sch::sch-object-timestamp self) timestamp))
+
+;;;=============================================================================================Sequencer Objects Scheduling
+(defmethod om-schedule-sequencer-object ((self sch::sch-object))
+  (sch:schedule-sch-object self))
+(defmethod om-reschedule-sequencer-object ((self sch::sch-object) new-time)
+  (sch:reschedule-sch-object self new-time))
+(defmethod om-unschedule-sequencer-object ((self sch::sch-object))
+  (sch::unschedule-sch-object self))
+
 ;;;=============================================================================================Sequencer Task Structure
-(defun om-build-sequencer-task (&key name id event object data (readyp t) timestamp)
+(defun om-build-sequencer-task (&key name id event data (readyp t) timestamp)
   (sch:build-sch-task :name (or name "sch-task") 
                       :id (or id (sch:generate-task-id)) 
-                      :event (or event #'(lambda (self))) 
-                      :object object 
+                      :event (or event #'(lambda (data))) 
                       :data data 
                       :readyp readyp 
                       :timestamp (or timestamp 0)))
@@ -61,11 +119,6 @@ Ircam (C) 2014
   (sch::sch-task-event self))
 (defmethod om-set-sequencer-task-fun ((self sch::sch-task) fun)
   (setf (sch::sch-task-event self) fun))
-
-(defmethod om-get-sequencer-task-obj ((self sch::sch-task))
-  (sch::sch-task-object self))
-(defmethod om-set-sequencer-task-obj ((self sch::sch-task) object)
-  (setf (sch::sch-task-object self) object))
 
 (defmethod om-get-sequencer-task-data ((self sch::sch-task))
   (sch::sch-task-data self))
@@ -89,3 +142,5 @@ Ircam (C) 2014
   (sch:schedule-sch-task self))
 (defmethod om-reschedule-sequencer-task ((self sch::sch-task) new-time)
   (sch:reschedule-sch-task self new-time))
+(defmethod om-unschedule-sequencer-task ((self sch::sch-task))
+  (sch::unschedule-sch-task self))
