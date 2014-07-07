@@ -10,7 +10,7 @@ The change will take effect at the next start.
 *sequencer-queue* is a list of this type : ((Timestamp1 Task1 ID1) (Timestamp2 Task2 Id2) ...).
 This list can be modified and it's access is locked while it's being read, so operations like inserting, deleting or moving an element have to wait.
 
-Tasks are defined by the "sch-task" structure :
+Tasks are defined by the "obj-task" structure :
    - "name" : a task name,
    - "id" : an unique ID, generally used to reschedule tasks,
    - "event" : a lambda function representing the triggering of the task, typically this function needs to achieve it's goal instantly (not much computations).
@@ -30,17 +30,17 @@ Author : D.Bouche
    abort-sequencer-scheduler
 
    ;;;Task tools
-   build-sch-task
-   release-sch-task
-   schedule-sch-task
-   reschedule-sch-task
+   build-obj-task
+   release-obj-task
+   schedule-obj-task
+   reschedule-obj-task
    generate-task-id
 
    ;;;Object tools
-   build-sch-object
-   release-sch-object
-   schedule-sch-object
-   reschedule-sch-object
+   build-seq-object
+   release-seq-object
+   schedule-seq-object
+   reschedule-seq-object
 
    ;;;Variables
    *sequencer-scheduler*
@@ -50,8 +50,8 @@ Author : D.Bouche
 (defvar *sequencer-scheduler* nil)
 (defvar *sequencer-queue* nil)
 (defvar *sequencer-alarm* nil)
-(defvar *sch-task-pool* nil)
-(defvar *sch-object-pool* nil)
+(defvar *obj-task-pool* nil)
+(defvar *seq-object-pool* nil)
 
 (defconstant SCH_ASYNCHRONOUS 0)
 (defconstant SCH_SYNCHRONOUS 1)
@@ -61,15 +61,15 @@ Author : D.Bouche
 (defstruct (sequencer-scheduler (:include scheduler))
   (queue-position 0 :type integer))
 
-(defstruct (sch-object)
-  (name "sch-object" :type string)
+(defstruct (seq-object)
+  (name "seq-object" :type string)
   (id nil :type string)
   (tasklist nil :type list)
   (duration 0 :type integer)
   (timestamp 0 :type integer))
 
-(defstruct (sch-task)
-  (name "sch-task" :type string)
+(defstruct (obj-task)
+  (name "obj-task" :type string)
   (id nil :type string)
   (event #'(lambda (data)) :type function)
   (data nil)
@@ -78,10 +78,10 @@ Author : D.Bouche
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;Init and Abort
 (defun init-sequencer-scheduler ()
-  (when (not *sch-task-pool*)
-    (setq *sch-task-pool* (loop for i from 1 to 150 collect (make-sch-task))))
-  (when (not *sch-object-pool*)
-    (setq *sch-object-pool* (loop for i from 1 to 50 collect (make-sch-object))))
+  (when (not *obj-task-pool*)
+    (setq *obj-task-pool* (loop for i from 1 to 150 collect (make-obj-task))))
+  (when (not *seq-object-pool*)
+    (setq *seq-object-pool* (loop for i from 1 to 50 collect (make-seq-object))))
   (when (not *sequencer-scheduler*)
     (setq *sequencer-scheduler* (make-sequencer-scheduler
                                     :name "sequencer-scheduler"
@@ -205,8 +205,8 @@ Author : D.Bouche
   (mp:with-lock ((sequencer-scheduler-queue-lock *sequencer-scheduler*))
     (let ((task (cadr (nth (sequencer-scheduler-queue-position *sequencer-scheduler*) *sequencer-queue*))))
       (sequencer-scheduler-queue-position *sequencer-scheduler*)
-      (when (and task (sch-task-readyp task))
-        (if (sch-task-data task) (apply (sch-task-event task) (sch-task-data task)) (funcall (sch-task-event task) task)))))
+      (when (and task (obj-task-readyp task))
+        (if (obj-task-data task) (apply (obj-task-event task) (obj-task-data task)) (funcall (obj-task-event task) task)))))
   ;(when (>= (incf (sequencer-scheduler-queue-position *sequencer-scheduler*)) (length *sequencer-queue*))
   ;  (stop-scheduler *sequencer-scheduler*))
   ;(incf (sequencer-scheduler-queue-position *sequencer-scheduler*))
@@ -226,44 +226,44 @@ Author : D.Bouche
 (defun remove-nth (list n)
   (remove-if (constantly t) list :start n :end (1+ n)))
 
-;;;Get a new sch-task : it looks if there is some free available structure, or it builds a new one.
-(defun build-sch-task (&key (name "sch-task") id (event #'(lambda (data))) data (readyp t) (timestamp 0))
-  (let ((task (or (pop *sch-task-pool*) (make-sch-task))))
-    (setf (sch-task-name task) name
-          (sch-task-id task) (or id (generate-task-id))
-          (sch-task-event task) event
-          (sch-task-data task) (if (listp data) data (list data))
-          (sch-task-readyp task) readyp
-          (sch-task-timestamp task) timestamp)
+;;;Get a new obj-task : it looks if there is some free available structure, or it builds a new one.
+(defun build-obj-task (&key (name "obj-task") id (event #'(lambda (data))) data (readyp t) (timestamp 0))
+  (let ((task (or (pop *obj-task-pool*) (make-obj-task))))
+    (setf (obj-task-name task) name
+          (obj-task-id task) (or id (generate-task-id))
+          (obj-task-event task) event
+          (obj-task-data task) (if (listp data) data (list data))
+          (obj-task-readyp task) readyp
+          (obj-task-timestamp task) timestamp)
     task))
 
 ;;;Cleans a task structure
-(defmethod clean-sch-task ((self sch-task))
-  (setf (sch-task-name self) "sch-task"
-        (sch-task-id self) nil
-        (sch-task-event self) #'(lambda (data))
-        (sch-task-data self) nil
-        (sch-task-readyp self) t
-        (sch-task-timestamp self) 0)
+(defmethod clean-obj-task ((self obj-task))
+  (setf (obj-task-name self) "obj-task"
+        (obj-task-id self) nil
+        (obj-task-event self) #'(lambda (data))
+        (obj-task-data self) nil
+        (obj-task-readyp self) t
+        (obj-task-timestamp self) 0)
   self)
 
 ;;;Release a task (ie. clean it and push it back in the pool)
-(defmethod release-sch-task ((self sch-task))
-  (push (clean-sch-task self) *sch-task-pool*))
+(defmethod release-obj-task ((self obj-task))
+  (push (clean-obj-task self) *obj-task-pool*))
 
 ;;;Schedule a task. According to it's timestamp, it pushes it int the right place of the queue.
-(defmethod schedule-sch-task ((self sch-task))
+(defmethod schedule-obj-task ((self obj-task))
   (when *sequencer-scheduler*
     (mp:with-lock ((sequencer-scheduler-queue-lock *sequencer-scheduler*))
       (insert-sequencer-element
-       (let ((p (position (sch-task-timestamp self) *sequencer-queue* :test '>= :key 'car :from-end t)))
+       (let ((p (position (obj-task-timestamp self) *sequencer-queue* :test '>= :key 'car :from-end t)))
          (if p (1+ p) 0))
-       (list (sch-task-timestamp self) self (sch-task-id self))))
+       (list (obj-task-timestamp self) self (obj-task-id self))))
     (restore-main-scheduler-cursor)))
 
 ;;;Unschedule a task
-(defmethod unschedule-sch-task ((self sch-task))
-  (let ((pos (position (sch-task-id self) *sequencer-queue* :key 'caddr :test 'equalp)))
+(defmethod unschedule-obj-task ((self obj-task))
+  (let ((pos (position (obj-task-id self) *sequencer-queue* :key 'caddr :test 'equalp)))
     (when pos 
       (progn
         (mp:with-lock ((sequencer-scheduler-queue-lock *sequencer-scheduler*))
@@ -271,14 +271,14 @@ Author : D.Bouche
         (restore-main-scheduler-cursor)))))
 
 ;;;Reschedule a task. It removes it from the queue and reschedule it with an updated timestamp.
-(defmethod reschedule-sch-task ((self sch-task) new-time)
-  (setf (sch-task-timestamp self) new-time)
-  (let ((pos (position (sch-task-id self) *sequencer-queue* :key 'caddr :test 'equalp)))
+(defmethod reschedule-obj-task ((self obj-task) new-time)
+  (setf (obj-task-timestamp self) new-time)
+  (let ((pos (position (obj-task-id self) *sequencer-queue* :key 'caddr :test 'equalp)))
     (when pos 
       (progn
         (mp:with-lock ((sequencer-scheduler-queue-lock *sequencer-scheduler*))
           (setq *sequencer-queue* (remove-nth *sequencer-queue* pos)))
-        (schedule-sch-task self)))))
+        (schedule-obj-task self)))))
 
 
 ;;;Generate a unique ID.
@@ -295,44 +295,44 @@ Author : D.Bouche
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;Object Tools
-;;;Get a new sch-object : it looks if there is some free available structure, or it builds a new one.
-(defun build-sch-object (&key (name "sch-object") id tasklist (duration 0) (timestamp 0))
-  (let ((obj (or (pop *sch-object-pool*) (make-sch-object))))
-    (setf (sch-object-name obj) name
-          (sch-object-id obj) (or id (generate-task-id))
-          (sch-object-tasklist obj) tasklist
-          (sch-object-duration obj) duration
-          (sch-object-timestamp obj) timestamp)
+;;;Get a new seq-object : it looks if there is some free available structure, or it builds a new one.
+(defun build-seq-object (&key (name "seq-object") id tasklist (duration 0) (timestamp 0))
+  (let ((obj (or (pop *seq-object-pool*) (make-seq-object))))
+    (setf (seq-object-name obj) name
+          (seq-object-id obj) (or id (generate-task-id))
+          (seq-object-tasklist obj) tasklist
+          (seq-object-duration obj) duration
+          (seq-object-timestamp obj) timestamp)
     obj))
 
 ;;;Cleans an object structure
-(defmethod clean-sch-object ((self sch-object))
-  (setf (sch-object-name self) "sch-object"
-        (sch-object-id self) nil
-        (sch-object-tasklist self) nil
-        (sch-object-duration self) 0
-        (sch-object-timestamp self) 0)
+(defmethod clean-seq-object ((self seq-object))
+  (setf (seq-object-name self) "seq-object"
+        (seq-object-id self) nil
+        (seq-object-tasklist self) nil
+        (seq-object-duration self) 0
+        (seq-object-timestamp self) 0)
   self)
 
 ;;;Release an object (ie. clean it and push it back in the pool)
-(defmethod release-sch-object ((self sch-object))
-  (push (clean-sch-object self) *sch-object-pool*))
+(defmethod release-seq-object ((self seq-object))
+  (push (clean-seq-object self) *seq-object-pool*))
 
 ;;;Schedule an object. It schedules all it's tasks.
-(defmethod schedule-sch-object ((self sch-object))
-  (loop for task in (sch-object-tasklist self) do
-        (schedule-sch-task task)))
+(defmethod schedule-seq-object ((self seq-object))
+  (loop for task in (seq-object-tasklist self) do
+        (schedule-obj-task task)))
 
 ;;;Reschedule an object. It reschedules all it's tasks.
-(defmethod reschedule-sch-object ((self sch-object) new-time)
-  (let ((delay (- new-time (sch-task-timestamp self))))
-    (setf (sch-task-timestamp self) new-time)
-    (loop for task in (sch-object-tasklist self) do
-          (reschedule-sch-task task (+ (sch-task-timestamp task) delay)))))
+(defmethod reschedule-seq-object ((self seq-object) new-time)
+  (let ((delay (- new-time (obj-task-timestamp self))))
+    (setf (obj-task-timestamp self) new-time)
+    (loop for task in (seq-object-tasklist self) do
+          (reschedule-obj-task task (+ (obj-task-timestamp task) delay)))))
 
-(defmethod unschedule-sch-object ((self sch-object))
-  (loop for task in (sch-object-tasklist self) do
-        (unschedule-sch-task task)))
+(defmethod unschedule-seq-object ((self seq-object))
+  (loop for task in (seq-object-tasklist self) do
+        (unschedule-obj-task task)))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
@@ -347,7 +347,7 @@ Author : D.Bouche
 (defun testorder (n)
   (dotimes (i n)
     (let ((ts (* 1290 i)))
-      (schedule-sch-task (make-sch-task :id (generate-task-id) 
+      (schedule-obj-task (make-obj-task :id (generate-task-id) 
                                              :name (format nil "~A" i)
                                              :event #'(lambda () (print (list (get-clock-time *sequencer-scheduler*) ts)))
                                              :readyp t
