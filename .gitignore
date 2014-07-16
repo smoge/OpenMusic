@@ -5,5 +5,7 @@
 *.nfasl
 *.ufasl
 
+*.app/
+
 release-osx
 release-src

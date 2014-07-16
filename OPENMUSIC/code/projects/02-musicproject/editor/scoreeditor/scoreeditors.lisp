@@ -29,8 +29,7 @@
 ;======================================================
 (defclass scoreEditor (EditorView object-editor play-editor-mixin) 
   ((ctr-view :initform nil :accessor ctr-view)
-   (mode :initform nil :accessor mode)
-   ))
+   (mode :initform nil :accessor mode)))
 
 ;;; SPECIAL TITLEBAR
 (defclass score-titlebar (editor-titlebar) 
@@ -1526,7 +1525,7 @@
         (lastobject (object self))
         (newobject nil))
     (when data
-      (setf newobject (record2obj (panel self) recordlist))
+      (setf newobject (record2obj (panel self) data))
       (when newobject
         (setf (object self) newobject)
         (change-val-of-reference self newobject lastobject)

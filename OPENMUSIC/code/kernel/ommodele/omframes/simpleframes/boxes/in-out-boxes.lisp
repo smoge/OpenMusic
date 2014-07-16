@@ -442,9 +442,19 @@
    (declare (ignore numout))
    (if *compiling-macro-boite* (defval self) (in-symbol self)))
 
-(defmethod omNG-box-value ((self OMIn) &optional (numout 0))
-   (declare (ignore numout))
-   (eval (defval self)))
+;(defmethod omNG-box-value ((self OMIn) &optional (numout 0))
+;   (declare (ignore numout))
+;   (eval (defval self)))
+
+(defmethod omNG-box-value ((self OMIn) &optional (numout nil))
+   (if numout 
+       (nth numout (current-box-value self))
+     (current-box-value self)))
+
+;;; OMout does not store values (?)
+(defmethod current-box-value ((self OMin) &optional (numout nil))
+  (list (eval (defval self))))
+
 
 (defmethod get-default-input-val ((self OMIn)) nil) 
 (defmethod do-add-one-input ((self OMIN))  nil)

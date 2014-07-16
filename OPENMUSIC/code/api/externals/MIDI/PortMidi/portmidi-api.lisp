@@ -93,10 +93,10 @@
   (portmidi-close-all-midi-ports)
   (om-stop-portmidi)
   (pm::pm-initialize)
-  (print "PortMidi reinitialized.")
+  (print "PortMIDI reinitialized.")
   (let ((devices (list-devices)))
     (if devices 
-        (print (format nil "~%PortMIDI - devices detected:~%~{~A~^~%~}" 
+        (print (format nil "PortMIDI - devices detected:~%~{~A~^~%~}" 
                        (mapcar #'(lambda (device) (format nil "~s [~A]" (nth 4 device) 
                                                          (cond ((and (nth 6 device) (nth 8 device)) "IN-OUT")
                                                                ((nth 6 device) "INPUT")
@@ -294,7 +294,6 @@ Works like `make-message` but combines `upper` and `lower` to the status byte."
                     (sleep 0.001)))))
     
     (PROGN
-      (print (format nil "ERROR IN MIDI RECEIVE LOOP!"))
       (pm::pm-EventBufferFree buff)
       (mp:process-kill mp::*current-process*)
       )

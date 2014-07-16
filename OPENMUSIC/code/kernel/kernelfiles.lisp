@@ -123,6 +123,12 @@
 "boxes/dialog-item-boxes"
 "boxes/receive-box"
 
+;-----------Reactif------------------------------- 
+"reactive/reactive-behaviours"
+"reactive/send-receive"
+"reactive/route"
+"reactive/collect"
+
 ;-----------Aux windows------------------------------ 
 "graphics/infowindow"
 "graphics/palette"
