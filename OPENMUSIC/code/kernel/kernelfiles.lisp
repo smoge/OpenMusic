@@ -71,6 +71,9 @@
 "ommodele/ombasicobjects/omfolder"         
 "ommodele/ombasicobjects/omworkspace" 
 "ommodele/ombasicobjects/boxes/ombox"  
+
+"reactive/reactive-boxes"
+
 "ommodele/ombasicobjects/boxes/patchboxes" 
 "ommodele/ombasicobjects/boxes/temporalboxes" 
 "ommodele/ombasicobjects/boxes/classtreeboxes"  
