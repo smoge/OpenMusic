@@ -65,7 +65,7 @@ Author : D.Bouche
   (name "seq-object" :type string)
   (id nil :type string)
   (tasklist nil :type list)
-  (duration 0 :type integer)
+  (duration 0 :type (or null integer))
   (timestamp 0 :type integer))
 
 (defstruct (obj-task)
