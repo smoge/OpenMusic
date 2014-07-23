@@ -50,11 +50,11 @@ Ircam (C) 2014
   (sch::jump-scheduler self time))
 
 ;;;=============================================================================================Sequencer Object Structure
-(defun om-build-seq-object (&key name id tasklist (duration 0) (timestamp 0))
+(defun om-build-seq-object (&key name id tasklist duration (timestamp 0))
   (sch:build-seq-object :name (or name "seq-object") 
-                        :id (or id (sch:generate-task-id)) 
-                        :tasklist tasklist 
-                        :duration (or duration 0) 
+                        :id (or id (sch:generate-id)) 
+                        :tasklist tasklist
+                        :duration duration 
                         :timestamp (or timestamp 0)))
 
 (defmethod om-release-seq-object ((self sch::seq-object))
@@ -85,18 +85,10 @@ Ircam (C) 2014
 (defmethod om-set-seq-object-timestamp ((self sch::seq-object) timestamp)
   (setf (sch::seq-object-timestamp self) timestamp))
 
-;;;=============================================================================================Sequencer Objects Scheduling
-(defmethod om-schedule-seq-object ((self sch::seq-object))
-  (sch:schedule-seq-object self))
-(defmethod om-reschedule-seq-object ((self sch::seq-object) new-time)
-  (sch:reschedule-seq-object self new-time))
-(defmethod om-unschedule-seq-object ((self sch::seq-object))
-  (sch::unschedule-seq-object self))
-
 ;;;=============================================================================================Sequencer Task Structure
 (defun om-build-obj-task (&key name id event data (readyp t) timestamp)
   (sch:build-obj-task :name (or name "obj-task") 
-                      :id (or id (sch:generate-task-id)) 
+                      :id (or id (sch:generate-id)) 
                       :event (or event #'(lambda (data))) 
                       :data data 
                       :readyp readyp 
@@ -144,3 +136,12 @@ Ircam (C) 2014
   (sch:reschedule-obj-task self new-time))
 (defmethod om-unschedule-obj-task ((self sch::obj-task))
   (sch::unschedule-obj-task self))
+
+;;;=============================================================================================Sequencer Objects Scheduling
+(defmethod om-schedule-seq-object ((self sch::seq-object))
+  (sch:schedule-seq-object self))
+(defmethod om-reschedule-seq-object ((self sch::seq-object) new-time)
+  (sch:reschedule-seq-object self new-time))
+(defmethod om-unschedule-seq-object ((self sch::seq-object))
+  (sch::unschedule-seq-object self))
+

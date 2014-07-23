@@ -29,18 +29,18 @@ Author : D.Bouche
    init-sequencer-scheduler
    abort-sequencer-scheduler
 
-   ;;;Task tools
-   build-obj-task
-   release-obj-task
-   schedule-obj-task
-   reschedule-obj-task
-   generate-task-id
-
    ;;;Object tools
    build-seq-object
    release-seq-object
    schedule-seq-object
    reschedule-seq-object
+
+   ;;;Task tools
+   build-obj-task
+   release-obj-task
+   schedule-obj-task
+   reschedule-obj-task
+   generate-id
 
    ;;;Variables
    *sequencer-scheduler*
@@ -230,7 +230,7 @@ Author : D.Bouche
 (defun build-obj-task (&key (name "obj-task") id (event #'(lambda (data))) data (readyp t) (timestamp 0))
   (let ((task (or (pop *obj-task-pool*) (make-obj-task))))
     (setf (obj-task-name task) name
-          (obj-task-id task) (or id (generate-task-id))
+          (obj-task-id task) (or id (generate-id))
           (obj-task-event task) event
           (obj-task-data task) (if (listp data) data (list data))
           (obj-task-readyp task) readyp
@@ -282,7 +282,7 @@ Author : D.Bouche
 
 
 ;;;Generate a unique ID.
-(defun generate-task-id ()
+(defun generate-id ()
   (format nil "~4X~4X-~4X-~4X-~4X-~4X~4X" 
           (random (expt 16 4))
           (random (expt 16 4))
@@ -294,12 +294,12 @@ Author : D.Bouche
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;Object Tools
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;Object Tools
 ;;;Get a new seq-object : it looks if there is some free available structure, or it builds a new one.
-(defun build-seq-object (&key (name "seq-object") id tasklist (duration 0) (timestamp 0))
+(defun build-seq-object (&key name id tasklist (duration 0) (timestamp 0))
   (let ((obj (or (pop *seq-object-pool*) (make-seq-object))))
-    (setf (seq-object-name obj) name
-          (seq-object-id obj) (or id (generate-task-id))
+    (setf (seq-object-name obj) (or name "seq-object")
+          (seq-object-id obj) (or id (generate-id))
           (seq-object-tasklist obj) tasklist
           (seq-object-duration obj) duration
           (seq-object-timestamp obj) timestamp)
@@ -326,7 +326,7 @@ Author : D.Bouche
 ;;;Reschedule an object. It reschedules all it's tasks.
 (defmethod reschedule-seq-object ((self seq-object) new-time)
   (let ((delay (- new-time (obj-task-timestamp self))))
-    (setf (obj-task-timestamp self) new-time)
+    (setf (seq-object-timestamp self) new-time)
     (loop for task in (seq-object-tasklist self) do
           (reschedule-obj-task task (+ (obj-task-timestamp task) delay)))))
 
@@ -336,8 +336,7 @@ Author : D.Bouche
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;Scheduler Tools
-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;Scheduler Tools
 ;;;QUEUE ORDER TESTS FUNCTIONS
 (defun ordered (l)
   (let (temp1)
@@ -347,7 +346,7 @@ Author : D.Bouche
 (defun testorder (n)
   (dotimes (i n)
     (let ((ts (* 1290 i)))
-      (schedule-obj-task (make-obj-task :id (generate-task-id) 
+      (schedule-obj-task (make-obj-task :id (generate-id) 
                                              :name (format nil "~A" i)
                                              :event #'(lambda () (print (list (get-clock-time *sequencer-scheduler*) ts)))
                                              :readyp t
