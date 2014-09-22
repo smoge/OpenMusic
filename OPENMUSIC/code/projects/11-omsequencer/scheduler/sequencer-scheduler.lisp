@@ -65,6 +65,7 @@ Author : D.Bouche
   (name "seq-object" :type string)
   (id nil :type string)
   (tasklist nil :type list)
+  (data nil)
   (duration 0 :type (or null integer))
   (timestamp 0 :type integer))
 
@@ -274,7 +275,7 @@ Author : D.Bouche
 (defmethod reschedule-obj-task ((self obj-task) new-time)
   (setf (obj-task-timestamp self) new-time)
   (let ((pos (position (obj-task-id self) *sequencer-queue* :key 'caddr :test 'equalp)))
-    (when pos 
+    (when pos
       (progn
         (mp:with-lock ((sequencer-scheduler-queue-lock *sequencer-scheduler*))
           (setq *sequencer-queue* (remove-nth *sequencer-queue* pos)))
@@ -325,7 +326,7 @@ Author : D.Bouche
 
 ;;;Reschedule an object. It reschedules all it's tasks.
 (defmethod reschedule-seq-object ((self seq-object) new-time)
-  (let ((delay (- new-time (obj-task-timestamp self))))
+  (let ((delay (- new-time (seq-object-timestamp self))))
     (setf (seq-object-timestamp self) new-time)
     (loop for task in (seq-object-tasklist self) do
           (reschedule-obj-task task (+ (obj-task-timestamp task) delay)))))
