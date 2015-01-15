@@ -98,6 +98,7 @@ The different outputs correspond to each of the inputs. To get the result of the
      (setf (frame-size newbox) (om-correct-point size))
      (setf (numouts newbox) numouts)
      (setf (inputs newbox) (mapcar #'(lambda (input) (eval input)) inputs))
+     (set-box-to-inputs (inputs newbox) newbox)
      (setf (value newbox) value)
      (setf (allow-lock newbox) lock)
      newbox))
@@ -228,11 +229,21 @@ Ex. (omif (= 4 5) 'A)  ==>  NIL
          (if test
            (setf rep (list (omNG-box-value (second (inputs self)))))
            (setf rep (list (when (third (inputs self)) (omNG-box-value (third (inputs self)))))))
+<<<<<<< HEAD
          (when (equal (allow-lock self) "&")
            (setf (ev-once-p self) t)
            (setf (value self) rep))
          (when (equal (allow-lock self) "x")
            (setf (value self) rep))
+=======
+         (cond ((equal (allow-lock self) "&")
+                (setf (ev-once-p self) t)
+                (setf (value self) rep))
+               ((equal (allow-lock self) "x")
+                (setf (value self) rep))
+               ((equal (allow-lock self) nil) 
+                (setf (value self) rep)))
+>>>>>>> master
          (nth 0 rep)))))
 
 ;--------------CONDITIONAL-------------------------
@@ -277,11 +288,13 @@ This function is equaivalent to a logical OR."
                while (not rep) do
                (setf rep (omNG-box-value item)))
          (when rep (setf rep (list rep)))
-         (when (equal (allow-lock self) "&")
-           (setf (ev-once-p self) t)
-           (setf (value self) rep))
-         (when (equal (allow-lock self) "x")
-           (setf (value self) rep))
+         (cond ((equal (allow-lock self) "&")
+                (setf (ev-once-p self) t)
+                (setf (value self) rep))
+               ((equal (allow-lock self) "x")
+                (setf (value self) rep))
+               ((equal (allow-lock self) nil) 
+                (setf (value self) rep)))
          (nth 0 rep)))))
 
 ;--------------Initialize-Instance---------------------
@@ -334,7 +347,9 @@ This function is equaivalent to a logical OR."
      (mapc #'(lambda (oldin newin) 
                (setf (connected? newin) (connected? oldin))) 
            (inputs self) new-inputs)
-     (setf (inputs self) new-inputs)))
+     (setf (inputs self) new-inputs)
+     (set-box-to-inputs (inputs self) self)
+     (inputs self)))
 
  
 (defmethod omNG-box-value ((self OMBoxCallNextInit) &optional (numout 0))
@@ -379,12 +394,15 @@ OMOR can be used to compose conditions as input to an OMIF"
          (loop while (not rep)
                for item in (cdr (inputs self)) do
                (setf rep (omNG-box-value item))) 
-         (when (equal (allow-lock self) "&")
-           (setf (ev-once-p self) t)
-           (setf (value self) (list rep)))
-         (when (equal (allow-lock self) "x")
-           (setf (value self) (list rep)))
-         rep))))
+         (when rep (setf rep (list rep)))
+         (cond ((equal (allow-lock self) "&")
+                (setf (ev-once-p self) t)
+                (setf (value self) rep))
+               ((equal (allow-lock self) "x")
+                (setf (value self) rep))
+               ((equal (allow-lock self) nil) 
+                (setf (value self) rep)))
+         (nth 0 rep)))))
 
 (defmethod call-gen-code ((self ORboxCall) numout)
    (declare (ignore numout))
@@ -429,12 +447,15 @@ OMAND can be used to compose conditions as input to an OMIF"
          (loop while rep
                for item in (cdr (inputs self)) do
                (setf rep (omNG-box-value item))) 
-         (when (equal (allow-lock self) "&")
-           (setf (ev-once-p self) t)
-           (setf (value self) (list rep)))
-         (when (equal (allow-lock self) "x")
-           (setf (value self) (list rep)))
-         rep))))
+         (when rep (setf rep (list rep)))
+         (cond ((equal (allow-lock self) "&")
+                (setf (ev-once-p self) t)
+                (setf (value self) rep))
+               ((equal (allow-lock self) "x")
+                (setf (value self) rep))
+               ((equal (allow-lock self) nil) 
+                (setf (value self) rep)))
+         (nth 0 rep)))))
 
 
 (defmethod call-gen-code ((self ANDboxCall) numout)

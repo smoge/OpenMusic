@@ -51,7 +51,9 @@
 (defmethod draw-after-box ((self ReceiveBoxFrame)) 
    (when (etat (object self))
      (om-with-focused-view self
-       (om-draw-hilite-rect 0 0 (w self) (h self)))))
+       (om-with-line-size 4
+         (om-with-fg-color self (om-make-color 0.5 0.2 0.2)
+           (om-draw-rect 0 0 (- (w self) 2) (- (h self) 2)))))))
 
 (defmethod OpenEditorframe ((self ReceiveBox)) (om-beep))
 
@@ -70,3 +72,5 @@
 
 (defmethod deliver-message (message (fun symbol))
   (when (fboundp fun) (apply fun (list message))))
+
+

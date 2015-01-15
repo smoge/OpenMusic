@@ -27,25 +27,27 @@
 
 (defvar *libportmidi-pathname* 
   #+win32
-  "/WINDOWS/system32/libportmidi.dll"
+  "/WINDOWS/system32/libPortMidi.dll"
   #+macosx
-  "/usr/lin/libportmidi.dylib"
+  "/usr/bin/libportmidi.dylib"
   #+linux
   "libportmidi.so")
 
 (defvar *libportmidi* nil)
 
-#-linux (defun load-portmidi-lib ()
-	  (print (concatenate 'string "Loading PortMIDI library: " (namestring *libportmidi-pathname*)))
-	  (if (probe-file *libportmidi-pathname*)
-	      (setf *libportmidi* (fli:register-module "PortMidi" 
-						       :real-name (namestring *libportmidi-pathname*)
-						       :connection-style :immediate)
-		    )
-	      (print (format nil "Library PortMIDI not found!! [~A]" (namestring *libportmidi-pathname*)))
-	      ))
+#-linux 
+(defun load-portmidi-lib ()
+  (print (concatenate 'string "Loading PortMIDI library: " (namestring *libportmidi-pathname*)))
+  (if (probe-file *libportmidi-pathname*)
+      (setf *libportmidi* (fli:register-module "PortMidi" 
+                                               :real-name (namestring *libportmidi-pathname*)
+                                               :connection-style :immediate)
+            )
+    (print (format nil "Library PortMIDI not found!! [~A]" (namestring *libportmidi-pathname*)))
+    ))
 
-#+linux (defun load-portmidi-lib ()
+#+linux 
+(defun load-portmidi-lib ()
 	  (print (concatenate 'string "Loading PortMIDI library: " (namestring *libportmidi-pathname*)))
 	  (setf *libportmidi* (fli:register-module (namestring *libportmidi-pathname*) 
 						   :connection-style :immediate)))
@@ -90,12 +92,15 @@
 		 (opened :int))
 
 (defun pm-device-info-interf (ptr)
-  (cffi:foreign-string-to-lisp 
-   (cffi:foreign-slot-value ptr 'pm-device-info 'interf)))
+  (or (ignore-errors (cffi:foreign-string-to-lisp 
+                      (cffi:foreign-slot-value ptr 'pm-device-info 'interf)))
+      "Error reading interface name"))
 
 (defun pm-device-info-name (ptr)
-  (cffi:foreign-string-to-lisp
-   (cffi:foreign-slot-value ptr 'pm-device-info 'name)))
+  (or (ignore-errors
+        (cffi:foreign-string-to-lisp
+         (cffi:foreign-slot-value ptr 'pm-device-info 'name)))
+      "Error reading device name"))
 
 (defun pm-device-info-input (ptr)
   (not (= (cffi:foreign-slot-value ptr 'pm-device-info 'input) 0)))
@@ -271,8 +276,7 @@
   ;;; (unless (Started) (Start))
   (cffi:with-foreign-object (p1 :pointer)
     (let ((err (pm-open-output-PTR p1 device (cffi:null-pointer)
-                               buffer-size 
-                               (cffi:null-pointer) (cffi:null-pointer)
+                               buffer-size (cffi:null-pointer) (cffi:null-pointer)
                                latency)))
       (if (= err pmNoError)
           (cffi:mem-ref p1 :pointer)

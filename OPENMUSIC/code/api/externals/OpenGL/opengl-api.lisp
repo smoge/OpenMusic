@@ -683,7 +683,9 @@
    (lastxy :initform nil :initarg :lastxy :accessor lastxy)
    (camera :initform (make-camera :color '(0.15 0.15 0.15 1.0)) :initarg :camera :accessor camera))
   (:default-initargs 
-   :configuration (list :rgba t :depth nil :double-buffered t)
+   :configuration
+      #-linux (list :rgba t :depth t :double-buffered t :depth-buffer 32) ;depth buffer allows to have depth in 3D drawing
+      #+linux (list :rgba t :depth nil :double-buffered t)
    :use-display-list t
    :display-callback 'opengl-redisplay-canvas
    :resize-callback 'opengl-resize-canvas
@@ -741,7 +743,7 @@
     (let ((last (lastxy canvas)))
       (when last
         (opengl:rendering-on (canvas)
-	  (polar-rotate-icosahedron canvas (- x (car last)) (- y (cdr last))))
+	  (polar-rotate-icosahedron canvas (- x (car last)) (- (cdr last) y)))
         (opengl-redisplay-canvas canvas))
       (setf (lastxy canvas) (cons x y))))
 
@@ -761,7 +763,7 @@
       (when last
         (let ((eye (eye (camera canvas))))
           (setf (xyz-y eye)
-                (max (+ (xyz-y eye) (/ (- (cdr last) y) 20)) 1.5d0)))
+                (min (+ (xyz-y eye) (/ (- (cdr last) y) 20)) -1.5d0)))
         (opengl-redisplay-canvas canvas))
       (setf (lastxy canvas) (cons x y))))
 
@@ -818,12 +820,41 @@
 
 
 (defmethod om-init-3D-view ((self om-opengl-view))
-  ;(init-camera (camera self))
-  ;(setf (aspect (projection (camera self)))
-  ;      (coerce (/ (om-width self) (om-height self)) 'double-float))
+  (om-adapt-camera-to-object self)
   (initialize-viewer self)
   (opengl-redisplay-canvas self))
+  
+(defmethod om-adapt-camera-to-object ((self om-opengl-view))
+  (let* ((dist-y (compute-max-extent (om-get-gl-object self)))
+         (far-z (max 20.0d0 (* 5.0d0 dist-y))))
+    (setf (xyz-y (eye (camera self))) (* dist-y -1.0 ))
+    (setf (far (projection (camera self))) far-z)))
 
+(defun compute-max-extent (gl-object)
+  (let* ((points (om-3Dobj-points gl-object))
+         (xpts nil) (ypts nil) (zpts nil)
+          (xmi 0) (xma 0) (ymi 0) (yma 0) (zmi 0) (zma 0)
+          (maxextent 0))
+    (loop for point in points do
+          (push (nth 0 point) xpts)
+          (push (nth 1 point) ypts)
+          (push (nth 2 point) zpts))
+    (setq xpts (reverse xpts))
+    (setq ypts (reverse ypts))
+    (setq zpts (reverse zpts))  
+    (when xpts 
+      (setf xmi (reduce 'min xpts))
+      (setf xma (reduce 'max xpts)))
+    (when ypts 
+      (setf ymi (reduce 'min ypts))
+      (setf yma (reduce 'max ypts)))
+    (when zpts 
+      (setf zmi (reduce 'min zpts))
+      (setf zma (reduce 'max zpts)))
+    (setf maxextent (reduce 'max (list (abs xmi) (abs xma) (abs ymi) (abs yma) (abs zmi) (abs zma))))
+    (max 5.0d0 (* 4.0d0 maxextent))))
+
+  
 ;;; ------------------------------------------------------------
 
 (defclass om-3D-object (gl-object)
@@ -847,7 +878,8 @@
 (defmethod initialize-instance :after ((self om-3D-object) &key points &allow-other-keys)
   (setf (glvertexes self) (points2vertex points)))
 
-(defmethod draw ((self om-3D-object)) 
+(defmethod draw ((self om-3D-object))
+  (opengl:gl-shade-model opengl:*gl-smooth*)
   (om-draw-contents self))
 
 (defmethod om-draw-contents ((self om-3D-object)) nil)
@@ -871,6 +903,9 @@
 
 (defmethod om-get-3D-objects ((self om-3D-object-list))
   (objects self))
+
+(defmethod om-3Dobj-points ((self om-3D-object-list))
+  (apply 'append (mapcar 'om-3Dobj-points (objects self))))
 
 (defmethod draw ((self om-3D-object-list)) 
   (mapcar 'draw (objects self)))

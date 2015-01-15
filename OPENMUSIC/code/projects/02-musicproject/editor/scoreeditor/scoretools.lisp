@@ -1188,7 +1188,16 @@
                                     (name (reference self)))))
     (draw-extras self view size staff)))
 
-
+;;; GRILLE
+(defmethod draw-object :before ((self grap-voice) view x y zoom minx maxx miny maxy slot size linear? staff grille-p chnote)
+  (when (and grille-p (> (time-to-pixels view grille-p) 1))
+      (setf endxms (* (ceiling (pixels-to-time view (round (- maxx x))) 1000) 1000))
+      (om-with-fg-color view *om-gray-color* 
+        (om-with-line '(2 2)
+          (loop for time from 0 to endxms by grille-p do
+                (let ((posx (time-to-pixels view time)))
+                  (om-with-font (get-font-to-draw 6) (om-draw-string posx 10 (number-to-string time)))
+                  (om-draw-line posx  miny  posx  maxy)))))))
 
 
 
@@ -1384,22 +1393,23 @@
     (setf beams-num (if (listp beams) (car beams) beams))
     (setf delta-y (if (< beams-num 1) (list (round  linespace -2) 0) (list 0 0))) 
     (setf obj (make-instance 'grap-rest
-                :reference self
-                :durtot durtot
-                :headchar (first symb-info)
-                :points (second symb-info)
-                :beams-num  beams-num
-                :propre-group (if (listp beams) (second beams))
-                :main-point (list 0 (round (+ (car delta-y) ypos)))
-                :parent pere
-                :rectangle (list 0 0 sizex (apply '+ delta-y))
-                :selected (member self sel :test 'equal)))
+                             :reference self
+                             :durtot durtot
+                             :headchar (first symb-info)
+                             :points (second symb-info)
+                             :beams-num  beams-num
+                             :propre-group (if (listp beams) (second beams))
+                             :main-point (list 0 (round (+ (car delta-y) ypos)))
+                             :parent pere
+                             :rectangle (list 0 0 sizex (apply '+ delta-y))
+                             :selected (member self sel :test 'equal)))
     (when (listp  onlyhead)
       (setf (bigrest obj) (car onlyhead))
       (setf (headchar obj) (rest-4)))
     (when (gnotes self)
-        (setf (grap-grace-notes obj)
-              (make-graces-from-list (gnotes self) top staffsys linespace scale sel pere obj)))
+      (setf (grap-grace-notes obj)
+            (make-graces-from-list (gnotes self) top staffsys linespace scale sel pere obj))
+      (set-graces-dir-after (grap-grace-notes obj) obj staffsys linespace))   ;calculer le dir pour le graces en fait mettre l'opose pour obj
     (make-graphic-extras obj)
     (if (gnotes self)
         (list (grap-grace-notes obj) obj)
@@ -1524,8 +1534,10 @@
                     :reference self
                     :parent pere
                     :durtot durtot
-                    :stem (not (or (listp onlyhead) (equal onlyhead (head-4)) (equal onlyhead (head-8)) 
-                                   (equal onlyhead (head-2)) (equal onlyhead (head-1))))
+                    :stem ;(and 
+                           (not (or (listp onlyhead) (equal onlyhead (head-4)) (equal onlyhead (head-8)) 
+                                    (equal onlyhead (head-2)) (equal onlyhead (head-1))))
+                           ;(round (* 3 linespace))) ;;;; JB: stem must be a size for draw-object....??
                     :selected (member self sel :test 'equal)))
          (maxw 0) )
     (when (listp  onlyhead)
@@ -1552,22 +1564,30 @@
                   (setf (nth 0 (main-point notegrap)) (round (* linespace pos)))
                   (setf maxw (max maxw notew))
                   notegrap)))
+    
     ;=======  grace-notes
     (unless (graces? pere)
       (when (gnotes self)
         (setf (grap-grace-notes new-chr)
               (make-graces-from-list (gnotes self) top staffsys linespace scale sel pere new-chr))))
-    ;======== grace notes
+    
     (setf (beams-num new-chr) beams-num)
     (setf (propre-group new-chr) (if (listp beams) (second beams)))
     (when (and (stem new-chr) (not (group-p (parent self))))
       (setf (stemdir new-chr) (chord-direction new-chr (midicenter staffsys)))
       (setf (stemhigh new-chr) (round (* 3 linespace))))
+    
+    ;======== grace notes
+    (when  (grap-grace-notes new-chr) 
+      (set-graces-dir-after (grap-grace-notes new-chr) new-chr staffsys linespace))
+    
     (setf (rectangle new-chr)  (list 0 0  maxw 0))
     (make-graphic-extras new-chr)
     (if (gnotes self)
         (list (grap-grace-notes new-chr) new-chr)
       new-chr)))
+
+
 
 (defmethod chord-direction ((self grap-ryth-chord) staff-center)
    (let* ((thenotes (Lmidic (reference self)))
@@ -1701,7 +1721,12 @@
        (setf (chiflevel new-group) (calcule-chiff-level new-group)))
      (when (figure-? new-group)
        (setf direstart (calcule-dir-et-start new-group (midicenter staffsys)))
-       (set-dir-and-high new-group (car direstart) linespace))
+       (set-dir-and-high new-group (car direstart) linespace)
+       ;;; grace notes
+       (loop for item in (get-chord&rest-not-graces new-group) do
+             (when  (grap-grace-notes item)
+               (set-graces-dir-after (grap-grace-notes item) item staffsys linespace)))
+       )
      (make-graphic-extras new-group)
      new-group))
 
@@ -2358,45 +2383,78 @@
 ;;;========================
 ;;; CLIC IN OBJ DETECTION
 ;;;========================
+(defmethod recursive-get-x ((obj t) &optional (child 'car)) (x obj))
+(defmethod recursive-get-x ((obj grap-container) &optional (child 'car)) 
+  (or (x obj) (and (inside obj) (recursive-get-x (funcall child (inside obj))))))
 
-(defmethod click-in-obj ((self grap-container) type where)
+(defmethod grap-obj-visible ((obj grap-container) panel)
+  (let ((x0 (om-h-scroll-position panel))
+        (zoom (staff-zoom panel))
+        (xx (x obj)))
+    (if (x obj)
+        (and (>= (* (x obj) zoom) x0)
+             (<= (* (x obj) zoom) (+ x0 (w panel))))
+      (let ((x1 (recursive-get-x (car (inside obj)) 'car))
+            (x2 (recursive-get-x (last-elem (inside obj)) 'last-elem)))
+        (or (and (>= (* x1 zoom) x0)
+                 (<= (* x1 zoom) (+ x0 (w panel))))
+            (and (>= (* x2 zoom) x0)
+                 (<= (* x2 zoom) (+ x0 (w panel))))
+            (and (<= (* x1 zoom) x0)
+                 (>= (* x2 zoom) (+ x0 (w panel))))))
+    )))
+
+(defmethod grap-obj-visible (obj panel)
+  (let ((x0 (om-h-scroll-position panel))
+        (zoom (staff-zoom panel))
+        (xx (x obj)))
+    (or (null (x obj))
+        (and (>= (* xx zoom) x0)
+             (<= (* xx zoom) (+ x0 (w panel)))))))
+
+(defmethod click-in-obj ((self grap-container) type where view)
    (if (subtypep (type-of self) type)
      (let* ((rect (rectangle self)))
-       (when (point-in-rectangle-p  where (second rect) (first rect) (fourth rect) (third rect))
+       (when (and (grap-obj-visible self view) 
+                  (point-in-rectangle-p  where (second rect) (first rect) (fourth rect) (third rect)))
          self))
      (let (rep)
        (loop for item in (inside self)
              while (not rep) do
-             (setf rep (click-in-obj item type where)))
+             (setf rep (click-in-obj item type where view)))
        rep)))
 
-(defmethod click-in-obj ((self grap-group) type where)
+(defmethod click-in-obj ((self grap-group) type where view)
    (if (subtypep  (type-of self) type)
      (let* ((rect (rectangle self)) rep)
        (loop for item in (inside self)
              while (not rep) do
-             (setf rep (click-in-obj item type where)))
-       (or rep (when (point-in-rectangle-p where (second rect) (first rect) (fourth rect) (third rect))
+             (setf rep (click-in-obj item type where view)))
+       (or rep (when (and (grap-obj-visible self view)
+                         (point-in-rectangle-p where (second rect) (first rect) (fourth rect) (third rect)))
                  self)))
      (call-next-method)))
 
-(defmethod click-in-obj ((self grap-note) type where)
+(defmethod click-in-obj ((self grap-note) type where view)
   (if (subtypep (type-of self) type)
        (let* ((rect (rectangle self)))
-       (when (point-in-rectangle-p where (second rect) (first rect) (fourth rect) (third rect))
+       (when (and (grap-obj-visible self view)
+                  (point-in-rectangle-p where (second rect) (first rect) (fourth rect) (third rect)))
          self))))
 
-(defmethod click-in-obj ((self grap-rest) type where)
+(defmethod click-in-obj ((self grap-rest) type where view)
    (if (or (equal type 'grap-chord)
            (equal type 'grap-note))
      (let* ((rect (rectangle self)))
-       (when (point-in-rectangle-p where (second rect) (first rect) (fourth rect) (third rect))
+       (when (and (grap-obj-visible self view)
+                  (point-in-rectangle-p where (second rect) (first rect) (fourth rect) (third rect)))
          self))))
 
-(defmethod click-in-obj ((self grap-rest) type where)
+(defmethod click-in-obj ((self grap-rest) type where view)
    (when (equal type 'grap-chord)
      (let* ((rect (rectangle self)))
-       (when (point-in-rectangle-p where (second rect) (first rect) (fourth rect) (third rect))
+       (when (and (grap-obj-visible self view)
+                  (point-in-rectangle-p where (second rect) (first rect) (fourth rect) (third rect)))
          self))))
 
 ;;; click in score :
@@ -2409,69 +2467,69 @@
 ;;; mENU CONTEXT
 
 ;;; VOICE = MESURE, CHORD , ou NOTE
-(defmethod click-in-obj ((self grap-voice) (type (eql 'contex)) where)
+(defmethod click-in-obj ((self grap-voice) (type (eql 'contex)) where view)
   (call-next-method)
   (let (repm repc repn)
     (loop for item in (inside self)
           while (not repm) do
-          (setf repm (click-in-obj item (grap-class-from-type "measure") where))
+          (setf repm (click-in-obj item (grap-class-from-type "measure") where view))
           )
     (when repm
       (loop for obj in (inside repm)
             while (not repc) do
-            (setf repc (click-in-obj obj (grap-class-from-type "chord") where)))
+            (setf repc (click-in-obj obj (grap-class-from-type "chord") where view)))
       (when (and repc (not (is-rest-? repc)))
         (loop for note in (inside repc)
               while (not repn) do
-              (setf repn (click-in-obj note (grap-class-from-type "note") where)))))
+              (setf repn (click-in-obj note (grap-class-from-type "note") where view)))))
     (or repn repc repm)))
 
 ;;; CONTAINER = CHORD OU NOTE
-(defmethod click-in-obj ((self grap-container) (type (eql 'contex)) where)
+(defmethod click-in-obj ((self grap-container) (type (eql 'contex)) where view)
   (let (repc repn)
     (loop for item in (inside self)
           while (not repc) do
-          (setf repc (click-in-obj item (grap-class-from-type "chord") where)))
+          (setf repc (click-in-obj item (grap-class-from-type "chord") where view)))
     (when (and repc (not (is-rest-? repc)))
       (loop for note in (inside repc)
             while (not repn) do
-            (setf repn (click-in-obj note (grap-class-from-type "note") where))))
+            (setf repn (click-in-obj note (grap-class-from-type "note") where view))))
     (or repn repc)))
 
-(defmethod click-in-obj ((self grap-chord) (type (eql 'contex)) where)
+(defmethod click-in-obj ((self grap-chord) (type (eql 'contex)) where view)
   (let (repn)
     (loop for note in (inside self)
             while (not repn) do
-            (setf repn (click-in-obj note (grap-class-from-type "note") where)))
-    (or repn (click-in-obj self (grap-class-from-type "chord") where))))
+            (setf repn (click-in-obj note (grap-class-from-type "note") where view)))
+    (or repn (click-in-obj self (grap-class-from-type "chord") where view))))
 
-(defmethod click-in-obj ((self grap-note) (type (eql 'contex)) where)
-  (click-in-obj self (grap-class-from-type "note") where))
+(defmethod click-in-obj ((self grap-note) (type (eql 'contex)) where view)
+  (click-in-obj self (grap-class-from-type "note") where view))
 
 ;;; N'iMPORTE
 
 ;;; CONTAINER = CHORD OU NOTE
-(defmethod click-in-obj ((self grap-container) (type (eql 'any)) where)
+(defmethod click-in-obj ((self grap-container) (type (eql 'any)) where view)
   (let (repc repn)
     (loop for item in (inside self)
           while (not repc) do
-          (setf repc (click-in-obj item (grap-class-from-type "chord") where)))
+          (setf repc (click-in-obj item (grap-class-from-type "chord") where view)))
     (when (and repc (not (selected repc)) (not (is-rest-? repc)) (> (length (inside repc)) 1))
       (loop for note in (inside repc)
             while (not repn) do
-            (setf repn (click-in-obj note (grap-class-from-type "note") where))))
+            (setf repn (click-in-obj note (grap-class-from-type "note") where view))))
     (or repn repc)))
 
-(defmethod click-in-obj ((self grap-chord) (type (eql 'any)) where)
+(defmethod click-in-obj ((self grap-chord) (type (eql 'any)) where view)
   (let (repn)
     (loop for note in (inside self)
             while (not repn) do
-            (setf repn (click-in-obj note (grap-class-from-type "note") where)))
-    (or repn (click-in-obj self (grap-class-from-type "chord") where))))
+            (setf repn (click-in-obj note (grap-class-from-type "note") where view)))
+    (or repn (click-in-obj self (grap-class-from-type "chord") where view))))
 
 
 ;;; SIMPLE-CONTAINER = SELF OU NIL
-;(defmethod click-in-obj ((self simple-graph-container) (type (eql 'any)) where)
+;(defmethod click-in-obj ((self simple-graph-container) (type (eql 'any)) where view)
 ;  (let* ((rect (rectangle self)))
 ;       (when (point-in-rectangle-p where (second rect) (first rect) (fourth rect) (third rect))
 ;         self)))

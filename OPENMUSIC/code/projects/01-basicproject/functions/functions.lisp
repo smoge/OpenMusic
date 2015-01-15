@@ -114,7 +114,7 @@ The resulting function can be connected for example to SAMPLEFUN."
 
 (defun interpole (list-x list-y x-min x-max nbsamples)
   (if (= 1 nbsamples) (list (x-transfer (mat-trans (list list-x list-y)) (+ x-min (/ (- x-max x-min) 2))))
-  (let ((step (/ (- x-max x-min) (1- (float nbsamples)))))
+  (let ((step (/ (- x-max x-min) (1- (coerce nbsamples 'double-float)))))
     (loop with x = (pop list-x) and xx = (pop list-x) 
           and y = (pop list-y) and yy = (pop list-y)
           with x-index = x-min
@@ -244,18 +244,19 @@ If <nbs-sr> is an float (e.g. 0.5, 1.0...) it is interpreted as the sample rate 
           (values-list (mat-trans 
                         (mapcar #'(lambda (bpf) (multiple-value-list (om-sample bpf nbs-sr xmin xmax dec))) self))))
          ((numberp (car self))
-          (let* ((x0 (or xmin 0))
-                 (x1 (or xmax (1- (length self))))
-                 (lst (nthcdr x0 (if xmax (first-n self (1+ xmax)) self)))
-                 (xpts (arithm-ser 0 (1- (length lst)) 1))
-                 (ylist (if (integerp nbs-sr) 
-                            (interpole xpts lst x0 x1 nbs-sr)
-                          (interpolate xpts lst nbs-sr)))
-                 (xlist (arithm-ser 0 (1- (length ylist)) 1)))
-            (values (simple-bpf-from-list xlist ylist 'bpf (or dec 4))
-                    xlist
-                    (if dec (om-round ylist dec) ylist) 
-                    )))
+          (let* ((x0 (if xmin (round xmin) 0))
+                (x1 (or (if xmax (round xmax) (1- (length self)))))
+                (lst (nthcdr x0 (if xmax (first-n self (round (1+ xmax))) self)))
+                (xpts (arithm-ser 0 (1- (length lst)) 1)))
+            (when (and lst xpts)
+              (let* ((ylist (if (integerp nbs-sr) 
+                                (interpole xpts lst x0 x1 nbs-sr)
+                              (interpolate xpts lst nbs-sr)))
+                     (xlist (arithm-ser 0 (1- (length ylist)) 1)))
+                (values (simple-bpf-from-list xlist ylist 'bpf (or dec 4))
+                        xlist
+                        (if dec (om-round ylist dec) ylist) 
+                        )))))
          (t nil)))
    
 
@@ -279,7 +280,7 @@ If <nbs-sr> is an float (e.g. 0.5, 1.0...) it is interpreted as the sample rate 
       (let ((ylist (interpole (x-points self) (y-points self) x0 x1 nn))
             (xlist (if (integerp nbs-sr)
                        (cond ((> nbs-sr 1)
-                              (arithm-ser x0 x1 (float (/ (- x1 x0) (- nbs-sr 1))) nn))
+                              (arithm-ser x0 x1 (coerce (/ (- x1 x0) (1- nbs-sr)) 'double-float) nn))
                              ((= nbs-sr 1) 
                               (list (+ x0 (/ (- x1 x0) 2.0))))
                              (t (om-beep-msg "Number of sample must be > 0 !!!")))
@@ -596,25 +597,28 @@ Outputs
   :initvals '(nil nil nil)
   :doc "Extracts a segment (between <x1> and <x2>) from <self>."
   (let* ((xpts (x-points self))
-         (x1-pos (if x1 (position x1 xpts :test '=) 0))
-         (x2-pos (if x2 (position x2 xpts :test '=) (1- (length xpts)))))
+         
+         (x1-exact-pos (if x1 (position x1 xpts :test '=) 0))
+         (x1-pos (or x1-exact-pos (position x1 xpts :test '<) (length xpts)))
+
+         (x2-exact-pos (if x2 (position x2 xpts :test '=) (1- (length xpts))))
+         (x2-pos (or x2-exact-pos (position x2 xpts :test '> :from-end t) 0))
+         )
     (simple-bpf-from-list 
-     (om- (append (unless x1-pos (list x1))
-             (subseq xpts 
-                     (or x1-pos (position x1 xpts :test '<))
-                     (1+ (or x2-pos (position x2 xpts :test '> :from-end t))))
-             (unless x2-pos (list x2)))
+     (om- (append (unless x1-exact-pos (list x1))
+                  (subseq xpts x1-pos (1+ x2-pos))
+                  (unless x2-exact-pos (list x2)))
           (or x1 (car xpts)))
-     (append (unless x1-pos (list (x-transfer self x1)))
-             (subseq (y-points self) 
-                     (or x1-pos (position x1 xpts :test '<))
-                     (1+ (or x2-pos (position x2 xpts :test '> :from-end t))))
-             (unless x2-pos (list (x-transfer self x2))))
+     (append (unless x1-exact-pos (list (x-transfer self x1)))
+             (subseq (y-points self) x1-pos (1+ x2-pos))
+             (unless x2-exact-pos (list (x-transfer self x2))))
+     
      (type-of self) (decimals self))))
 
 
 ;(position 4.5 '(1 2 3 4 5 6) :test '> :from-end t)
 ;(subseq '(1 2 3 4 5 6) 0 3)
+
 
 (defmethod! bpf-scale ((self bpf) &key x1 x2 y1 y2)
   :icon 233

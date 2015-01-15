@@ -129,6 +129,7 @@ at the beat level. Here is an example:
   ))
 
 
+
 ;;;korrected-kant: kant correction by K. Haddad
 ;;;included in omquantify 21/10/2008 in OM 6.0.4
 ;;;the before last duration is mostly a rest followed by a continuation-chord
@@ -249,8 +250,8 @@ box."
           (format *om-stream*
                   "Warning: with the given constraints, ~D notes are lost while quantizing ~%"
                   *unquantized-notes*))
-        (om-print "cannot quantize with the given constraints"))
-      (om-beep))
+        (om-beep-msg "cannot quantize with the given constraints"))
+      )
     (setq result (nreverse result))
     ;;(unless (zerop *unquantized-notes*)
     ;; (and result (setf (pw::extra-measure-stuff (car result))

@@ -140,11 +140,15 @@ Elements of patchPanels are instace of the boxframe class.#enddoc#
                      (("d") "show Documentation")
                      (("e") "Edit lisp code")
                      (("t") "show Tutorial patch")
+<<<<<<< HEAD
+=======
+                     
+                     #+om-reactive(("r") "reactive box on/off")
+>>>>>>> master
                      ))
 
 (setf *patchhelp2* '((("c") "Change Connection Color")
                      (("A") "Align")
-                     ;(("D") "Redraw All")
                      (("i") "reInitialize size")
                      (("I") "reInitialize value")
                      (("m") "show/hide Miniview")
@@ -200,8 +204,9 @@ Elements of patchPanels are instace of the boxframe class.#enddoc#
     (case char
       (:om-key-delete (delete-general self))
       ;;;(#\f (make-undefined-box self (om-mouse-position self)))
-      (#\D  (om-invalidate-view self t))
       (#\d  (mapc 'show-big-doc actives))
+      (#\D (mapc 'update-doc actives))
+
       (#\c  (patch-color self))
       (#\e (mapc 'show-fun-code actives))
       (#\v  (om-eval-enqueue 
@@ -220,7 +225,7 @@ Elements of patchPanels are instace of the boxframe class.#enddoc#
            (reinit-connections self)
            (reinit-bg-picts self))
       (#\I (mapc 'reinit-contents actives))
-      (#\r (mapc 'update-doc actives))
+      
       (#\b (mapc 'add-rem-lock-button actives))
       
       (#\l (mapc 'add-rem-lambda-button actives))
@@ -265,6 +270,14 @@ Elements of patchPanels are instace of the boxframe class.#enddoc#
       (#\< (mapc #'(lambda (item) (delete-one-input item)) actives))
       (#\> (mapc #'(lambda (item) (add-all-inputs item)) actives))
       
+<<<<<<< HEAD
+=======
+      (#\r #+om-reactive(mapc #'(lambda (boxframe) 
+                                  (set-active (object boxframe) (not (active (object boxframe))))
+                                  (om-invalidate-view boxframe))
+                              actives))
+      
+>>>>>>> master
       (otherwise (om-beep)))))
 
 

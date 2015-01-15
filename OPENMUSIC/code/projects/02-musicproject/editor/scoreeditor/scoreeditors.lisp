@@ -746,14 +746,14 @@
 
 
 (defvar *scorehelp* nil)
-(setf *scorehelp* '((alt+clic "New Object")
-                    (del "Delete Selection")
+(setf *scorehelp* '(("alt+clic" "New Object")
+                    ("del" "Delete Selection")
                     (("c") "Show Channel Color")
                     (("C") "Change Selection Color")
                     (("o") "Open Selection Internal Editor")
-                    (ud "Transpose Selection")
-                    (lr "Change Selection Offset/Duration")
-                    (space "Play/Stop")))
+                    ("ud" "Transpose Selection")
+                    ("lr" "Change Selection Offset/Duration")
+                    ("space" "Play/Stop")))
 
 (defmethod get-help-list ((self scorepanel)) (list *scorehelp*))
 
@@ -926,7 +926,7 @@
 (defmethod get-click-in-obj ((self scorePanel) grap-obj mode where)
   (if (score-page-mode self)
       (page-click-in-obj self grap-obj mode where)
-      (click-in-obj grap-obj mode where)))
+      (click-in-obj grap-obj mode where self)))
 
 
 (defmethod collect-page-all-line-elements ((self scorePanel) grap-obj fdoc pagenum line)
@@ -955,7 +955,7 @@
              rep)
         (loop for item in elements
           while (not rep) do
-          (setf rep (click-in-obj item mode where))) rep)))))
+          (setf rep (click-in-obj item mode where self))) rep)))))
 
 
 (defmethod om-score-click-handler ((self scorePanel) where double-click-p)
@@ -1119,8 +1119,9 @@
   (let ((mode-obj (grap-class-from-type  (obj-mode self))))
     (setf *score-lock* t)
     (loop for item in (get-graph-type-obj (graphic-obj self) mode-obj) do
-          (when (rect-intersect (rectangle item) 
-                                (list (first rect) (second rect) (+ (first rect) (third rect)) (+ (second rect) (fourth rect))))
+          (when (and (grap-obj-visible item self)
+                     (rect-intersect (rectangle item)
+                                     (list (first rect) (second rect) (+ (first rect) (third rect)) (+ (second rect) (fourth rect)))))
             (push-select-note self item)
             ))
     (setf *score-lock* nil)
@@ -1888,13 +1889,13 @@
 
 
 (defmethod get-help-list ((self notepanel)) 
-  (list '((ud "Transpose")
-          (shift+ud "Transpose Octave")
-          (lr "Change Duration")
+  (list '(("ud" "Transpose")
+          ("shift+ud" "Transpose Octave")
+          ("lr" "Change Duration")
           (("C") "Change Color")
           (("c") "Show Channel Color")
           (("s") "Set Editor Scale")
-          (space "Play/Stop"))))
+          ("space" "Play/Stop"))))
 
 (defmethod panel-show-cursor-p ((self notepanel)) nil)
 
@@ -2016,17 +2017,17 @@
 
 
 (defmethod get-help-list ((self chordpanel)) 
-  (list '((alt+clic "Add Note")
-          (del "Delete Selection")
-          (tab "Change Obj. Mode")
-          (ud "Transpose Selection")
-          (shift+ud "Transpose Octave")
-          (lr "Change Durations")
+  (list '(("alt+clic" "Add Note")
+          ("del" "Delete Selection")
+          ("tab" "Change Obj. Mode")
+          ("ud" "Transpose Selection")
+          ("shift+ud" "Transpose Octave")
+          ("lr" "Change Durations")
           (("C") "Change Color")
           (("c") "Show Channel Color")
           (("s") "Set Editor Scale")
           (("t" "T") "Set/Remove Tonality")
-          (space "Play/Stop"))))
+          ("space" "Play/Stop"))))
 
 ;==================================
 ;chordseq
@@ -2415,17 +2416,17 @@
 
 
 (defmethod get-help-list ((self chordseqpanel)) 
-  (list '((alt+clic "Add Chord/Note")
-          (del "Delete Selection")
-          (tab "Change Obj. Mode")
+  (list '(("alt+clic" "Add Chord/Note")
+          ("del" "Delete Selection")
+          ("tab" "Change Obj. Mode")
           (("z") "Obj/Time Selection")
-          (ud "Transpose Selection")
-          (shift+ud "Transpose Octave")
+          ("ud" "Transpose Selection")
+          ("shift+ud" "Transpose Octave")
           (lr "Change Offsets/Dur.")
           (("*") "Group Chords")
           (("+") "Union Chords (Group + Offset)")
           (("c") "Show Channel Color")
-          (space "Play/Stop"))
+          ("space" "Play/Stop"))
         '((("g") "Show/Hide Grid")
           (("G") "Edit Grid Step")
           (("a") "Adjust Chords/Durs to Grid")
@@ -2651,16 +2652,16 @@
 
 
 (defmethod get-help-list ((self multiseqpanel)) 
-  (list '((alt+clic "Add Voice")
-          (del "Delete Selection")
-          (tab "Change Obj. Mode")
+  (list '(("alt+clic" "Add Voice")
+          ("del" "Delete Selection")
+          ("tab" "Change Obj. Mode")
           (("z") "Obj/Time Selection")
-          (ud "Transpose Selection")
-          (shift+ud "Transpose Octave")
-          (lr "Change Offsets/Dur.")
+          ("ud" "Transpose Selection")
+          ("shift+ud" "Transpose Octave")
+          ("lr" "Change Offsets/Dur.")
           (("+") "Union Voices")
           (("c") "Show Channel Color")
-          (space "Play/Stop"))
+          ("space" "Play/Stop"))
         '((("g") "Show/Hide Grid")
           (("G") "Edit Grid Step")
           (("a") "Adjust Chords/Durs to Grid")
@@ -2760,8 +2761,8 @@
         
 ;ACTIONS
 
-(defmethod set-unset-grille ((self voicepanel)) (om-beep))
-(defmethod edit-step-grille ((self voicepanel)) t)
+;(defmethod set-unset-grille ((self voicepanel)) (om-beep))
+;(defmethod edit-step-grille ((self voicepanel)) t)
 (defmethod translate-chords-p ((self voicepanel)) nil)
 
 
@@ -2882,16 +2883,16 @@
 
 
 (defmethod get-help-list ((self voicepanel)) 
-  (list '((cmd+clic "Add Note/Chord/Measure")
-          (del "Delete Selection")
-          (tab "Change Obj. Mode")
+  (list '(("cmd+clic" "Add Note/Chord/Measure")
+          ("del" "Delete Selection")
+          ("tab" "Change Obj. Mode")
           (("z") "Obj/Time Selection")
-          (ud "Transpose Selection")
-          (shift+ud "Transpose Octave")
+          ("ud" "Transpose Selection")
+          ("shift+ud" "Transpose Octave")
           (("+") "Union Pulses")
           (("-") "Break Group (Group Mode)")
-          (esc "Switch Note/Silence")
-          (1-9 "Subdivise Pulse")
+          ("esc" "Switch Note/Silence")
+          ("1-9" "Subdivise Pulse")
           (("=") "Tie Selection")
           (("/") "Untie Selection")
           ;(.)
@@ -2902,7 +2903,7 @@
           (("n") "Set Voice Name")
           (("o") "Open Internal Editor")
           (("c") "Show Channel Color")
-          (space "Play/Stop")
+          ("space" "Play/Stop")
           )))
 
 ;==============================================
@@ -2947,8 +2948,8 @@
      (setf (staff-sys self) (get-staff-system staff))
      obj))
 
-(defmethod set-unset-grille ((self polypanel)) (om-beep))
-(defmethod edit-step-grille ((self polypanel)) t)
+;(defmethod set-unset-grille ((self polypanel)) (om-beep))
+;(defmethod edit-step-grille ((self polypanel)) t)
 
 (defmethod draw-line-cursor ((self polypanel) &key newpixel (draw? t)) 0)
 
@@ -2998,10 +2999,10 @@
                      (when (graphic-obj self)
                        (om-with-clip-rect self (om-make-rect (+ x0 (- deltax (round size 2))) y0  (+ x0 (w self)) (+ y0 (h self)))
            
-                         (draw-object (graphic-obj self) self deltax deltay 
+                         (draw-object  (graphic-obj self) self deltax deltay 
                                       (staff-zoom self) x0 (+ x0 (w self)) y0 (+ y0 (h self) ) 
                                       (slots-mode self) (staff-size self) (linear? self) (staff-sys self) 
-                                      nil (noteaschan? self))
+                                      (grille-step-p self) (noteaschan? self))
                          (draw-score-selection (graphic-obj self) (selection? self) (staff-sys self) size)
                          (draw-edit-cursor self deltay)
                          )
@@ -3048,16 +3049,16 @@
 
 
 (defmethod get-help-list ((self polypanel)) 
-  (list '((alt+clic "Add Note/Chord/Measure/Voice")
-          (del "Delete Selection")
-          (tab "Change Obj. Mode")
+  (list '(("alt+clic" "Add Note/Chord/Measure/Voice")
+          ("del" "Delete Selection")
+          ("tab" "Change Obj. Mode")
           (("z") "Obj/Time Selection")
-          (ud "Transpose Selection")
-          (shift+ud "Transpose Octave")
+          ("ud" "Transpose Selection")
+          ("shift+ud" "Transpose Octave")
           (("+") "Union Pulses")
           (("-") "Break Group (Group Mode)")
-          (esc "Switch Note/Silence")
-          (1-9 "Subdivise Pulse")
+          ("esc" "Switch Note/Silence")
+          ("1-9" "Subdivise Pulse")
           (("=") "Tie Selection")
           (("/") "Untie Selection")
           ;(.)
@@ -3068,7 +3069,7 @@
           (("n") "Set Selected Voice Name")
           (("o") "Open Internal Editor")
           (("c") "Show Channel Color")
-          (space "Play/Stop")
+          ("space" "Play/Stop")
           )))
 
 

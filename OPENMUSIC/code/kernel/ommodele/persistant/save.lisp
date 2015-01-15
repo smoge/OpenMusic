@@ -896,6 +896,7 @@
     (setf (frame-name newbox) fname)
     (setf (name newbox) name)
     (setf (inputs newbox) (mapcar #'(lambda (input) (eval input)) inputs))
+    (set-box-to-inputs (inputs newbox) newbox)
     (when (and value (not dead?))
       (setf (value newbox) value))
     (if dead?
@@ -974,6 +975,7 @@
   (if (and instance (instance instance))
     (let ((newbox (omNG-make-new-boxcall instance (om-correct-point position) name)))
       (setf (inputs newbox) (mapcar #'(lambda (input) (eval input)) inputs))
+      (set-box-to-inputs (inputs newbox) newbox)
       (setf (value newbox) (instance instance))
       (setf (frame-name newbox) fname)
       (when size (setf (frame-size newbox) size))
@@ -1025,6 +1027,7 @@
   (let ((newbox (make-new-temp-output  name (om-correct-point position))))
     (setf (frame-name newbox) fname)
     (setf (inputs newbox) (mapcar #'(lambda (input) (eval input)) inputs))
+    (set-box-to-inputs (inputs newbox) newbox)
     (when fsize
       (setf (frame-size newbox) (om-correct-point fsize)))
     newbox))
@@ -1058,6 +1061,7 @@
       (setf newtempob (omNG-make-tempobj reference maqpos name))   
       (setf (numouts newtempob) numouts)
       (setf (inputs newtempob) (mapcar #'(lambda (input) (eval input)) inputs))
+      (set-box-to-inputs (inputs newtempob) newtempob)
       (setf (extend newtempob) sizex)
       (setf (colorframe newtempob) (om-correct-color clorf))
       (setf (free-store newtempob) store)

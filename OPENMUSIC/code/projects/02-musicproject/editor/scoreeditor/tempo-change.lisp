@@ -145,32 +145,33 @@
                  (chpos (second (car tempo)))
                  (cur-mes (nth mespos mesures))
                  (figlist (cons-gfig-tempo-list cur-mes)) 
-                 (thechord (nth chpos figlist))
                  )
-            (if rep
-                (setf rep (min rep
-                           (+ (min (+ y (line2pixel (posy (car (staff-list staff))) nil (/ size 4)))
-                                   (second (rectangle thechord))) (/ size -2))))
-              (setf rep (+ (min (+ y (line2pixel (posy (car (staff-list staff))) nil (/ size 4)))
-                                   (second (rectangle thechord))) (/ size -2))))
-            (setf thelist (cdr thelist))
-            (when thelist 
-              (setf dynamic? (third (second (car thelist)))))))
-    (when thelist
-      (let* ((tempo (car thelist))
-             (mespos (caar tempo))
-             (chpos (second (car tempo)))
-             (cur-mes (nth mespos mesures))
-             (figlist (cons-gfig-tempo-list cur-mes))
-             (thechord (nth chpos figlist))
-             )
-        (if rep
-            (setf rep (min rep
-                           (+ (min (+ y (line2pixel (posy (car (staff-list staff))) nil (/ size 4)))
-                                   (second (rectangle thechord))) (/ size -2))))
-          (setf rep (+ (min (+ y (line2pixel (posy (car (staff-list staff))) nil (/ size 4)))
-                            (second (rectangle thechord))) (/ size -2))))))
-    rep))
+            (when (and chpos figlist)
+              (let ((thechord (nth chpos figlist)))
+                    (if rep
+                        (setf rep (min rep
+                                       (+ (min (+ y (line2pixel (posy (car (staff-list staff))) nil (/ size 4)))
+                                               (second (rectangle thechord))) (/ size -2))))
+                      (setf rep (+ (min (+ y (line2pixel (posy (car (staff-list staff))) nil (/ size 4)))
+                                        (second (rectangle thechord))) (/ size -2))))
+                    (setf thelist (cdr thelist))
+                    (when thelist 
+                      (setf dynamic? (third (second (car thelist)))))))))
+          (when thelist
+            (let* ((tempo (car thelist))
+                   (mespos (caar tempo))
+                   (chpos (second (car tempo)))
+                   (cur-mes (nth mespos mesures))
+                   (figlist (cons-gfig-tempo-list cur-mes))
+                   (thechord (nth chpos figlist))
+                   )
+              (if rep
+                  (setf rep (min rep
+                                 (+ (min (+ y (line2pixel (posy (car (staff-list staff))) nil (/ size 4)))
+                                         (second (rectangle thechord))) (/ size -2))))
+                (setf rep (+ (min (+ y (line2pixel (posy (car (staff-list staff))) nil (/ size 4)))
+                                  (second (rectangle thechord))) (/ size -2))))))
+          rep))
 
 (defun draw-dynamic-line (x1 y x2)
   (om-with-dashline (om-draw-line x1 y x2 y)))
@@ -277,14 +278,15 @@
          (start (caar list))
          (mes (inside self))
          (curtempo (tempo-a-la-noire (car (tempo self))))
-         dynamic? )
+         dynamic?)
     (setf *dynamic-tempo-list* nil)
     (loop for item in mes
           for i = 0 then (+ i 1) do
           (when curtempo (change-qtempo item curtempo dynamic?))
-          (loop while (and list (= i (caaar list))) do
+          ; (print i) (print list)
+          (loop while (and list (= i (caaar list))) do   ;;; 
               (let ((chords (cons-chord&rest-list item)))
-                 (setf curtempo (tempo-a-la-noire (list (first (second (first list))) (second (second (first list))))))
+               (setf curtempo (tempo-a-la-noire (list (first (second (first list))) (second (second (first list))))))
                  (if (nth (second (caar list)) chords)
                      (progn
                        (set-last-dyn-tempo curtempo (nth (second (caar list)) chords))
@@ -296,7 +298,7 @@
                  (setf list (cdr list)))))
     (when *dynamic-tempo-list*
       (loop for list in (reverse *dynamic-tempo-list*) do
-            (compute-dynamic-tempi list))))) 
+            (compute-dynamic-tempi list)))))
 
 
 ;==========================
@@ -320,21 +322,27 @@
     (loop for i from (+ pos 1) to (- (length (inside self)) 1) do
           (change-qtempo (nth i (inside self)) tempo dynamic?))
     (change-qtempo-up (parent self) self tempo dynamic? (cons pos path))
-    (set-tempo-list self chord (cons pos path) tempo)))
+    (set-tempo-list self (cons pos path) tempo)))
 
 (defmethod change-qtempo-up ((self voice) chord tempo dynamic? path) 
   (let ((pos (position chord (inside self) :test 'equal)))
-    (set-tempo-list self chord (cons pos path) tempo)))
+    (set-tempo-list self (cons pos path) tempo)))
 
 (defun zeroplist (list)
   (null (remove 0 list)))
 
-(defun set-tempo-list (self chord pos tempo)
-  (setf (qtempo self) (if (atom (qtempo self))
-                          (if (zeroplist  pos)
-                              (list (list '(0) tempo))
-                            (list (list '(0) (qtempo self)) (list pos tempo)))
-                        (sort (remove-duplicates (append (qtempo self) (list (list pos tempo))) :test 'equal :key 'caar) '< :key 'caar))))
+(defun set-tempo-list (self pos tempo)
+  ;(print (list self pos tempo (qtempo self)))
+  (setf (qtempo self) 
+        (if (atom (qtempo self))
+            (if (zeroplist pos)
+                (list (list '(0) tempo))
+              (list (list '(0) (qtempo self)) (list pos tempo)))
+           ;(sort (remove-duplicates (append (qtempo self) (list (list pos tempo))) :test 'equal :key 'caar) '< :key 'caar)
+          (append (qtempo self) (list (list pos tempo)))
+          )))
+
+
 
 (defmethod get-Qtempo-father ((self simple-container) current) (Qtempo self))
 

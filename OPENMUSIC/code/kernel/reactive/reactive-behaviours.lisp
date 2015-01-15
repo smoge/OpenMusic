@@ -1,13 +1,9 @@
 
-
-
 ;;; EXTENSION OF STANDARD OM BEHAVIOURS DUE TO REACTIVE BOXES
+(in-package :om)
 
 ;;; Use this to set the delay in box evaluation/notification
 (defparameter *defcolortime* nil)
-
-
-(in-package :om)
 
 
 ;;; CONNECTION/ REGISTRATION OF CLIENTS
@@ -18,7 +14,7 @@
     (if box
         (unless (find box (listeners self) :test 'equal)
           (push box (listeners self)))
-      (om-beep-msg (string+ "Error: Listener could not be added to box " (name self) ".")))))
+      (print (format nil "Warning -- Connecting box ~A: target input has no box reference." (name self))))))
 
 (defmethod remove-as-listener ((self t) &optional index) nil)
 
@@ -62,35 +58,39 @@
 
 
 (defmethod box-color (box color &optional wait)
-  (setf (color box) color)
-  (when (car (frames box))
-    (om-redraw-view (car (frames box)))
-    (om-invalidate-view (car (frames box)))
-    (when (or wait *defcolortime*)
-      (sleep (or wait *defcolortime*)))))
+  (when *defcolortime*
+    (setf (color box) color)
+    (when (car (frames box))
+      (om-redraw-view (car (frames box)))
+      (om-invalidate-view (car (frames box)))
+      (when wait
+        (sleep (or wait *defcolortime*))))))
   
 
 
 
 (defmethod box-color ((box OMBoxTypeCall) color &optional wait)
-  (when (car (frames box))
-    (let ((prev-color (om-get-bg-color (iconview (car (frames box))))))
-      (om-set-bg-color (iconview (car (frames box))) color)
-      (when (or wait *defcolortime*)
-        (sleep (or wait *defcolortime*)))
-      (om-set-bg-color (iconview (car (frames box))) prev-color)
+    (when *defcolortime*
+      (when (car (frames box))
+        (let ((prev-color (om-get-bg-color (iconview (car (frames box))))))
+          (om-set-bg-color (iconview (car (frames box))) color)
+          (when wait
+            (sleep (or wait *defcolortime*)))
+          (om-set-bg-color (iconview (car (frames box))) prev-color)
     ;(om-redraw-view (iconview (car (frames box))))
-      (om-invalidate-view (iconview (car (frames box))))
-      )))
+          (om-invalidate-view (iconview (car (frames box))))
+          ))))
 
 
 (defmethod draw-before-box :after ((self omboxframe)) 
   (draw-active-state self))  ;;; reactive state)
 
+(defparameter *reactive-color* (om-make-color-alpha 0.6 0.4 0.4 0.2))
+
 (defmethod draw-active-state ((self OMBoxFrame))
   (om-with-focused-view self
     (when (or (active (object self)) (color (object self)))
-      (om-with-fg-color nil (or (color (object self)) (om-make-color 0.96 0.9 0.85))
+      (om-with-fg-color nil (or (color (object self)) *reactive-color*)
         ;(if (active (object self))
             (om-fill-rect 0 0 (1- (w self)) (- (h self) 4))
           ;(om-draw-rect 0 4 (1- (w self)) (- (h self) 8))
@@ -114,7 +114,7 @@
   (setf (gen-flag self) nil)
   (setf (push-tag self) nil)
   (setf (color self) nil)
-  (om-invalidate-view (car (frames self))))
+  (when (car (frames self)) (om-invalidate-view (car (frames self)))))
 
 
 
@@ -123,7 +123,7 @@
       (current-box-value self numout)
    (let (val)
      ;(print (list "EVAL BOX" (name self) numout))
-     (box-color self *eval-color*)   
+     (box-color self *eval-color* *defcolortime*)   
      (setf val (call-next-method))
      ;(print val)
      (setf (gen-flag self) t)
@@ -160,3 +160,14 @@
 
 (defmethod set-delivered-value :after ((box ReceiveBox) msg)
   (self-notify box nil))
+
+(defmethod set-active ((self ReceiveBox) react) 
+  (call-next-method)
+  (if react ;; => SET REACTIVITY ON
+      (when (and (not (etat self))  ;;; not running
+                 (start-receive-fun (reference self)))
+        (funcall (start-receive-fun (reference self)) self))
+    (when (and (etat self) ;; running
+               (stop-receive-fun (reference self)))
+      (funcall (stop-receive-fun (reference self)) self))))
+

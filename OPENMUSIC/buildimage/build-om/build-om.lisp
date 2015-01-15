@@ -11,8 +11,10 @@
 
 ;;;=======================================
 (defparameter *app-name* "OM")
-(defparameter *version* 6.090000)
-(defparameter *beta-release* t)
+
+(defparameter *version* 6.090014)
+
+(defparameter *beta-release* nil)
 (defparameter *version-str* "")
 (defparameter *release-language* :en)
 (defparameter *release-date* (subseq (sys::date-string nil nil) 0 10))
@@ -29,8 +31,7 @@
     (concatenate 'string (format nil "~d.~d" v v2) 
                  (if (and (zerop v3) (null full)) "" (format nil ".~d" v3))
                  (if show-beta
-		     #-linux (format nil " beta ~d" beta)
-		     #+linux (format nil "_beta_~d" beta)
+		     (format nil "_beta_~d" beta)
                      "")
                  )))
 
@@ -222,10 +223,10 @@
 
 
 
-(defpackage "OPENMUSIC"
+(defpackage "OpenMusic"
     (:use "COMMON-LISP" "CL-USER" "OM-API" "LISPWORKS" "HCL" "OM-LISP")
     (:import-from "CL-USER")
-    (:nicknames "OM"))
+    (:nicknames "OM" "OPENMUSIC"))
 
 
 (in-package :om)

@@ -514,6 +514,16 @@ Replaces expressed notes in given positions from <places> with rests.
 
 
 
+(om::defmethod! select-tree ((tree list) (places list))
+   :initvals '('(? (((4 4) (1 (1 (1 2 1 1)) 1 1)) ((4 4) (1 (1 (1 2 1 1)) -1 1)))) '(0 1))
+   :indoc '("tree" "places")
+   :icon 225
+   :doc "selects expressed notes only in given places <places> "
+   (let* ((pulse-places (arithm-ser 0 (n-pulses tree) 1))
+          (positions (x-diff pulse-places places)))
+     (filtertree tree positions)))
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;N-PULSES;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;peut-etre probleme
@@ -824,8 +834,8 @@ Inverts <tree> : every note becomes a rest and every rest becomes a note.
 (defun tree-to-ratios (list)
   (loop for mesure in (cadr list) collect
         (let* ((signature (car mesure))
-               (values (cadr mesure))
-               (ratios (mesure-ratios values)))
+               (vals (cadr mesure))
+               (ratios (mesure-ratios vals)))
           (om/
            (om* ratios (car signature))
            (cadr signature)))))

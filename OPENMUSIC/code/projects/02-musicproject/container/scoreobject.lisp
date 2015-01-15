@@ -46,6 +46,12 @@
 (add-player-for-object 'score-element '(:midi-player :midishare :osc-scoreplayer :microplayer))
 (add-player-for-object 'simple-score-element '(:midi-player :midishare :osc-scoreplayer :microplayer))
 
+(defmethod players-for-object ((self score-element)) 
+  (if *force-score-player* 
+      (list *default-score-player*)
+    (call-next-method)))
+
+
 (defclass* note (simple-score-element tonal-object)
   ((midic :initform 6000 :accessor midic :initarg :midic :type number :documentation "pitch (midicents)")
    (vel :initform 80 :accessor vel :initarg :vel :type number :documentation "velocity (0-127)")
@@ -412,7 +418,7 @@ Extraction methods.
                 for chan = (or (pop LChan) chan)
                 for port = (or (pop LPort) 0)   ;;; now port can be nil.. 
                 for note = (mki 'note :midic (round midic) :vel (round vel) :dur (round dur) :chan chan )
-                do (setf (offset note)  (round offset))
+                do (setf (offset note) (round offset))
                 (setf (port note)  port)
                 collect note ))
     (QNormalize self)
@@ -502,7 +508,7 @@ Extraction methods.
   (when (> legato 0) (normalize-chord self legato))
   (set-ties self ties)
   (setf (tempo self) tempo)
-   self)
+  self)
 
 (defmethod do-initialize-metric-sequence ((self voice) &key tree  (Empty nil) (PropagateExtent 4) (InternalCall nil) )
   (cond
@@ -517,7 +523,11 @@ Extraction methods.
            (setf tree (mktree tree (second *quantify-def-params*)))
            (if (not (or (numberp (car tree))  (and (symbolp (car tree)) (string-equal (string (car tree)) "?"))))
              (setf tree (cons '? (list tree)))))
-         (setf tree (apply-tree-rulers tree))
+         (setf tree (resolve-? tree))
+         (setf tree (singleton tree))
+         (setf tree (list-first-layer tree))
+         (setf tree (add-ties-to-tree tree))
+         ;(setf tree (normalize-tree-voice  tree))
          (setf (slot-value self 'tree)   tree)))
      :PropagateExtent PropagateExtent)
     (unless InternalCall
@@ -939,10 +949,13 @@ of all its direct subcontainers (supposed adjacent)"
 (defmethod distribute-chords  ((self score-element) (chords score-element))
   (distribute-chords self (collect-chords chords)))
 
+
 (defmethod distribute-chords  ((self score-element) (chords list))
-  (let ((fringe nil) (chord-model (mki 'chord)) )
-    (labels ( (distribute (self chords)
-                 (setf (inside self)
+  (let ((fringe nil) 
+        (chord-model (mki 'chord))
+        (def-chord (or (last-elem chords) (mki 'chord))))
+    (labels ((distribute (self chords)
+               (setf (inside self)
                        (loop for sub in (inside self)
                              with chord
                              ;with chord-model  = (mki 'chord)
@@ -955,17 +968,18 @@ of all its direct subcontainers (supposed adjacent)"
                                (progn (setf chord 
                                             (objfromobjs 
                                              (or (loop for c in fringe if (chord-p c) return c)
-                                                 (mki 'chord)) 
+                                                 (mki 'chord))
                                              chord-model))
                                       (change-class chord 'continuation-chord))
-                               (setf chord (objfromobjs  (or (pop chords) (mki 'chord)) chord-model)))
+                               (setf chord (objfromobjs  (or (pop chords) (clone def-chord)) chord-model)))
                              (setf (offset chord) (offset sub))
                              (InContext sub (setf (extent chord) (extent sub)))
                              (when (and (note-p sub) (eq (tie sub) 'continue))  (push 'tie fringe))
                              (push chord fringe)
                              ;(normalize-chord chord)
                              and collect chord))
-                 chords) )
+                 chords))
+   
       (distribute self chords)
       (setf fringe (nreverse fringe)) 
       (loop for item1 in fringe
@@ -1360,7 +1374,7 @@ of all its direct subcontainers (supposed adjacent)"
 
 ;===============
 
-(om::defmethod! get-measures ((self voice))
+(defmethod! get-measures ((self voice))
   :initvals (list  t) 
   :indoc '("a voice")
   :icon 134
@@ -1369,12 +1383,11 @@ Returns the list of all measure in <self>.
 "
   (inside self))
 
-(om::defmethod! get-measures ((self poly))
+(defmethod! get-measures ((self poly))
   (loop for voice in self
         append (get-measures voice)))
 
-(om::defmethod! get-measures ((self t))
- nil)
+(defmethod! get-measures ((self t)) nil)
 
 ;=============
 (defmethod offset->ms-tempo-fixe ((self simple-container) tempo grandparent)
@@ -1386,9 +1399,8 @@ Returns the list of all measure in <self>.
                  sum
                  (* 1000 (/ 60.0 tempo) (/ (offset current) (QValue father)))))))
 
+;;; !!! redefinition of the method from container.lisp ...
 (defmethod offset->ms ((self simple-container) &optional grandparent)
-  "Converts the offset of <self> to milliseconds. The offset is defined w/regard to the parent container.
-If optional <grandparent> is given, the offset will be considered w/regard to the given grandparent."
   (let ((limit (if (null grandparent) (parent self) grandparent)))
     (round (loop for current = self then (parent current)
                  for father = (and current (parent current))

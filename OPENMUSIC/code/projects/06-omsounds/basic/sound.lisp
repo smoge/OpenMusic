@@ -145,30 +145,33 @@
 
 (defmethod Class-has-editor-p ((self om-sound-data)) nil)
 
-(defmethod get-om-sound-data ((self string) &optional (track 0))
+(defmethod get-om-sound-data ((self string) &optional track)
    (multiple-value-bind (buffer format channels sr ss size skip)
        (om-audio::om-get-sound-buffer self *default-internal-sample-size*)
      (make-instance 'om-sound-data 
                     :type *default-internal-sample-size*
                     :buffer buffer
-                    :tracknum track
+                    :tracknum (or track 0)
                     :size size
                     :nch channels
                     :sr sr)))
 
-(defmethod get-om-sound-data ((self pathname) &optional (track 0))
+(defmethod get-om-sound-data ((self pathname) &optional track)
   (get-om-sound-data (namestring self) track))
-
 
 (defmethod set-buffer-from-file ((self internalsound) filename)
   (setf (sndbuffer self) (get-om-sound-data self)))
 
+(defmethod get-om-sound-data ((self om-sound-data) &optional track)
+  (let ((rep self))
+    (when track (setf (track rep) track))
+    rep))
 
 ;;==============================
 ;; OM CLASS
 ;;==============================
 
-(defclass! sound (simple-score-element internalsound) 
+(defclass! sound (simple-score-element internalsound)
   ((tracknum :accessor tracknum :initarg :tracknum :initform 0 :documentation "a track index for multichannel mixing (0 = no specific track)")
    (markers :accessor markers :initarg :markers :initform nil :documentation "a list of markers (s)")
    (vol :accessor vol :initform 100)  
@@ -190,13 +193,14 @@ Press 'space' to play/stop the sound file.
 "))
 
 
+(defmethod markers ((self sound)) 
+  (sort (slot-value self 'markers) '<))
+
 (defmethod get-om-sound-data ((self sound) &optional (track 0))
   (and (om-sound-file-name self)
        (get-om-sound-data (om-sound-file-name self) track)))
 
-
 (defparameter *default-sound-player* #-linux :libaudiostream #+linux :jackaudio)
-
 
 (defmethod default-edition-params ((self sound))
   (pairlis '(outport inport player
@@ -260,6 +264,25 @@ Press 'space' to play/stop the sound file.
     snd))
 
 
+(defmethod copy-container ((self sound) &optional (pere ()))
+  (let ((snd (if (om-sound-file-name self) 
+                 (let ((copy (load-sound-file (om-sound-file-name self)))
+                       (slots  (class-instance-slots (find-class 'simple-container))))
+                   (setf (slot-value copy 'parent) pere)
+                   (loop for slot in slots
+                       when (not (eq (slot-definition-name slot) 'parent))
+                       do (setf (slot-value  copy  (slot-definition-name slot))
+                            (copy-container (slot-value self  (slot-definition-name slot)) copy)))
+                   copy)
+               (make-instance 'sound))))
+    (setf (tracknum snd) (tracknum self))
+    (setf (markers snd) (markers self))
+    (setf (pan snd) (pan self))
+    (setf (vol snd) (vol self))
+    (setf (pict-spectre snd) (pict-spectre self))
+    (when (< *om-version* 6.08) (setf (pict-spectre? snd) (pict-spectre? self))) 
+    snd))
+
 
 ;;; copie : meme ptrs (pour le maquette play)
 (defun copy-sound-file (sound)
@@ -307,10 +330,14 @@ Press 'space' to play/stop the sound file.
   (and (om-sound-file-name self)
         (register-resource :sound (om-sound-file-name self))
         `(let ((thesound (load-sound ,(om-save-pathname-relative (om-sound-file-name self))
-                                     ,(tracknum self))))
+                                     ,(tracknum self)
+                                     ,(vol self)
+                                     ,(pan self)
+                                     )))
            (when thesound
              (setf (markers thesound) ',(markers self)))
            thesound)))
+
 
 ;;;========
 ;;; LOAD
@@ -479,6 +506,9 @@ Press 'space' to play/stop the sound file.
       (setf (tracknum rep) (if (integerp (nth 1 args)) (nth 1 args) 0))
       (when (consp (nth 2 args)) (setf (markers rep) (nth 2 args)))
     rep)))
+
+
+
 
 ;;; default value at box evaluation
 (defmethod make-one-instance ((self sound) &rest slots-vals) 

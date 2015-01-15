@@ -488,11 +488,12 @@ make-quanti
 ;=== Conversion Chord-seq -> voice : dans le cas ou le chord-seq ne commence pas 0
 (defmethod* objFromObjs ((self chord-seq) (type voice))
             (if (chords self)
-                (let* ((quantypar *quantify-def-params*)
-                       (durs (append (butlast (x->dx (lonset self)))
-                                     (list (extent->ms (car (last (chords self)))))))
-                       (durs (if (zerop (car (lonset self)))
-                                 durs (cons (* (car (lonset self)) -1) durs)))
+                (let* ((newchordseq (align-chords self *global-deltachords*))
+                       (quantypar *quantify-def-params*)
+                       (durs (append (butlast (x->dx (lonset newchordseq)))
+                                     (list (extent->ms (car (last (chords newchordseq)))))))
+                       (durs (if (zerop (car (lonset newchordseq)))
+                                 durs (cons (* (car (lonset newchordseq)) -1) durs)))
                        (newvoice (make-instance (type-of type)
                                                 :tree (omquantify  durs
                                                                    (first quantypar)
@@ -503,7 +504,7 @@ make-quanti
                                                                    (sixth quantypar))
                                                 :tempo (first quantypar)
                                                 :legato 0
-                                                :chords  (chords self))))
+                                                :chords  (chords newchordseq))))
                   newvoice)
               (make-instance (type-of type)
                              :tree '(0 nil)
@@ -549,8 +550,8 @@ make-quanti
                         ))
     )
 
-(defmethod mf-info->chord-seq ((self list))
-  (let* ((chords (make-quanti-chords self *global-deltachords*))
+(defmethod mf-info->chord-seq ((self list)  &optional deltachord)
+  (let* ((chords (make-quanti-chords self (or deltachord *global-deltachords*)))
          (lonset (mapcar 'offset chords))
          (last-note (first (inside (first (last chords))))))
     (setf lonset (append lonset (list (+ (extent->ms last-note) (first (last lonset)))))) 
@@ -560,8 +561,8 @@ make-quanti
       ;:legato 100
       )))
 
-(defmethod mf-info-MC->chord-seq ((self list))
-  (let* ((chords (make-quanti-chords-MC self *global-deltachords*))
+(defmethod mf-info-MC->chord-seq ((self list) &optional deltachord)
+  (let* ((chords (make-quanti-chords-MC self (or deltachord *global-deltachords*)))
          (lonset (mapcar 'offset chords))
          (last-note (first (inside (first (last chords))))))
     (setf lonset (append lonset (list (+ (extent->ms last-note) (first (last lonset)))))) 
@@ -594,31 +595,34 @@ Transforms <self> so that notes falling in a small time interval are grouped int
 
 <delta> gives the time interval in ms.
 "
-  (let ((note-seq  (flatten-container self 'note 'chord-seq)) (chseq (make-instance 'chord-seq :empty t)) note-list chord-list)
-    (setQValue note-seq 1000 :recursive t) 
-    (setQValue chseq 1000 :recursive nil)
-    (setf note-list (inside note-seq))
-    (setf chord-list
-          (loop while note-list
-                for note = (car note-list)
-                with pitch-list and dur-list  and offset-list and chan-list and vel-list
-                with base-time = (offset (first note-list))
-                if (<= (- (offset (first note-list)) base-time) delta)
-                do 
-                (push  (midic note) pitch-list)
-                (push (extent note) dur-list)
-                (push (chan note) chan-list)
-                (push (vel note) vel-list)
-                (push 
+  (let ((note-seq (flatten-container self 'note 'chord-seq))
+        (chseq (make-instance 'chord-seq :empty t)) 
+        note-list chord-list)
+    (when (inside self)
+      (setQValue note-seq 1000 :recursive t) 
+      (setQValue chseq 1000 :recursive nil)
+      (setf note-list (inside note-seq))
+      (setf chord-list
+            (loop while note-list
+                  for note = (car note-list)
+                  with pitch-list and dur-list  and offset-list and chan-list and vel-list
+                  with base-time = (offset (first note-list))
+                  if (<= (- (offset (first note-list)) base-time) delta)
+                  do 
+                  (push  (midic note) pitch-list)
+                  (push (extent note) dur-list)
+                  (push (chan note) chan-list)
+                  (push (vel note) vel-list)
+                  (push 
                  ;(- (offset note) base-time) this if wanna keep note offsets 
-                 0 offset-list)
-                (pop note-list)
-                else
-                collect (mk-chord-at base-time  pitch-list dur-list offset-list chan-list vel-list) into result
-                and do (setf base-time (offset note) pitch-list () dur-list ()   offset-list () chan-list () vel-list ())
-                finally (return (append result (list  (mk-chord-at base-time  pitch-list dur-list offset-list chan-list vel-list ))))))
-    (setf (inside chseq) chord-list)
-    (adjust-extent chseq)
+                   0 offset-list)
+                  (pop note-list)
+                  else
+                  collect (mk-chord-at base-time  pitch-list dur-list offset-list chan-list vel-list) into result
+                  and do (setf base-time (offset note) pitch-list () dur-list ()   offset-list () chan-list () vel-list ())
+                  finally (return (append result (list  (mk-chord-at base-time  pitch-list dur-list offset-list chan-list vel-list ))))))
+      (setf (inside chseq) chord-list)
+      (adjust-extent chseq))
     chseq))
 
 
@@ -627,10 +631,11 @@ Transforms <self> so that notes falling in a small time interval are grouped int
   (if (and (inside chs1) (inside chs2))
       (let* ((mf (sort (nconc (chord-seq->mf-info-MC chs1)  (chord-seq->mf-info-MC chs2))
                        #'< :key #'second)))
-    ; quantify with delta = 1 ms
-        (mf-info-MC->chord-seq mf)
-        )
-    (if (inside chs1) (clone chs1) (clone chs2))))
+        (mf-info-MC->chord-seq mf 0))
+    ;; one is empty...
+    (if (inside chs1) 
+        (clone chs1) 
+      (clone chs2))))
 
 
 (defmethod* Objfromobjs ((Self poly) (Type Chord-seq))

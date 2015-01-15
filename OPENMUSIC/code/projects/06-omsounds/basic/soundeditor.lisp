@@ -228,12 +228,12 @@
 (defmethod get-titlebar-class ((self soundeditor)) 'sound-titlebar)
 
 (defmethod get-help-list ((self soundeditor))
-  (list '((alt+clic "Add Marker")
-          (del "Delete Selected Markers")
+  (list '(("alt+clic" "Add Marker")
+          ("del" "Delete Selected Markers")
           (("g") "Show/Hide Grid")
           (("A") "Align Selected Markers to Grid")
-          (esc "Reset cursor")
-          (space "Play/Stop"))))
+          ("esc" "Reset cursor")
+          ("space" "Play/Stop"))))
 
 (defmethod sound-import ((self soundeditor))
   (let ((newsound (get-sound)))
@@ -449,21 +449,21 @@
                                         (om-make-point 
                                          (+ 10 (om-string-size (string+ (om-str :file) ": " name)
                                                                *om-default-font1b*))
-                                         18)
+                                         14)
                                         (string+ (om-str :file) ": " name)
                                         :bg-color *editor-bar-color*
                                         :font *om-default-font1b*)
-                   (om-make-dialog-item 'om-static-text (om-make-point 400 4) (om-make-point 120 18)
+                   (om-make-dialog-item 'om-static-text (om-make-point 400 4) (om-make-point 120 14)
                                         (format nil "Format: ~D" (or (om-sound-format (object self)) "--"))
                                         :bg-color *editor-bar-color*
                                         :font *om-default-font1*)
-                   (om-make-dialog-item 'om-static-text (om-make-point 600 4) (om-make-point 80 18)
+                   (om-make-dialog-item 'om-static-text (om-make-point 600 4) (om-make-point 80 14)
                                         (format nil "SR: ~D" (if (om-sound-sample-rate (object self))
                                                                  (round (om-sound-sample-rate (object self)))
                                                                "--"))
                                         :bg-color *editor-bar-color*
                                         :font *om-default-font1*)
-                   (om-make-dialog-item 'om-static-text (om-make-point 700 4) (om-make-point 80 18)
+                   (om-make-dialog-item 'om-static-text (om-make-point 700 4) (om-make-point 80 14)
                                         (format nil "SS: ~D" (or (om-sound-sample-size (object self)) "--"))
                                         :bg-color *editor-bar-color*
                                         :font *om-default-font1*))))
@@ -764,8 +764,10 @@
 
           (when (> xview pict-threshold) (setf zoom-step nil)) ;;; will draw-picture
           (om-with-focused-view self
-            (when (and thesound (display-array thesound))
-              (om-draw-waveform self))
+            (cond ((and thepicture (pict-spectre thesound) (get-edit-param (editor self) :show-spectrum))
+                   (om-draw-picture self thepicture :size (om-field-size self)))
+                  ((and thesound (display-array thesound))
+                   (om-draw-waveform self)))
             (om-with-fg-color self *om-blue-color*
               (loop for item in (markers thesound) 
                     for k = 0 then (+ k 1) do

@@ -64,7 +64,7 @@ Type of the return value :
     (change-qvalue ss1 frac-min)
     (change-qvalue ss2 frac-min)
 
-    (loop for item in (inside ss2) do (setf (offset item) (+ (offset item) (get-obj-dur ss1))))
+    (loop for item in (inside ss2) do (setf (offset item) (+ (offset item) (extent ss1))))
     (mki (type-of s1) 
              :empty t
              :offset 0
@@ -343,7 +343,8 @@ when :
             :legato 0)
        (mki (type-of self)
             :Lonset (list 0 (- end start))
-            ))))
+            :Lmidic NIL)
+       )))
 
 (defmethod* select ((self multi-seq) (start number) (end number))
    (mki 'multi-seq

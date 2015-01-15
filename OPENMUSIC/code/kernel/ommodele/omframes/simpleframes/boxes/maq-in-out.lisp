@@ -108,6 +108,7 @@
     (setf (offset newbox) (om-point-h pos))
     (setf (posy newbox) (om-point-v pos))
     (setf (inputs newbox) (mapcar #'(lambda (input) (eval input)) inputs))
+    (set-box-to-inputs (inputs newbox) newbox)
     (when fsize
       (setf (frame-size newbox) (om-correct-point fsize)))
     newbox))
@@ -246,8 +247,7 @@
 
 (defmethod clear-ev-once ((self OMMaquette))
   "After one evaluation this methods set the ev-once flag of all boxes in ev-once mode to nil."
-  (mapc #'(lambda (box)
-            (clear-ev-once box)) (boxes self)))
+  (mapc #'(lambda (box) (clear-ev-once box)) (boxes self)))
 
 
 ;; !!! redefinition

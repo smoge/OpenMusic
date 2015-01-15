@@ -44,14 +44,14 @@
   (let ((rep nil))
     (loop for event in seq do
 	  (case (om-midi::midi-evt-type event)
-            (:Note  (push (list (om-midi::midi-evt-pitch event)
-                                (om-midi::midi-evt-date event)
-                                (om-midi::midi-evt-dur event) 
-                                (om-midi::midi-evt-vel event)
-                                (om-midi::midi-evt-chan event)
-                                (om-midi::midi-evt-ref event)
-                                (om-midi::midi-evt-port event))
-                          rep))
+            ;(:Note  (push (list (om-midi::midi-evt-pitch event)
+            ;                    (om-midi::midi-evt-date event)
+            ;                    (om-midi::midi-evt-dur event) 
+            ;                    (om-midi::midi-evt-vel event)
+            ;                    (om-midi::midi-evt-chan event)
+            ;                    (om-midi::midi-evt-ref event)
+            ;                    (om-midi::midi-evt-port event))
+            ;              rep))
             (:KeyOn (if  (= (om-midi::midi-evt-vel event) 0) ;;; actually it's a KeyOff
                          (close-notes-on rep
                                          (om-midi::midi-evt-pitch event) 
@@ -126,12 +126,8 @@
 			     ("TimeSign" :TimeSign)
 			     ("KeySign" :KeySign)
 			     ("Specific" :Specific)
-			     ("PortPrefix" :PortPrefix)
-			     ("RcvAlarm" :RcvAlarm)
-			     ("ApplAlarm" :ApplAlarm)
-			     ("Reserved" :Reserved)
-			     ("dead" :dead)))
-
+                             ))
+                             
 ;(defun num2evType (n)
 ;  (cadr (nth n *midi-event-types*)))
 
@@ -144,6 +140,42 @@
   :doc "Outputs event number corresponding to <evt>."
   :icon 148
   evt)
+
+
+;======================
+; LSB/MSP UTILS 
+;======================
+
+;=== tests if a controller num corresponds 
+;=== to LSB value of another one
+(defun lsb-controller (ctrlNum)
+  (and (>= ctrlNum 32) (<= ctrlNum 63)))
+
+
+;=== gets MSB from a 14bits value
+(defun msb (value)
+  (floor (/ value 128)))
+
+;=== gets LSB from a 14bits value
+(defun lsb (value)
+  (- value (* (msb value) 128)))
+
+;=== decomposes a value in two 7 bytes blocks
+(defun val2lsbmsb (value)
+  (let ((msb (msb value)))
+    (list (- value (* msb 128)) msb)))
+
+;=== Converts msb lsb to a value
+(defun msb-lsb2value (msb lsb)
+  (+ lsb (* 128 msb)))
+
+;; 7 bits to 14 bits
+;; 7b  = 0-127
+;; 14b = 0-16383
+(defun 7b-to-14b (v)
+  (* v 128))
+;(round (* (/ pb 127) 16383)))
+
 
 
 ;==================================
@@ -201,20 +233,21 @@
                                                         tempo-change-log-time units/sec))
               (setf cur-tempo (om-midi::midi-evt-tempo event))
               (setf tempo-change-abst-time date))
-            (if (equal (om-midi::midi-evt-type event) :Note)
-                (progn  
-                  (om-midi::midi-evt-dur event (logical-time (om-midi::midi-evt-dur event)  
-                                                    cur-tempo tempo-change-abst-time tempo-change-log-time  units/sec))
-                  (setf (om-midi::midi-evt-date event) 
-                        (logical-time (om-midi::midi-evt-date event)  
-                                      cur-tempo tempo-change-abst-time tempo-change-log-time  units/sec)))
+            ;(if (equal (om-midi::midi-evt-type event) :Note)
+            ;    (progn  
+            ;      (om-midi::midi-evt-dur event (logical-time (om-midi::midi-evt-dur event)  
+            ;                                        cur-tempo tempo-change-abst-time tempo-change-log-time  units/sec))
+            ;      (setf (om-midi::midi-evt-date event) 
+            ;            (logical-time (om-midi::midi-evt-date event)  
+            ;                          cur-tempo tempo-change-abst-time tempo-change-log-time  units/sec)))
               (progn 
                 (setf (om-midi::midi-evt-date event) 
                       ;(print (convert-time (om-midi::midi-evt-date event) (print cur-tempo) units/sec))
                        (logical-time (om-midi::midi-evt-date event)  
                                      cur-tempo tempo-change-abst-time tempo-change-log-time units/sec)
                       )
-                ))
+                )
+             ;)
             )
           )
     seq))
@@ -240,15 +273,17 @@
                          tempo-change-abst-time date)
                       (progn
                         (setf newevent (om-midi::copy-midi-evt event))
-                        (case (om-midi::midi-evt-type event)
-                          (:Note  
-                           (om-midi::midi-evt-dur newevent (logical-time (om-midi::midi-evt-dur event) 
-                                                                cur-tempo tempo-change-abst-time tempo-change-log-time units/sec))
-                           (setf (om-midi::midi-evt-date newevent) (logical-time (om-midi::midi-evt-date event)
-                                                                 cur-tempo tempo-change-abst-time tempo-change-log-time  units/sec)))
-                          (otherwise 
-                           (setf (om-midi::midi-evt-date newevent) (logical-time (om-midi::midi-evt-date event)  
-                                                                 cur-tempo tempo-change-abst-time tempo-change-log-time  units/sec))))
+                        ;(case (om-midi::midi-evt-type event)
+                          ;(:Note  
+                          ; (om-midi::midi-evt-dur newevent (logical-time (om-midi::midi-evt-dur event) 
+                          ;                                      cur-tempo tempo-change-abst-time tempo-change-log-time units/sec))
+                          ; (setf (om-midi::midi-evt-date newevent) (logical-time (om-midi::midi-evt-date event)
+                          ;                                       cur-tempo tempo-change-abst-time tempo-change-log-time  units/sec)))
+                          ;(otherwise 
+                           (setf (om-midi::midi-evt-date newevent) 
+                                 (logical-time (om-midi::midi-evt-date event)  
+                                               cur-tempo tempo-change-abst-time tempo-change-log-time  units/sec))
+                          ;))
                         ))
                     newevent)
                   ))))
@@ -263,8 +298,8 @@
           (loop for event in seq collect
                 (let ((newevent (om-midi::copy-midi-evt event)))
                   (setf (om-midi::midi-evt-date newevent) (round (/ (om-midi::midi-evt-date event) tempoFactor)))
-                  (when (equal (om-midi::midi-evt-type event) :Note) 
-                    (om-midi::midi-evt-dur newevent (round (/ (om-midi::midi-evt-dur event) tempoFactor))))
+                  ;(when (equal (om-midi::midi-evt-type event) :Note) 
+                  ;  (om-midi::midi-evt-dur newevent (round (/ (om-midi::midi-evt-dur event) tempoFactor))))
                   newevent))
           )))
 
@@ -540,13 +575,14 @@
   progName)
 
 
-(defmethod! GM-DrumNote (drumName)
+(defmethod! GM-DrumNote (drumName &optional (midicents t))
   :initvals '(nil)
   :indoc '("Drum name")
   :menuins (list (list 0 *midi-drum-notes*))
   :doc "Outputs General MIDI note number corresponding to <drumname>."
   :icon 916
-  drumName)
+  (if midicents (* drumName 100) drumName)
+  )
 
 
 (defmethod! control-change (ctrl)

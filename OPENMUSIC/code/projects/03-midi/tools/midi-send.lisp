@@ -37,25 +37,37 @@
 
 
 ;===================PITCHBEND & WHEEL
+(defmethod* mc-to-pitchwheel ((midic number) &optional (pw-range 200))
+  (cond ((zerop midic) 8192)
+        ((minusp midic) (round (+ 8192 (* (/ midic pw-range) 8192))))
+        (t (floor (+ 8192 (* (/ midic pw-range) 8191))))))
+; (mc-to-pitchwheel 50)
+
+(defmethod* mc-to-pitchwheel ((midic list) &optional (pw-range 200))
+  (mapcar #'(lambda (n) (mc-to-pitchwheel n pw-range)) midic))
+
 
 (defmethod* pitchwheel ((val number) (chans number) &optional port)
    :icon 912
    :indoc '("pitch wheel value(s)" "MIDI channel(s) (1-16)" "output port number")
-   :initvals '(0 1 nil)
+   :initvals '(8192 1 nil)
    :doc "Sends one or more MIDI pitch wheel message(s) of <vals> in the MIDI channel(s) <chans>.  
 
 <values> and <chans> can be single numbers or lists. 
 
-The range of pitch wheel is between -8192 and 8190.
+The range of pitch wheel is between 0 and 16348. 8192 means no bend.
 "
    (unless port (setf port *def-midi-out*))
    (setf port (list! port))
    (loop for aport in port do
          (let ((event  (om-midi::make-midi-evt :type :PitchBend
                                       :chan chans :port aport
-                                      :fields val)))
+                                      :fields (val2lsbmsb val))))
            (midi-send-evt event)
            )))
+
+;(expt 2 )
+; (/ 16384 2) 
 
 (defmethod* pitchwheel ((vals number) (chans list) &optional port)
    (loop for item in chans do
@@ -66,15 +78,8 @@ The range of pitch wheel is between -8192 and 8190.
          for item1 in vals do
          (pitchwheel item1 item port)))
 
-;;; pb = (-8192 8190) 
-;;; total range = +/- 200 midicents
-(defun pitchwheel-to-mc (pw)
-  (round (* pw 200) 8192))
-
-;------------------------
-
 ;==== MODIFIED FUNCTION
-(defmethod* pitchbend ((vals number) (chans number) &optional port)
+(defmethod* pitchbend ((val number) (chan number) &optional port)
    :icon 912
    :indoc '("pitch bend value(s)" "MIDI channel(s) (1-16)" "output port number")
    :initvals '(0 1 nil)
@@ -82,10 +87,16 @@ The range of pitch wheel is between -8192 and 8190.
 
 <values> and <chans> can be single numbers or lists. 
 
-The range of pitch bend is between 0 and 127.
+The range of pitch bend is between 0 and 127. 64 means no bend.
 "
    (unless port (setf port *def-midi-out*))
-   (pitchwheel (pitchbend-to-pitchwheel vals) chans port))
+   (setf port (list! port))
+   (loop for aport in port do
+         (let ((event  (om-midi::make-midi-evt :type :PitchBend
+                                      :chan chan :port aport
+                                      :fields (list 0 val))))
+           (midi-send-evt event)
+           )))
 
 (defmethod* pitchbend ((vals number) (chans list) &optional port)
    (loop for item in chans do
@@ -101,10 +112,10 @@ The range of pitch bend is between 0 and 127.
 (defun pitchbend-to-mc (pb)
   (- (round (* pb 400) 127) 200))
   
-
-;;; 7 bits to 14 bits
-(defun pitchbend-to-pitchwheel (pb)
-  (- (round (* (/ pb 127) 16382)) 8192))
+;;; pb = (0-16383) 
+;;; total range = +/- 200 midicents
+(defun pitchwheel-to-mc (pw)
+  (- (round (* pw 400) 16383) 200))
 
 
 ;===================PGCHANGE
@@ -362,13 +373,12 @@ The range of volume values is 0-127.
 (defmethod! send-midi-note (port chan pitch vel dur track)
    :icon 148
    :initvals '(0 1 60 100 1000 1)
-   (when (< dur 65000)
-     (let ((event (om-midi::make-midi-evt :type :Note :port port :chan chan
-                                          :date 0 :ref track
-                                          :fields (list pitch vel dur)
-                                                              )))
-       (midi-send-evt event))
-     ))
+   (om-run-process "SEND MIDI" 
+                   #'(lambda ()
+                       (let ((notes (note-events port chan pitch vel dur 0 track)))
+                         (midi-send-evt (car notes))
+                         (sleep (/ dur 1000.0))
+                         (midi-send-evt (cadr notes))))))
 
 ; (send-midi-note 0 1 60 100 1000 1)
 

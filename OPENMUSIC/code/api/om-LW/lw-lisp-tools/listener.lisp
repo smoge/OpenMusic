@@ -78,7 +78,8 @@
 (defclass om-listener-in-pane (capi::listener-pane) ())
 (defclass om-listener-out-pane (capi::collector-pane) ())
 
-(defvar *listener-font* nil)
+#-linux (defvar *listener-font* nil)
+#+linux (defvar *listener-font* (gp::make-font-description :family #+linux "Liberation Mono" :size 9))
 
 ;; do not work on mac...
 
@@ -95,25 +96,28 @@
            )))
 
 ;(setf om-lisp::*om-listener* nil)
-(defun make-om-listener (&key title x y width height initial-lambda)
+(defun make-om-listener (&key title x y width height initial-lambda input)
   (or (and om-lisp::*om-listener* (capi::find-interface 'om-listener))
       (progn
         (init-listener)
         (setf om-lisp::*om-listener* 
-              (let* ((in (make-instance 'om-listener-in-pane
-                                        :echo-area t
-                                        :font *listener-font*
-                                        :create-callback (if initial-lambda
-                                                             (lambda (window) 
-                                                               (declare (ignore window)) 
-                                                               (capi:execute-with-interface *om-listener* initial-lambda))
-                                                           (lambda (window)
-                                                             (declare (ignore window))
-                                                             (capi:execute-with-interface *om-listener* (lambda () (in-package :om-lisp)))))))
-                     (out (make-instance 'om-listener-out-pane :stream *om-stream* 
-                                         :font *listener-font*))
+              (let* ((in 
+                      (when input 
+                        (make-instance 'om-listener-in-pane
+                                        ;:echo-area t
+                                       :font *listener-font*
+                                       :create-callback (if initial-lambda
+                                                            (lambda (window) 
+                                                              (declare (ignore window)) 
+                                                              (capi:execute-with-interface *om-listener* initial-lambda))
+                                                          (lambda (window)
+                                                            (declare (ignore window))
+                                                            (capi:execute-with-interface *om-listener* (lambda () (in-package :om-lisp))))))))
+                     (out (make-instance 'om-listener-out-pane :stream *om-stream* :echo-area t :font *listener-font*))
                      (win (make-instance 'om-listener
-                             :layout (make-instance 'capi:column-layout :description (list in :divider out) :ratios '(1 nil 4))
+                             :layout (make-instance 'capi:column-layout 
+                                                    :description (if in (list in :divider out) (list out)) 
+                                                    :ratios (if in '(1 nil 4) '(1)))
                              :window-styles (listener-styles)
                              :ip in :op out
                              :title (or title "OM Listener")
@@ -125,11 +129,12 @@
                              #+macos(lambda (window activatep) 
                                (when activatep (setf (capi::interface-menu-bar-items window)(internal-window-class-menubar window))))
                              )))
-                (setf (capi::simple-pane-font (capi::editor-pane-echo-area (ip win))) *listener-font*)
+                (setf (capi::simple-pane-font (capi::editor-pane-echo-area (op win))) *listener-font*)
                 win))
         
         (setf (capi::interface-menu-bar-items om-lisp::*om-listener*)
               (internal-window-class-menubar om-lisp::*om-listener*))
+        ;(format *om-stream* "=======~%")
         (capi::display om-lisp::*om-listener*)
         )))
 
@@ -281,8 +286,8 @@
      pane buffer)))
 
 
-(defun om-make-new-listener (&key title x y width height initial-lambda)
-  (make-om-listener :title title :x x :y y :width width :height height :initial-lambda initial-lambda))
+(defun om-make-new-listener (&key title x y width height initial-lambda (input t))
+  (make-om-listener :title title :x x :y y :width width :height height :initial-lambda initial-lambda :input input))
 
 (defvar *fasl-extension* (pathname-type (cl-user::compile-file-pathname "")))
 (defvar *last-open-directory* nil)
@@ -321,8 +326,8 @@
   (when om-lisp::*om-listener*
     (capi:execute-with-interface om-lisp::*om-listener*
                                  #'(lambda ()
-                                     (with-slots (ip) om-lisp::*om-listener*
-                                       (with-slots (editor-window) ip
+                                     (with-slots (op) om-lisp::*om-listener*
+                                       (with-slots (editor-window) op
                                          (editor:process-character  
                                           (list 'editor:message str)
                                           editor-window)))))))
@@ -341,9 +346,9 @@
   (with-slots (ip op) self
     (let ((newfont (capi::prompt-for-font "" :font (capi::simple-pane-font op))))
       (setf *listener-font* newfont)
-      (setf (capi::simple-pane-font ip) *listener-font*)
+      (when ip (setf (capi::simple-pane-font ip) *listener-font*))
       (setf (capi::simple-pane-font op) *listener-font*)
-      (setf (capi::simple-pane-font (capi::editor-pane-echo-area ip)) *listener-font*)
+      (setf (capi::simple-pane-font (capi::editor-pane-echo-area op)) *listener-font*)
       )))
 
 
