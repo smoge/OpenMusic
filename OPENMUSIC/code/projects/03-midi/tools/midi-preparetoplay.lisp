@@ -164,18 +164,7 @@
 (defun micro-channel (midic &optional approx)
   (/ (mod midic 100) (/ 200 (or approx 8))))
 
-<<<<<<< HEAD
 
-(defun note-events (port chan pitch vel dur date track)
-   (list (om-midi::make-midi-evt :type :Note
-                        :date date 
-                        :port (or port *def-midi-out*) 
-                        :chan chan 
-                        :ref track
-                        :fields (list pitch vel dur))
-         ))
-=======
->>>>>>> master
 
 (defun note-events (port chan pitch vel dur date track)
    (list (om-midi::make-midi-evt :type :KeyOn

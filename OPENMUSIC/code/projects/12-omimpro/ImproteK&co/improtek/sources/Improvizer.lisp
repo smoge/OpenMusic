@@ -1240,7 +1240,7 @@
                             collect (list (first event) (second event) (third event) velocity (fifth event))))))
 
        
-(defmethod mf-info->chord-seq ((self list))
+(defmethod mf-info->chord-seq ((self list) &optional deltachord)
   (let* ((chords (make-quanti-chords self *global-deltachords*))
          (lonset (mapcar 'offset chords))
          (last-note (first (inside (first (last chords))))))
