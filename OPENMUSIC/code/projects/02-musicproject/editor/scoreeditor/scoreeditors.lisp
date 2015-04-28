@@ -3087,7 +3087,7 @@
 (defmethod update-subviews ((self maqobjEditor))
    (change-zoom (panel self)))
 
-(defmethod get-edit-param   ((self maqobjEditor) (param (eql 'staff))) 'g)
+(defmethod get-edit-param  ((self maqobjEditor) (param (eql 'staff))) 'g)
 
 ;-------------INITS
 (defmethod get-score-class-panel ((self maqobjEditor)) 'maqobjPanel)
@@ -5331,4 +5331,5 @@
  (loop for voice in (inside grap-obj)
           for i = 0 then (+ i 1) append
           (get-page-line-elements voice fdoc pagenum line 0)))
+
 

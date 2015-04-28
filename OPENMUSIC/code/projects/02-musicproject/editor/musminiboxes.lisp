@@ -457,3 +457,4 @@
 (defmethod default-obj-box-size      ((self multi-seq))    (om-make-point 130 65))
 
 (defmethod default-obj-box-size      ((self note))    (om-make-point 55 65))
+

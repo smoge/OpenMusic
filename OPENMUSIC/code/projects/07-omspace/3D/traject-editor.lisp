@@ -63,7 +63,7 @@
              (loop for i in (selected-points self) do 
                    (draw-point-cube (nth i (om-3Dobj-points self)) 0.02 t)))
             ((selected-points self)
-             (loop for i from 0 to (- (length verticess) 1) do                  
+             (loop for i from 0 to (- (length vertices) 1) do                  
                    (draw-point-cube (nth i (om-3Dobj-points self)) 0.02 t)))
             ))
     (restore-om-gl-colors-and-attributes)
@@ -75,12 +75,14 @@
             "create a vector of colors for a 3D-timed-curve depending on the mode selected"
             (let* ((points (om-3dobj-points self))
                    (size (length points))
-                   (min_h (max 0 (nth 0 (color-min self))))
-                   (min_s (max 0 (nth 1 (color-min self))))
-                   (min_v (max 0 (nth 2 (color-min self))))
-                   (max_h (min 1.0 (nth 0 (color-max self))))
-                   (max_s (min 1.0 (nth 1 (color-max self))))
-                   (max_v (min 1.0 (nth 2 (color-max self))))
+                   (cmi (or (color-min self) '(0 0 0)))
+                   (cma (or (color-max self) '(1.0 1.0 1.0)))
+                   (min_h (max 0 (nth 0 cmi)))
+                   (min_s (max 0 (nth 1 cmi)))
+                   (min_v (max 0 (nth 2 cmi)))
+                   (max_h (min 1.0 (nth 0 cma)))
+                   (max_s (min 1.0 (nth 1 cma)))
+                   (max_v (min 1.0 (nth 2 cma)))
                    (range_h (- max_h min_h))
                    (range_s (- max_s min_s))
                    (range_v (- max_v min_v)))
@@ -95,8 +97,9 @@
                        (times (times self)))
                    (setf speeds (loop for i from 0 to (1- (1- size)) collect
                                       (let ((dist (3d-points-distance (nth i points) (nth (1+ i) points)))                                           
-                                            (time (- (nth (1+ i) times) (nth i times))))
-                                        (if (= time 0) -1 (/ dist time)))))
+                                            (time (- (or (nth (1+ i) times) 0) (or (nth i times) 0))))    ;; added (OR 0) in case a point is added and has no time...
+                                       (if (= time 0) -1 (/ dist time)))))
+                   
                    (setf speeds (append (last speeds) speeds))
                    (setf speeds (filter-and-normalize-speeds-list speeds))
                    (loop for speed in speeds
@@ -181,8 +184,12 @@
 ;;; EDITOR
 (defclass traject-editor (3DEditor) 
   ((color-mode-buttons :accessor color-mode-buttons :initarg :color-mode-buttons :initform nil)
-   (interpol-show-p :accessor interpol-show-p :initarg :interpol-show-p :initform nil))
-  )
+   (interpol-show-p :accessor interpol-show-p :initarg :interpol-show-p :initform nil)))
+
+(defmethod default-edition-params ((self 3D-trajectory)) 
+  (append (call-next-method)
+          (pairlis '(color-mode color-min color-max)
+                   (list *OM-TRAJ-COLOR-MODE* *OM-TRAJ-COLOR-MIN* *om-traj-color-max*))))
 
 ;parameters stored with the editor
 (defmethod param-color-mode ((self traject-editor) &optional (set-val nil set-val-supplied-p))
@@ -202,7 +209,6 @@
 
 
 (defmethod get-editor-class ((self 3D-trajectory)) 'traject-editor)
-
 
 (defmethod gl-3DC-from-obj ((self traject-editor))
   (let* ((obj (if (and (multibpf? self) (not (show-back-p self)))
@@ -226,18 +232,18 @@
   (declare (ignore l))
   
   ;pour compatibilité
-  (unless (param-color-mode self)
-    (param-color-mode self *OM-TRAJ-COLOR-MODE*))
+  ;(unless (param-color-mode self)
+  ;  (param-color-mode self *OM-TRAJ-COLOR-MODE*))
   
   (when (= 2 (param-color-mode self))
     (when (member nil (times (object self)))
       (param-color-mode self *OM-TRAJ-COLOR-MODE*)))
   
-  (unless (param-color-min self)
-    (param-color-min self *OM-TRAJ-COLOR-MIN*))
+  ;(unless (param-color-min self)
+  ;  (param-color-min self *OM-TRAJ-COLOR-MIN*))
 
-  (unless (param-color-max self)
-    (param-color-max self *OM-TRAJ-COLOR-MAX*))
+  ;(unless (param-color-max self)
+  ;  (param-color-max self *OM-TRAJ-COLOR-MAX*))
   
   (om-add-subviews (ctrlp self)
                    

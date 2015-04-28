@@ -37,10 +37,10 @@
 ;=================================================================
 
 ;This class exists only to hidde some slots of TemporalBox.
-(defclass GraphHideTemporalBox () 
+(defclass GraphHideTemporalBox (object-with-persistant-params) 
    ((pictu :initform (make-new-om-pict) :accessor pictu)
     (numouts :initform 0  :accessor numouts)
-    (edition-params :initform (get-default-score-params t) :accessor edition-params)
+    ;;; (edition-params :initform (get-default-score-params t) :accessor edition-params)
     (ed-pictu-list :initform nil :accessor ed-pictu-list)
     (showpict :initform nil :accessor showpict)
     (minieditor? :initform nil :accessor minieditor?))
@@ -118,7 +118,7 @@ A TemporalBox is supposed to yield a musical result to integrate in a temporal c
              (setf rep markitem))) rep))
 
 
-(defmethod paste-position ((self TemporalBox)) 
+(defmethod paste-position ((self TemporalBox) view) 
    (setf (slot-value self 'posy)  (round (* (posy self) 1.2))) nil)
 
 

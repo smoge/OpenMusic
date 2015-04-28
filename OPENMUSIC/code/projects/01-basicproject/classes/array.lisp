@@ -311,7 +311,7 @@ The matrix \"components\" can be accessed and modified using the functions get-c
 
 (defmethod om-make-array (type numcols &rest args-and-key-list)
    (let* ((array (make-instance type))
-         (slots (get-slot-in-out-names array)))
+          (slots (get-slot-in-out-names array)))
      (setf array (cons-array array (append (list nil numcols) (first-n args-and-key-list (- (length slots) 2)))
                              (nthcdr (- (length slots) 2) args-and-key-list)))
      (set-data array)
@@ -387,8 +387,12 @@ The matrix \"components\" can be accessed and modified using the functions get-c
 ;                                            (get-all-initargs-of-class (type-of rep))))))
 ;    rep))
 
+(defmethod array-size-from-input ((self class-array) input) (length input))
+
 (defmethod cons-array ((self class-array) args argkeys)
-  (let* ((nc (if (listp (second args)) (length (second args)) (second args)))
+  (let* ((nc (if (listp (second args)) 
+                (array-size-from-input self (second args))
+               (second args)))
          (rep (make-instance (type-of self) :numcols nc))
          (initargs (get-all-initargs-of-class (type-of rep)))
          slot?)
@@ -716,11 +720,11 @@ The matrix \"components\" can be accessed and modified using the functions get-c
    (draw-obj-in-rect value 0 (w self)  0 (h self) (view-get-ed-params self) self))
 
 (defmethod get-draw-visibles-list ((self class-array) edparams)
-  (when (get-edit-param edparams 'cur-group-ind)
-    (let ((fields (loop for item in (cdr (nth (get-edit-param edparams 'cur-group-ind)
-                                              (get-edit-param edparams 'panel-list)))
+  (when (get-param edparams 'cur-group-ind)
+    (let ((fields (loop for item in (cdr (nth (get-param edparams 'cur-group-ind)
+                                              (get-param edparams 'panel-list)))
                         when (second item) collect (car item))))
-   ;(when (get-edit-param edparams 'show-opt-fields)
+   ;(when (get-param edparams 'show-opt-fields)
    ;  (setf fields (append fields (arithm-ser (num-array-slots self) (+ (num-array-slots self) (num-array-controls self) -1) 1))))
       fields)))
   
@@ -741,7 +745,7 @@ The matrix \"components\" can be accessed and modified using the functions get-c
                 for posy = y then (+ posy deltay) do
                 (let* ((row (get-array-row self i))                     
                        (bpf? (get-row-bpf self row))
-                       (color (nth i (get-edit-param edparams 'color-list))))
+                       (color (nth i (get-param  edparams 'color-list))))
                   (if bpf?
                       (progn
                         (setf (bpfcolor bpf?) color)
@@ -757,7 +761,7 @@ The matrix \"components\" can be accessed and modified using the functions get-c
                                                     (default-edition-params (nth (* di jumpx) row)) view)
                                   )
                                 (om-draw-line posx posy posx (+ posy deltay)))
-                        (draw-obj-in-rect row x x1 posy (+ posy deltay) (default-edition-params row) view)
+                        ;(draw-obj-in-rect row x x1 posy (+ posy deltay) (default-edition-params row) view)
                         )))
                 (om-draw-line x (+ posy deltay) x1  (+ posy deltay))
                 ))))))))

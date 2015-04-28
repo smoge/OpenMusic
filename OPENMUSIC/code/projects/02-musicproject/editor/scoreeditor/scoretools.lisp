@@ -166,7 +166,7 @@
         (when (> (length line) 1)
           (om-with-fg-color nil *om-black-color*
             (om-with-line-size 3
-              (om-draw-line  x y (+ x 4) (- y 4))
+              (om-draw-line x y (+ x 4) (- y 4))
               (om-draw-line x y x posy)
               (om-draw-line x posy (+ x 4) (+ posy 4))
               )))
@@ -573,7 +573,11 @@
                       :reference self
                       :main-point (list x 0)
                       :rectangle (list 0 0 0 0)
-                      :stem (if (and stem (or (= mode 0) (= mode 4))) (round (* 3 linespace)))
+                      :stem (if (and stem (or (= mode 0) (= mode 4))) 
+                                (if (< (list-min (lmidic self)) 7100) 
+                                    (round (* 3 linespace))
+                                  (- (round (* 3 linespace)))
+                                  ))
                       :selected (member self sel :test 'equal)
                       :inside grap-notes))
           )
@@ -595,8 +599,10 @@
    ;;; jb
    
    (when (and (not grille-p) (stem self) (chordpos self))
-     (draw-stem self (+ (chordpos self) (/ size 3.5)) y (selected self) (stem self))
-     )
+     (if (< (list-min (lmidic (reference self))) 7100)
+         (draw-stem self (+ (chordpos self) (/ size 3.5)) y (selected self) (stem self))
+       (draw-stem self (chordpos self) y (selected self) (stem self))
+       ))
    (collect-rectangles self)
    (draw-extras self view size staff)
   )
@@ -606,10 +612,13 @@
      (let* ((thenotes (copy-list (inside self)))
             (thenotes (sort thenotes '< :key 'y))
             (y-min (y (car thenotes)))
-            (y-max (y   (car (last thenotes)))))
+            (y-max (y (car (last thenotes)))))
+       (if (plusp stemsize) 
+           (setf y-min (- y-min stemsize))
+         (setf y-max (- y-max stemsize)))
        #+win32 (setf x (+ x 2)) 
       (om-with-fg-color nil (mus-color (reference self))
-                         (om-draw-line x (+ y (- y-min stemsize)) x (+ y y-max)))
+                         (om-draw-line x (+ y y-min) x (+ y y-max)))
       
      )
   ))
@@ -1601,7 +1610,9 @@
     (let* ((dir (stemdir self))
            (thenotes (copy-list (inside self))))
       (loop for item in thenotes do
-            (draw-object-ryth item view x y zoom minx maxx miny maxy slot size linear? staff chnote))
+            (if (zerop (offset (reference item)))
+                (draw-object-ryth item view x y zoom minx maxx miny maxy slot size linear? staff chnote)
+              (draw-object-ryth item view (+ x (* zoom (offset (reference item)))) y zoom minx maxx miny maxy slot size linear? staff chnote)))
       (collect-rectangles self)
       (when (bigchord self) 
         (om-with-font (om-make-font *signs-font* (round size 1.6))  ;a faire
@@ -2285,7 +2296,9 @@
                      minimize (second (rectangle item)) into y
                      finally (return (list x y x1 y1)))))
      (if (stem self)
-       (setf (rectangle self) (list (car rect) (- (second rect) (stem self)) (third rect) (fourth rect)))
+         (if (plusp (stem self))
+             (setf (rectangle self) (list (car rect) (- (second rect) (stem self)) (third rect) (fourth rect)))
+           (setf (rectangle self) (list (car rect) (second rect) (third rect) (- (second rect) (stem self)))))
        (setf (rectangle self) (list (car rect) (second rect)  (third rect) (fourth rect))))))
 
 

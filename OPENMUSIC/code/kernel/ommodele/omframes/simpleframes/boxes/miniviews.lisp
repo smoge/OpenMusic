@@ -33,7 +33,7 @@
 ;================================================
 ;Miniview for boxes of editors
 ;================================================
-(omg-defclass general-miniview (om-view-drag select-object) 
+(defclass general-miniview (om-view-drag select-object) 
    ((minipict :initform nil :accessor minipict)))
 
 (defmethod get-box-frame ((self general-miniview)) (om-view-container self))
@@ -52,7 +52,7 @@
 
 ;======================
 ;======================
-(omg-defclass miniview (general-miniview om-item-view) ())
+(defclass miniview (general-miniview om-item-view) ())
 
 ;====================== EVENTS==========================
 
@@ -210,9 +210,7 @@
 (defvar *size-miniview* 18)
 
 (defmethod get-mini-param ((self t) param)
-  ;(cdr (assoc param (edition-params (object (om-view-container self)))))
-  (get-edit-param (object (om-view-container self)) param) 
-  )
+  (get-edit-param (object (om-view-container self)) param))
 
 (defmethod set-mini-param ((self t) param val)
   ;(rplacd (assoc param (edition-params (object (om-view-container self)))) val)

@@ -12,9 +12,9 @@
 ;;;=======================================
 (defparameter *app-name* "OM")
 
-(defparameter *version* 6.090014)
+(defparameter *version* 6.090100)
 
-(defparameter *beta-release* nil)
+(defparameter *beta-release* t)
 (defparameter *version-str* "")
 (defparameter *release-language* :en)
 (defparameter *release-date* (subseq (sys::date-string nil nil) 0 10))
@@ -216,7 +216,7 @@
 
 ;; (oa::load-external-libs '(:midi #-linux :midishare :audio :xml :sdif :udp :osc :opengl :json :yason #+linux :jack #+linux :fluidsynth))
 ;; #-linux (oa::load-external-libs '(:portmidi))
-(oa::load-external-libs '(:midi #-linux :midishare :audio :xml :sdif :udp :osc :opengl :json :yason))
+(oa::load-external-libs '(:midi #-linux :midishare :audio :xml :sdif :udp :osc :opengl :json :yason :svg))
 #+linux (oa::load-external-libs '(:jack))
 ;; (oa::load-external-libs '(:fluidsynth))
 (oa::load-external-libs '(:portmidi))

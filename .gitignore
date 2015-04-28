@@ -4,13 +4,9 @@
 *.ofasl
 *.nfasl
 *.ufasl
-
+*.*~
 *.app/
-
-<<<<<<< HEAD
 release-osx
 release-src
-=======
 # don't track auto-generated html's:
 /OPENMUSIC/resources/**/*.html
->>>>>>> master

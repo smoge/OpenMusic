@@ -53,5 +53,9 @@
   
   (when (find :fluidsynth libs)
     (load (make-pathname :directory (append *externals-directory* '("FluidSynth")) :name "load-fluidsynth")))
+
+  (when (member :svg libs)
+    (load (make-pathname :directory (append *externals-directory* '("cl-svg")) :name "cl-svg.asd"))
+    (asdf:load-system :cl-svg))
   
   t)

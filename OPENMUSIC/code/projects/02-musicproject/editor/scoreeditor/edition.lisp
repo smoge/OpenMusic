@@ -31,7 +31,6 @@
            (list *global-midi-approx* *music-fontsize* *default-satff* (make-instance 'edition-values) (om-make-point 0 0) nil nil *default-score-player*
                  1 nil 1000 0 (om-make-point 370 280) (om-make-point 300 20) 0 0 :normal t nil)))
 
-
 ;(defmethod set-edition-params ((self simple-container) box)
 ;   (setf (edition-params box) (get-default-score-params self)))
 
@@ -67,7 +66,7 @@
     rep))
 
 (defmethod corrige-edition-params ((self score-element) params)
-  (when (and *force-score-player* (not (equal (assoc 'player params) *default-score-player*)))
+  (when (and *force-score-player* (not (equal (cdr (assoc 'player params)) *default-score-player*)))
     (print (format nil "Warning: replacing player of ~A with default player: ~A (see 'force player' options in the MIDI preferences)." self *default-score-player*))
     (rplacd (assoc 'player params) *default-score-player*))
   (call-next-method self params))

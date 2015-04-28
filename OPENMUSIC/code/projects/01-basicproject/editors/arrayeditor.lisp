@@ -108,9 +108,10 @@
 
 (defmethod om-draw-contents ((Self array-titlebar))
   (call-next-method)
-  (let ((comp-str (get-comp-str (object (om-view-container self)) (select-comp (om-view-container self)))))
+  (let* ((comp-str (get-comp-str (object (om-view-container self)) (select-comp (om-view-container self))))
+         (str-size (+ (om-string-size comp-str) 10)))
     (om-with-focused-view self 
-      (om-draw-string (- (w self) 100) 16 comp-str))))
+      (om-draw-string (- (w self) str-size) 16 comp-str))))
 
 (defmethod get-comp-str ((self class-array) comp-num)
   (format nil "Component ~D" comp-num))
@@ -297,7 +298,14 @@
 (defmethod editor-array-panel-class ((self arrayeditor)) 'arraypanel)
 
 (defmethod edition-params ((self arrayeditor)) 
-  (default-edition-params (object self)))
+  (or (edition-params (ref self))
+      (setf (edition-params (ref self)) (default-edition-params (ref self)))))
+
+;;; DO NOTHING ?
+(defmethod (setf edition-params) (params (self arrayeditor)) 
+  (setf (edition-params (ref self)) params))
+
+(defmethod editor-compatible-params-p ((ed1 t) (ed2 arrayeditor)) t)
 
 ;;; dans class-editor...
 (defmethod edition-params ((self initform-button)) 
