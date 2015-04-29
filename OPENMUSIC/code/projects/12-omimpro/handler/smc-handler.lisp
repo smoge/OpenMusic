@@ -45,7 +45,7 @@ This object can automate improvization generation based on the rtimprovizer clas
 (defmethod proceed-impro-handler ((self impro-handler))
   (let* ((slice-index (slice-index self))
          (scenario-suffix (nthcdr slice-index (expanded-scenario self)))
-         result-slice-list 
+         result-slice-list
          result-length 
          output-list)
     ;;;When improvization is not over
