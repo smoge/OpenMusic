@@ -10,7 +10,7 @@
    (tunedir :initform path_tunessavedir :initarg :tunedir :accessor tunedir)
    (tunename :initform "Reveeveille" :initarg :tunename :accessor tunename)
    (grid :initform '((a m7 4) (b m7 4) (g m7 4) (a m7 4)) :initarg :grid :accessor grid)
-   (alternategrid :initform nil :initarg :alternategrid :accessor alternategrid)    ;Marc 8/5/2013 for playing interesting voicings
+   (alternativegrid :initform nil :initarg :alternativegrid :accessor alternativegrid)    ;Marc 8/5/2013 for playing interesting voicings
                                                       ;when the 'grid' for improvizing is simplified
    (chapters :initform '(1) :initarg :chapters :accessor chapters); Jérôme 13/02/13 : idxs of the measures at the beginning of the chapters
    (oracletable :initform (let ((table (make-hash-table)))          ;;;Marc 12/5/2012 pairs (channel oracle): channel 3 -> channel 14
@@ -43,7 +43,7 @@
     ))
 
 ;Marc 26/10/13
-(defmethod substitution ((self tune)) (setf (alternategrid self) (grid self)))
+(defmethod substitution ((self tune)) (setf (alternativegrid self) (grid self)))
 
 ; Functions called in "HandleMaxMessages.lisp"
 ; --------------------------------------------

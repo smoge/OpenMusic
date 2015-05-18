@@ -35,7 +35,7 @@
         (om-stop-osc-server (ServerRcvNavigOrder self))
         (setf (ServerRcvNavigOrder self) nil))))
 
-
+#|
 (defmethod launch-realtime-midi ((self realtimetune) (beatduration integer) (host_send t) (port_send_ante integer) (numAntescofo integer) (port_rcv_learn integer) (port_rcv_navig_order integer))
   (end-realtime self)
   (setf (RealTimeSystem self) 
@@ -89,8 +89,7 @@
         (ThreadProcessLearning self) (bordeaux-threads:make-thread #'(lambda () (L-processLearning (RealTimeSystem self))) :name 'L-processer)
         (ThreadProcessNavig self) (bordeaux-threads:make-thread #'(lambda () (G-processNavigation (RealTimeSystem self))) :name 'G-processer)))
 
-
-
+|#
 
 
 

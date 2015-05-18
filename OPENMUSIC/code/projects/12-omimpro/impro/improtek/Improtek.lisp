@@ -26,7 +26,7 @@ is specified in the OpenMusic preferences.
 |#
 
 (require-library "RepMus")
-(require-library "bordeaux-threads")
+;(require-library "bordeaux-threads")
 ;;;;============================================================================
 
 
@@ -36,6 +36,8 @@ is specified in the OpenMusic preferences.
 
 (defvar *improtek-lib-files* nil)
 (setf *improtek-lib-files* '(
+
+                             ;"0-Dependencies/bordeaux-threads/bordeaux-threads"
                              ;"1-Load-Init/cleansources"
                              "1-Load-Init/WorkDirectory"
                              "1-Load-Init/WorkDirectory_Paths"
@@ -63,7 +65,7 @@ is specified in the OpenMusic preferences.
 
 
                              "5-HandleImpro/Tune"
-                             "5-HandleImpro/RealTimeTools/AsynchEventDrivenProdCons"
+                             ;"5-HandleImpro/RealTimeTools/AsynchEventDrivenProdCons"
                              "5-HandleImpro/RealTimeImprovizer"
                              "5-HandleImpro/RealTimeTools/MidiToolsForRealTime"
                              "5-HandleImpro/RealTimeTune"
