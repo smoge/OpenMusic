@@ -341,7 +341,7 @@ Chord labels and clocks are coded in MIDI files as notes on channel 16:
  
 
 ;;; PASSAGE OM6.4->OM6.9 : PLUS BESOIN !! DEJA DEFINI !!      
-(defmethod mf-info->chord-seq ((self list) );&optional deltachord)
+(defmethod mf-info->chord-seq ((self list) &optional deltachord)
   (let* ((chords (make-quanti-chords self *global-deltachords*))
          (lonset (mapcar 'offset chords))
          (last-note (first (inside (first (last chords))))))
