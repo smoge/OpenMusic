@@ -16,8 +16,7 @@
    (empty-pos :initform 0 :accessor empty-pos :type integer)
    ;;;Handler
    (epsilon :initform 3 :accessor epsilon :initarg :epsilon :type integer)
-   (player-scheduler :initform nil :accessor player-scheduler :type (or null sch::scheduler))
-   (play-pos :initform 0 :accessor play-pos :type integer))
+   (player-scheduler :initform nil :accessor player-scheduler :type (or null sch::scheduler)))
   (:documentation "
 A handler for Improtek (Copyright 2013 (C) J.Nika).
 This object can automate improvization generation based on the rtimprovizer class from Improtek."))

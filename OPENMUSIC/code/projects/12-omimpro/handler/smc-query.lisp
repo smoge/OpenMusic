@@ -9,14 +9,22 @@
                  (princ `(:query :=,(q-name q) :at ,(q-gen-start q) :. :from :=,(q-origin q)) stream))))
             (:conc-name q-))
   (name "Improvisation-Query" :type string)
+  (handler nil :type (or null impro-handler))
   (inputs '() :type list)
   (vals '() :type list)
   (gen-start 0 :type integer)
   (process nil :type (or null mp:process))
-  (curpos 0 :type integer)
   (output nil)
   (:documentation ""))
 
+(defmethod q-curpos ((self impro-query))
+  (currentimproidx (rtimprovizer (handler self))))
+
+(defmethod same-inputs ((q1 impro-query) (q2 impro-query))
+  (let ((res t))
+    (loop for input in (q-inputs q1) do
+          (setq res (and res (find input (q-inputs q2)))))
+    res))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;Query pool;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -28,23 +36,27 @@
     list))
 
 (let* ((cache-lock (mp:make-lock))
-       (cache-size 1024)
+       (cache-size 64)
        (cache-list '()))
   (declare (type fixnum cache-size))
 
   (mp:with-lock (cache-lock)
     (setf cache-list (new-query-pool cache-size)))
 
-  (defun query-alloc (&key (name "Improvisation-Query") (origin '()) (gen-start 0) process)
+  (defun query-alloc (&key (name "Improvisation-Query") (inputs '()) (vals '()) (gen-start 0) process handler)
     (mp:with-lock (cache-lock)
       (when (null cache-list)
 	(setf cache-list (new-query-pool cache-size)
 	      cache-size (* 2 cache-size)))
       (let ((query (pop cache-list)))
 	(setf (q-name query) name
-              (q-origin-inputs query) origin
+              (q-handler handler)
+              (q-inputs query) inputs
+              (q-vals query) vals
               (q-gen-start query) gen-start
               (q-process query) process)
+        (if (eq (q-inputs query) '(scenario))
+            (setf (scenario (handler query)) (car (q-vals query))))
         (push query *current-queries*)
         query)))
 
@@ -52,7 +64,9 @@
     (remove self *current-queries*)
     (mp:with-lock (cache-lock)
       (setf (q-name self) "Improvisation-Query"
-            (q-origin-inputs self) '()
+            (q-handler self) nil
+            (q-inputs self) '()
+            (q-vals) '()
             (q-gen-start self) 0
             (q-process self) nil
             (q-output self) nil)
@@ -62,10 +76,14 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defmethod run ((self impro-query))
-  ;;;start generation at (q-gen-start self)
-  ;;;apply (q-vals self) on (q-inputs self)
-  ;;;(setf (q-output self) ...)
-  )
+  (loop for inp in (q-inputs self)
+        for val in (q-vals sef) do
+        (if (not (eq inp 'scenario))
+            (setf (slot-value (handler self) inp) val))) ;;;warning: slot dans le rtimpro plutot que dans l'handler: faire une redirection EZ
+  (setf (q-process self) (mp:process-run-function (q-name self) nil 
+                                                  #'(lambda (hnd gnstrt) (setf (q-output self) (proceed-impro-handler hnd gnstrt))) 
+                                                  (q-handler self) 
+                                                  (q-gen-start self))))
 
 (defmethod kill ((self impro-query))
   (if (q-process self)
@@ -79,19 +97,19 @@
   (run new-query))
 
 (defmethod wait-for-relay ((old-query impro-query) (new-query impro-query) pivot)
-  (loop while (not (>= (q-curpos old-query) pivot))
-        ;;;wait
-        )
-  (relay old-query new-query pivot))
+  (push (mp:process-run-function "Wait-For-Relay" nil
+                                 #'(lambda (q1 q2 p)
+                                     (mp:process-wait "Waiting..." 
+                                                      #'(lambda () (>= (q-curpos q1) p)))
+                                     (relay q1 q2 p))
+                                 old-query new-query pivot)
+        (waiting-processes (handler old-query))))
 
-(defmethod merge ((q1 impro-query) (q2 impro-query))
-  )
-
-(defmethod same-inputs ((q1 impro-query) (q2 impro-query))
-  (let ((res t))
-    (loop for input in (q-inputs q1) do
-          (setq res (and res (find input (q-inputs q2)))))
-    res))
+(defmethod merge ((old-query impro-query) (new-query impro-query))
+  (let ((inputs (append (q-inputs old-query) (q-inputs new-query)))
+        (vals (append (q-vals old-query) (q-vals new-query))))
+  (kill old-query)
+  (run (query-alloc :inputs inputs :vals vals :gen-start (q-gen-start new-query)))))
 
 (defmethod process-new-query ((self impro-query))
   (loop for qi in *current-queries* do

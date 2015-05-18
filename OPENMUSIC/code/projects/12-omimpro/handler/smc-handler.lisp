@@ -9,14 +9,17 @@
    (db-path :initform nil :accessor db-path :initarg :db-path :type (or null string))
    ;;;Slice Data
    (slice-list :initform nil :accessor slice-list :type list)
-   (slice-index :initform 0.0 :accessor slice-index :type single-sloat)
+   ;(slice-index :initform 0.0 :accessor slice-index :type single-sloat)
    (slice-max-pos :initform 0 :accessor slice-max-pos :type integer)
    (slice-pos :initform 0 :accessor slice-pos :type integer)
    (slice-date :initform 0 :accessor slice-date :type integer)
    (empty-pos :initform 0 :accessor empty-pos :type integer)
    ;;;Handler
    (output-slice-fun :initform nil :accessor output-slice-fun :initarg :output-slice-fun :type (or null function))
-   (epsilon :initform 3 :accessor epsilon :initarg :epsilon :type integer))
+   (epsilon :initform 3 :accessor epsilon :initarg :epsilon :type integer)
+   (play-pos :initform 0 :accessor play-pos :type integer)
+   (queries :iniform '() :accessor queries :type list)
+   (waiting-processes :initform '() :accessor waiting-processes :type list))
   (:documentation "
 A handler for Improtek (Copyright 2013 (C) J.Nika).
 This object can automate improvization generation based on the rtimprovizer class from Improtek."))
@@ -42,8 +45,8 @@ This object can automate improvization generation based on the rtimprovizer clas
         (proceed-impro-handler self)))
 
 ;;;Run one generation step
-(defmethod proceed-impro-handler ((self impro-handler))
-  (let* ((slice-index (slice-index self))
+(defmethod proceed-impro-handler ((self impro-handler) gen-start)
+  (let* ((slice-index gen-start)
          (scenario-suffix (nthcdr slice-index (expanded-scenario self)))
          result-slice-list
          result-length 
@@ -58,7 +61,8 @@ This object can automate improvization generation based on the rtimprovizer clas
       ;;;Add the generated slice list to the handler slice-list, set the new empty position and the next generation index
       (setf (slice-list self) (append (nthcar slice-index (slice-list self)) result-slice-list)
             (empty-pos self) (length (slice-list self))
-            (slice-index self) (- (empty-pos self) result-length)) ;slice-index result-length))
+            ;(slice-index self) (- (empty-pos self) result-length) ;slice-index result-length))
+            ) 
       ;;;When the generation gave a non-null result
       (when result-slice-list
         (setq output-list
@@ -66,7 +70,7 @@ This object can automate improvization generation based on the rtimprovizer clas
                     (let ((res (funcall (output-slice-fun self) slice slice-index slice-date)))
                       (incf (slice-date self) (duration slice))
                       res)))))
-    (values slice-index output-list)))
+    output-list))
 
 (defmethod! modify-scenario ((self impro-handler) new-fragment start-index)
   (let ((new-scenario (scenario self)))
