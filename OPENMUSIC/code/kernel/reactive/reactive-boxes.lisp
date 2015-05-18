@@ -53,8 +53,10 @@
     (setf (active self) react)))
 
 ;;; called in box copy
-(defmethod update-boxes ((oldbox OMReactiveBox) (newbox OMReactiveBox))
-  (let ((newbox (call-next-method)))
+;(defmethod update-boxes ((oldbox OMReactiveBox) (newbox OMReactiveBox))
+;(let ((newbox (call-next-method)))
+(defun update-boxes (oldbox newbox)
+  (let ()
     (set-active newbox (active oldbox))
     newbox))
   

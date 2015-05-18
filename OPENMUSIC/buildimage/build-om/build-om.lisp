@@ -257,6 +257,7 @@
 (load-om-projects '("10-sheet"))
 (load-om-projects '("11-omsequencer"))
 (load-om-projects '("12-omimpro"))
+(load-om-projects '("13-scheduler"))
 
 
 (push :om *features*)
