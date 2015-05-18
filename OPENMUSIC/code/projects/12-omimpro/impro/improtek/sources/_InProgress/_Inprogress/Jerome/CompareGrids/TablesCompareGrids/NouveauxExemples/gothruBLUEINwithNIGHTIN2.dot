@@ -1,0 +1,187 @@
+digraph G { 
+rankdir=LR 
+subgraph cluster0 {
+node [style=filled,color=white,shape=box,fontsize=24];
+style=filled;
+color=lightgrey;
+fontsize=32;
+"1:(bb maj7)" [label="bb maj7"]; 
+"2:(bb maj7)" [label="bb maj7"]; 
+"3:(bb maj7)" [label="bb maj7"]; 
+"4:(bb maj7)" [label="bb maj7"]; 
+
+}
+subgraph cluster1 {
+node [style=filled,color=white,shape=box,fontsize=24];
+style=filled;
+color=lightgrey;
+fontsize=32;
+"5:(a 7)" [label="a 7"]; 
+"6:(a 7)" [label="a 7"]; 
+"7:(a 7)" [label="a 7"]; 
+"8:(a 7)" [label="a 7"]; 
+
+}
+subgraph cluster2 {
+node [style=filled,color=white,shape=box,fontsize=24];
+style=filled;
+color=lightgrey;
+fontsize=32;
+"9:(d m7)" [label="d m7"]; 
+"10:(d m7)" [label="d m7"]; 
+"11:(db 7)" [label="db 7"]; 
+"12:(db 7)" [label="db 7"]; 
+
+}
+subgraph cluster3 {
+node [style=filled,color=white,shape=box,fontsize=24];
+style=filled;
+color=lightgrey;
+fontsize=32;
+"13:(c m7)" [label="c m7"]; 
+"14:(c m7)" [label="c m7"]; 
+"15:(f 7)" [label="f 7"]; 
+"16:(f 7)" [label="f 7"]; 
+
+}
+subgraph cluster4 {
+node [style=filled,color=white,shape=box,fontsize=24];
+style=filled;
+color=lightgrey;
+fontsize=32;
+"17:(bb maj7)" [label="bb maj7"]; 
+"18:(bb maj7)" [label="bb maj7"]; 
+"19:(bb maj7)" [label="bb maj7"]; 
+"20:(bb maj7)" [label="bb maj7"]; 
+
+}
+subgraph cluster5 {
+node [style=filled,color=white,shape=box,fontsize=24];
+style=filled;
+color=lightgrey;
+fontsize=32;
+"21:(a 7)" [label="a 7"]; 
+"22:(a 7)" [label="a 7"]; 
+"23:(a 7)" [label="a 7"]; 
+"24:(a 7)" [label="a 7"]; 
+
+}
+subgraph cluster6 {
+node [style=filled,color=white,shape=box,fontsize=24];
+style=filled;
+color=lightgrey;
+fontsize=32;
+"25:(d m7)" [label="d m7"]; 
+"26:(d m7)" [label="d m7"]; 
+"27:(d m7)" [label="d m7"]; 
+"28:(d m7)" [label="d m7"]; 
+
+}
+subgraph cluster7 {
+node [style=filled,color=white,shape=box,fontsize=24];
+style=filled;
+color=lightgrey;
+fontsize=32;
+"29:(e 7)" [label="e 7"]; 
+"30:(e 7)" [label="e 7"]; 
+"31:(e 7)" [label="e 7"]; 
+"32:(e 7)" [label="e 7"]; 
+
+}
+subgraph cluster8 {
+node [style=filled,color=white,shape=box,fontsize=24];
+style=filled;
+color=lightgrey;
+fontsize=32;
+"33:(a m7)" [label="a m7"]; 
+"34:(a m7)" [label="a m7"]; 
+"35:(a m7)" [label="a m7"]; 
+"36:(a m7)" [label="a m7"]; 
+
+}
+subgraph cluster9 {
+node [style=filled,color=white,shape=box,fontsize=24];
+style=filled;
+color=lightgrey;
+fontsize=32;
+"37:(d m7)" [label="d m7"]; 
+"38:(d m7)" [label="d m7"]; 
+"39:(d m7)" [label="d m7"]; 
+"40:(d m7)" [label="d m7"]; 
+
+}
+"1:(bb maj7)" -> "2:(bb maj7)" [color="black", constraint=false];
+"2:(bb maj7)" -> "3:(bb maj7)" [color="black", constraint=false];
+"3:(bb maj7)" -> "4:(bb maj7)" [color="black", constraint=false];
+"4:(bb maj7)" -> "5:(a 7)" [color="black", constraint=false];
+"5:(a 7)" -> "6:(a 7)" [color="black", constraint=false];
+"6:(a 7)" -> "7:(a 7)" [color="black", constraint=false];
+"7:(a 7)" -> "8:(a 7)" [color="black", constraint=false];
+"8:(a 7)" -> "9:(d m7)" [color="black", constraint=false];
+"9:(d m7)" -> "10:(d m7)" [color="black", constraint=false];
+"10:(d m7)" -> "11:(db 7)" [color="black", constraint=false];
+"11:(db 7)" -> "12:(db 7)" [color="black", constraint=false];
+"12:(db 7)" -> "13:(c m7)" [color="black", constraint=false];
+"13:(c m7)" -> "14:(c m7)" [color="black", constraint=false];
+"14:(c m7)" -> "15:(f 7)" [color="black", constraint=false];
+"15:(f 7)" -> "16:(f 7)" [color="black", constraint=false];
+"16:(f 7)" -> "17:(bb maj7)" [color="black", constraint=false];
+"17:(bb maj7)" -> "18:(bb maj7)" [color="black", constraint=false];
+"18:(bb maj7)" -> "19:(bb maj7)" [color="black", constraint=false];
+"19:(bb maj7)" -> "20:(bb maj7)" [color="black", constraint=false];
+"20:(bb maj7)" -> "21:(a 7)" [color="black", constraint=false];
+"21:(a 7)" -> "22:(a 7)" [color="black", constraint=false];
+"22:(a 7)" -> "23:(a 7)" [color="black", constraint=false];
+"23:(a 7)" -> "24:(a 7)" [color="black", constraint=false];
+"24:(a 7)" -> "25:(d m7)" [color="black", constraint=false];
+"25:(d m7)" -> "26:(d m7)" [color="black", constraint=false];
+"26:(d m7)" -> "27:(d m7)" [color="black", constraint=false];
+"27:(d m7)" -> "28:(d m7)" [color="black", constraint=false];
+"28:(d m7)" -> "29:(e 7)" [color="black", constraint=false];
+"29:(e 7)" -> "30:(e 7)" [color="black", constraint=false];
+"30:(e 7)" -> "31:(e 7)" [color="black", constraint=false];
+"31:(e 7)" -> "32:(e 7)" [color="black", constraint=false];
+"32:(e 7)" -> "33:(a m7)" [color="black", constraint=false];
+"33:(a m7)" -> "34:(a m7)" [color="black", constraint=false];
+"34:(a m7)" -> "35:(a m7)" [color="black", constraint=false];
+"35:(a m7)" -> "36:(a m7)" [color="black", constraint=false];
+"36:(a m7)" -> "37:(d m7)" [color="black", constraint=false];
+"37:(d m7)" -> "38:(d m7)" [color="black", constraint=false];
+"38:(d m7)" -> "39:(d m7)" [color="black", constraint=false];
+"39:(d m7)" -> "40:(d m7)" [color="black", constraint=false];
+"1:(bb maj7)" -> "4:(bb maj7)" [label="6 (5)" ,labeldistance = 50, labelfontsize=20,fontsize=20, color="red", constraint=false, width=2.3498588];
+"2:(bb maj7)" -> "4:(bb maj7)" [label="8 (5)" ,labeldistance = 50, labelfontsize=20,fontsize=20, color="red", constraint=false, width=2.4918247];
+"3:(bb maj7)" -> "4:(bb maj7)" [label="10 (5)" ,labeldistance = 50, labelfontsize=20,fontsize=20, color="red", constraint=false, width=2.6487212];
+"5:(a 7)" -> "10:(d m7)" [label="1 (-5)" ,labeldistance = 50, labelfontsize=20,fontsize=20, color="red", constraint=false, width=2.051271];
+"6:(a 7)" -> "10:(d m7)" [label="1 (-5)" ,labeldistance = 50, labelfontsize=20,fontsize=20, color="red", constraint=false, width=2.051271];
+"7:(a 7)" -> "10:(d m7)" [label="3 (0)\n1 (-5)" ,labeldistance = 50, labelfontsize=20,fontsize=20, color="red", constraint=false, width=2.2214027];
+"8:(a 7)" -> "10:(d m7)" [label="3 (0)\n1 (-5)" ,labeldistance = 50, labelfontsize=20,fontsize=20, color="red", constraint=false, width=2.2214027];
+"9:(d m7)" -> "12:(db 7)" [label="1 (-2)\n1 (-5)" ,labeldistance = 50, labelfontsize=20,fontsize=20, color="red", constraint=false, width=2.105171];
+"10:(d m7)" -> "12:(db 7)" [label="1 (-2)\n1 (-5)" ,labeldistance = 50, labelfontsize=20,fontsize=20, color="red", constraint=false, width=2.105171];
+"11:(db 7)" -> "14:(c m7)" [label="10 (-2)" ,labeldistance = 50, labelfontsize=20,fontsize=20, color="red", constraint=false, width=2.6487212];
+"12:(db 7)" -> "14:(c m7)" [label="10 (-2)" ,labeldistance = 50, labelfontsize=20,fontsize=20, color="red", constraint=false, width=2.6487212];
+"13:(c m7)" -> "16:(f 7)" [label="1 (5)\n1 (3)\n1 (-2)\n5 (-4)" ,labeldistance = 50, labelfontsize=20,fontsize=20, color="red", constraint=false, width=2.4918247];
+"14:(c m7)" -> "16:(f 7)" [label="1 (5)\n1 (3)\n1 (-2)\n5 (-4)" ,labeldistance = 50, labelfontsize=20,fontsize=20, color="red", constraint=false, width=2.4918247];
+"15:(f 7)" -> "20:(bb maj7)" [label="1 (5)" ,labeldistance = 50, labelfontsize=20,fontsize=20, color="red", constraint=false, width=2.051271];
+"16:(f 7)" -> "20:(bb maj7)" [label="1 (5)" ,labeldistance = 50, labelfontsize=20,fontsize=20, color="red", constraint=false, width=2.051271];
+"17:(bb maj7)" -> "20:(bb maj7)" [label="6 (5)" ,labeldistance = 50, labelfontsize=20,fontsize=20, color="red", constraint=false, width=2.3498588];
+"18:(bb maj7)" -> "20:(bb maj7)" [label="8 (5)" ,labeldistance = 50, labelfontsize=20,fontsize=20, color="red", constraint=false, width=2.4918247];
+"19:(bb maj7)" -> "20:(bb maj7)" [label="10 (5)" ,labeldistance = 50, labelfontsize=20,fontsize=20, color="red", constraint=false, width=2.6487212];
+"21:(a 7)" -> "28:(d m7)" [label="1 (-5)" ,labeldistance = 50, labelfontsize=20,fontsize=20, color="red", constraint=false, width=2.051271];
+"22:(a 7)" -> "28:(d m7)" [label="1 (-5)" ,labeldistance = 50, labelfontsize=20,fontsize=20, color="red", constraint=false, width=2.051271];
+"23:(a 7)" -> "28:(d m7)" [label="3 (0)\n1 (-5)" ,labeldistance = 50, labelfontsize=20,fontsize=20, color="red", constraint=false, width=2.2214027];
+"24:(a 7)" -> "28:(d m7)" [label="3 (0)\n1 (-5)" ,labeldistance = 50, labelfontsize=20,fontsize=20, color="red", constraint=false, width=2.2214027];
+"25:(d m7)" -> "28:(d m7)" [label="1 (5)\n17 (0)\n6 (-2)\n14 (-5)" ,labeldistance = 50, labelfontsize=20,fontsize=20, color="red", constraint=false, width=7.6858945];
+"26:(d m7)" -> "28:(d m7)" [label="2 (5)\n30 (0)\n8 (-2)\n16 (-5)" ,labeldistance = 50, labelfontsize=20,fontsize=20, color="red", constraint=false, width=17.444647];
+"27:(d m7)" -> "28:(d m7)" [label="3 (5)\n43 (0)\n14 (-2)\n18 (-5)" ,labeldistance = 50, labelfontsize=20,fontsize=20, color="red", constraint=false, width=50.40245];
+"29:(e 7)" -> "36:(a m7)" [label="1 (2)" ,labeldistance = 50, labelfontsize=20,fontsize=20, color="red", constraint=false, width=2.051271];
+"30:(e 7)" -> "36:(a m7)" [label="1 (2)" ,labeldistance = 50, labelfontsize=20,fontsize=20, color="red", constraint=false, width=2.051271];
+"31:(e 7)" -> "36:(a m7)" [label="1 (2)\n3 (-5)" ,labeldistance = 50, labelfontsize=20,fontsize=20, color="red", constraint=false, width=2.2214027];
+"32:(e 7)" -> "36:(a m7)" [label="1 (2)\n3 (-5)" ,labeldistance = 50, labelfontsize=20,fontsize=20, color="red", constraint=false, width=2.2214027];
+"33:(a m7)" -> "36:(a m7)" [label="6 (5)\n14 (2)\n1 (0)\n17 (-5)" ,labeldistance = 50, labelfontsize=20,fontsize=20, color="red", constraint=false, width=7.6858945];
+"34:(a m7)" -> "36:(a m7)" [label="8 (5)\n16 (2)\n2 (0)\n30 (-5)" ,labeldistance = 50, labelfontsize=20,fontsize=20, color="red", constraint=false, width=17.444647];
+"35:(a m7)" -> "36:(a m7)" [label="14 (5)\n18 (2)\n3 (0)\n43 (-5)" ,labeldistance = 50, labelfontsize=20,fontsize=20, color="red", constraint=false, width=50.40245];
+"37:(d m7)" -> "40:(d m7)" [label="1 (5)\n17 (0)\n6 (-2)\n14 (-5)" ,labeldistance = 50, labelfontsize=20,fontsize=20, color="red", constraint=false, width=7.6858945];
+"38:(d m7)" -> "40:(d m7)" [label="2 (5)\n30 (0)\n8 (-2)\n16 (-5)" ,labeldistance = 50, labelfontsize=20,fontsize=20, color="red", constraint=false, width=17.444647];
+"39:(d m7)" -> "40:(d m7)" [label="3 (5)\n43 (0)\n14 (-2)\n18 (-5)" ,labeldistance = 50, labelfontsize=20,fontsize=20, color="red", constraint=false, width=50.40245];
+}

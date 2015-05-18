@@ -1,0 +1,180 @@
+digraph G { 
+rankdir=LR 
+subgraph cluster0 {
+node [style=filled,color=white];
+style=filled;
+color=lightgrey;
+"1:(bb maj7)"; 
+"2:(bb maj7)"; 
+"3:(bb maj7)"; 
+"4:(bb maj7)"; 
+label = "Mes. 1"
+}
+subgraph cluster4 {
+node [style=filled,color=white];
+style=filled;
+color=lightgrey;
+"5:(a 7)"; 
+"6:(a 7)"; 
+"7:(a 7)"; 
+"8:(a 7)"; 
+label = "Mes. 2"
+}
+subgraph cluster8 {
+node [style=filled,color=white];
+style=filled;
+color=lightgrey;
+"9:(d m7)"; 
+"10:(d m7)"; 
+"11:(db 7)"; 
+"12:(db 7)"; 
+label = "Mes. 3"
+}
+subgraph cluster12 {
+node [style=filled,color=white];
+style=filled;
+color=lightgrey;
+"13:(c m7)"; 
+"14:(c m7)"; 
+"15:(f 7)"; 
+"16:(f 7)"; 
+label = "Mes. 4"
+}
+subgraph cluster16 {
+node [style=filled,color=white];
+style=filled;
+color=lightgrey;
+"17:(bb maj7)"; 
+"18:(bb maj7)"; 
+"19:(bb maj7)"; 
+"20:(bb maj7)"; 
+label = "Mes. 5"
+}
+subgraph cluster20 {
+node [style=filled,color=white];
+style=filled;
+color=lightgrey;
+"21:(a 7)"; 
+"22:(a 7)"; 
+"23:(a 7)"; 
+"24:(a 7)"; 
+label = "Mes. 6"
+}
+subgraph cluster24 {
+node [style=filled,color=white];
+style=filled;
+color=lightgrey;
+"25:(d m7)"; 
+"26:(d m7)"; 
+"27:(d m7)"; 
+"28:(d m7)"; 
+label = "Mes. 7"
+}
+subgraph cluster28 {
+node [style=filled,color=white];
+style=filled;
+color=lightgrey;
+"29:(e 7)"; 
+"30:(e 7)"; 
+"31:(e 7)"; 
+"32:(e 7)"; 
+label = "Mes. 8"
+}
+subgraph cluster32 {
+node [style=filled,color=white];
+style=filled;
+color=lightgrey;
+"33:(a m7)"; 
+"34:(a m7)"; 
+"35:(a m7)"; 
+"36:(a m7)"; 
+label = "Mes. 9"
+}
+subgraph cluster36 {
+node [style=filled,color=white];
+style=filled;
+color=lightgrey;
+"37:(d m7)"; 
+"38:(d m7)"; 
+"39:(d m7)"; 
+"40:(d m7)"; 
+label = "Mes. 10"
+}
+"1:(bb maj7)" -> "2:(bb maj7)" [color="turquoise", constraint=false];
+"2:(bb maj7)" -> "3:(bb maj7)" [color="turquoise", constraint=false];
+"3:(bb maj7)" -> "4:(bb maj7)" [color="turquoise", constraint=false];
+"4:(bb maj7)" -> "5:(a 7)" [color="turquoise", constraint=false];
+"5:(a 7)" -> "6:(a 7)" [color="turquoise", constraint=false];
+"6:(a 7)" -> "7:(a 7)" [color="turquoise", constraint=false];
+"7:(a 7)" -> "8:(a 7)" [color="turquoise", constraint=false];
+"8:(a 7)" -> "9:(d m7)" [color="turquoise", constraint=false];
+"9:(d m7)" -> "10:(d m7)" [color="turquoise", constraint=false];
+"10:(d m7)" -> "11:(db 7)" [color="turquoise", constraint=false];
+"11:(db 7)" -> "12:(db 7)" [color="turquoise", constraint=false];
+"12:(db 7)" -> "13:(c m7)" [color="turquoise", constraint=false];
+"13:(c m7)" -> "14:(c m7)" [color="turquoise", constraint=false];
+"14:(c m7)" -> "15:(f 7)" [color="turquoise", constraint=false];
+"15:(f 7)" -> "16:(f 7)" [color="turquoise", constraint=false];
+"16:(f 7)" -> "17:(bb maj7)" [color="turquoise", constraint=false];
+"17:(bb maj7)" -> "18:(bb maj7)" [color="turquoise", constraint=false];
+"18:(bb maj7)" -> "19:(bb maj7)" [color="turquoise", constraint=false];
+"19:(bb maj7)" -> "20:(bb maj7)" [color="turquoise", constraint=false];
+"20:(bb maj7)" -> "21:(a 7)" [color="turquoise", constraint=false];
+"21:(a 7)" -> "22:(a 7)" [color="turquoise", constraint=false];
+"22:(a 7)" -> "23:(a 7)" [color="turquoise", constraint=false];
+"23:(a 7)" -> "24:(a 7)" [color="turquoise", constraint=false];
+"24:(a 7)" -> "25:(d m7)" [color="turquoise", constraint=false];
+"25:(d m7)" -> "26:(d m7)" [color="turquoise", constraint=false];
+"26:(d m7)" -> "27:(d m7)" [color="turquoise", constraint=false];
+"27:(d m7)" -> "28:(d m7)" [color="turquoise", constraint=false];
+"28:(d m7)" -> "29:(e 7)" [color="turquoise", constraint=false];
+"29:(e 7)" -> "30:(e 7)" [color="turquoise", constraint=false];
+"30:(e 7)" -> "31:(e 7)" [color="turquoise", constraint=false];
+"31:(e 7)" -> "32:(e 7)" [color="turquoise", constraint=false];
+"32:(e 7)" -> "33:(a m7)" [color="turquoise", constraint=false];
+"33:(a m7)" -> "34:(a m7)" [color="turquoise", constraint=false];
+"34:(a m7)" -> "35:(a m7)" [color="turquoise", constraint=false];
+"35:(a m7)" -> "36:(a m7)" [color="turquoise", constraint=false];
+"36:(a m7)" -> "37:(d m7)" [color="turquoise", constraint=false];
+"37:(d m7)" -> "38:(d m7)" [color="turquoise", constraint=false];
+"38:(d m7)" -> "39:(d m7)" [color="turquoise", constraint=false];
+"39:(d m7)" -> "40:(d m7)" [color="turquoise", constraint=false];
+"1:(bb maj7)" -> "10:(d m7)" [label="10 ( t=-5/nb=1)" , color="red", constraint=false, width=0.5];
+"2:(bb maj7)" -> "10:(d m7)" [label="9 ( t=-5/nb=1)" , color="red", constraint=false, width=0.5];
+"3:(bb maj7)" -> "10:(d m7)" [label="8 ( t=-5/nb=1)" , color="red", constraint=false, width=0.5];
+"4:(bb maj7)" -> "10:(d m7)" [label="7 ( t=-5/nb=1)" , color="red", constraint=false, width=0.5];
+"5:(a 7)" -> "14:(c m7)" [label="10 ( t=-5/nb=1)" , color="red", constraint=false, width=0.5];
+"6:(a 7)" -> "14:(c m7)" [label="9 ( t=-5/nb=1)" , color="red", constraint=false, width=0.5];
+"7:(a 7)" -> "14:(c m7)" [label="8 ( t=-5/nb=1)" , color="red", constraint=false, width=0.5];
+"8:(a 7)" -> "14:(c m7)" [label="7 ( t=-5/nb=1)" , color="red", constraint=false, width=0.5];
+"9:(d m7)" -> "14:(c m7)" [label="6 ( t=-5/nb=1)" , color="red", constraint=false, width=0.5];
+"10:(d m7)" -> "14:(c m7)" [label="5 ( t=-5/nb=1)" , color="red", constraint=false, width=0.5];
+"11:(db 7)" -> "14:(c m7)" [label="4 ( t=-5/nb=1)" , color="red", constraint=false, width=0.5];
+"12:(db 7)" -> "14:(c m7)" [label="3 ( t=-5/nb=1)" , color="red", constraint=false, width=0.5];
+"13:(c m7)" -> "16:(f 7)" [label="4 ( t=3/nb=4 t=0/nb=3)" , color="red", constraint=false, width=3.5];
+"14:(c m7)" -> "16:(f 7)" [label="3 ( t=3/nb=4 t=0/nb=3)" , color="red", constraint=false, width=3.5];
+"15:(f 7)" -> "20:(bb maj7)" [label="6 ( t=0/nb=3)" , color="red", constraint=false, width=1.5];
+"16:(f 7)" -> "20:(bb maj7)" [label="5 ( t=0/nb=3)" , color="red", constraint=false, width=1.5];
+"17:(bb maj7)" -> "28:(d m7)" [label="12 ( t=-5/nb=1)" , color="red", constraint=false, width=0.5];
+"18:(bb maj7)" -> "28:(d m7)" [label="11 ( t=-5/nb=1)" , color="red", constraint=false, width=0.5];
+"19:(bb maj7)" -> "28:(d m7)" [label="10 ( t=-5/nb=1)" , color="red", constraint=false, width=0.5];
+"20:(bb maj7)" -> "28:(d m7)" [label="9 ( t=-5/nb=1)" , color="red", constraint=false, width=0.5];
+"21:(a 7)" -> "28:(d m7)" [label="8 ( t=-5/nb=4)" , color="red", constraint=false, width=2.0];
+"22:(a 7)" -> "28:(d m7)" [label="7 ( t=-5/nb=4)" , color="red", constraint=false, width=2.0];
+"23:(a 7)" -> "28:(d m7)" [label="6 ( t=-5/nb=4)" , color="red", constraint=false, width=2.0];
+"24:(a 7)" -> "28:(d m7)" [label="5 ( t=-5/nb=4)" , color="red", constraint=false, width=2.0];
+"25:(d m7)" -> "28:(d m7)" [label="4 ( t=5/nb=4 t=2/nb=3 t=-5/nb=20)" , color="red", constraint=false, width=13.5];
+"26:(d m7)" -> "28:(d m7)" [label="3 ( t=5/nb=8 t=2/nb=6 t=-5/nb=24)" , color="red", constraint=false, width=19.0];
+"27:(d m7)" -> "28:(d m7)" [label="2 ( t=5/nb=12 t=2/nb=9 t=-3/nb=1 t=-5/nb=29)" , color="red", constraint=false, width=25.5];
+"29:(e 7)" -> "36:(a m7)" [label="8 ( t=2/nb=4)" , color="red", constraint=false, width=2.0];
+"30:(e 7)" -> "36:(a m7)" [label="7 ( t=2/nb=4)" , color="red", constraint=false, width=2.0];
+"31:(e 7)" -> "36:(a m7)" [label="6 ( t=2/nb=4)" , color="red", constraint=false, width=2.0];
+"32:(e 7)" -> "36:(a m7)" [label="5 ( t=2/nb=4)" , color="red", constraint=false, width=2.0];
+"33:(a m7)" -> "40:(d m7)" [label="8 ( t=2/nb=2)" , color="red", constraint=false, width=1.0];
+"34:(a m7)" -> "40:(d m7)" [label="7 ( t=2/nb=2)" , color="red", constraint=false, width=1.0];
+"35:(a m7)" -> "40:(d m7)" [label="6 ( t=2/nb=2)" , color="red", constraint=false, width=1.0];
+"36:(a m7)" -> "40:(d m7)" [label="5 ( t=2/nb=2)" , color="red", constraint=false, width=1.0];
+"37:(d m7)" -> "40:(d m7)" [label="4 ( t=5/nb=4 t=2/nb=3 t=-5/nb=20)" , color="red", constraint=false, width=13.5];
+"38:(d m7)" -> "40:(d m7)" [label="3 ( t=5/nb=8 t=2/nb=6 t=-5/nb=24)" , color="red", constraint=false, width=19.0];
+"39:(d m7)" -> "40:(d m7)" [label="2 ( t=5/nb=12 t=2/nb=9 t=-3/nb=1 t=-5/nb=29)" , color="red", constraint=false, width=25.5];
+}

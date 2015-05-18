@@ -1,0 +1,419 @@
+digraph G { 
+rankdir=LR 
+subgraph cluster0 {
+node [style=filled,color=white];
+style=filled;
+color=lightgrey;
+"1:(f m7)"; 
+"2:(f m7)"; 
+"3:(f m7)"; 
+"4:(f m7)"; 
+label = "Mes. 1"
+}
+subgraph cluster4 {
+node [style=filled,color=white];
+style=filled;
+color=lightgrey;
+"5:(f m7)"; 
+"6:(f m7)"; 
+"7:(f m7)"; 
+"8:(f m7)"; 
+label = "Mes. 2"
+}
+subgraph cluster8 {
+node [style=filled,color=white];
+style=filled;
+color=lightgrey;
+"9:(eb 7)"; 
+"10:(eb 7)"; 
+"11:(eb 7)"; 
+"12:(eb 7)"; 
+label = "Mes. 3"
+}
+subgraph cluster12 {
+node [style=filled,color=white];
+style=filled;
+color=lightgrey;
+"13:(eb 7)"; 
+"14:(eb 7)"; 
+"15:(eb 7)"; 
+"16:(eb 7)"; 
+label = "Mes. 4"
+}
+subgraph cluster16 {
+node [style=filled,color=white];
+style=filled;
+color=lightgrey;
+"17:(db 7)"; 
+"18:(db 7)"; 
+"19:(db 7)"; 
+"20:(db 7)"; 
+label = "Mes. 5"
+}
+subgraph cluster20 {
+node [style=filled,color=white];
+style=filled;
+color=lightgrey;
+"21:(c 7)"; 
+"22:(c 7)"; 
+"23:(c 7)"; 
+"24:(c 7)"; 
+label = "Mes. 6"
+}
+subgraph cluster24 {
+node [style=filled,color=white];
+style=filled;
+color=lightgrey;
+"25:(f m7)"; 
+"26:(f m7)"; 
+"27:(f m7)"; 
+"28:(f m7)"; 
+label = "Mes. 7"
+}
+subgraph cluster28 {
+node [style=filled,color=white];
+style=filled;
+color=lightgrey;
+"29:(f m7)"; 
+"30:(f m7)"; 
+"31:(f m7)"; 
+"32:(f m7)"; 
+label = "Mes. 8"
+}
+subgraph cluster32 {
+node [style=filled,color=white];
+style=filled;
+color=lightgrey;
+"33:(f m7)"; 
+"34:(f m7)"; 
+"35:(f m7)"; 
+"36:(f m7)"; 
+label = "Mes. 9"
+}
+subgraph cluster36 {
+node [style=filled,color=white];
+style=filled;
+color=lightgrey;
+"37:(f m7)"; 
+"38:(f m7)"; 
+"39:(f m7)"; 
+"40:(f m7)"; 
+label = "Mes. 10"
+}
+subgraph cluster40 {
+node [style=filled,color=white];
+style=filled;
+color=lightgrey;
+"41:(eb 7)"; 
+"42:(eb 7)"; 
+"43:(eb 7)"; 
+"44:(eb 7)"; 
+label = "Mes. 11"
+}
+subgraph cluster44 {
+node [style=filled,color=white];
+style=filled;
+color=lightgrey;
+"45:(eb 7)"; 
+"46:(eb 7)"; 
+"47:(eb 7)"; 
+"48:(eb 7)"; 
+label = "Mes. 12"
+}
+subgraph cluster48 {
+node [style=filled,color=white];
+style=filled;
+color=lightgrey;
+"49:(db 7)"; 
+"50:(db 7)"; 
+"51:(db 7)"; 
+"52:(db 7)"; 
+label = "Mes. 13"
+}
+subgraph cluster52 {
+node [style=filled,color=white];
+style=filled;
+color=lightgrey;
+"53:(c 7)"; 
+"54:(c 7)"; 
+"55:(c 7)"; 
+"56:(c 7)"; 
+label = "Mes. 14"
+}
+subgraph cluster56 {
+node [style=filled,color=white];
+style=filled;
+color=lightgrey;
+"57:(f m7)"; 
+"58:(f m7)"; 
+"59:(f m7)"; 
+"60:(f m7)"; 
+label = "Mes. 15"
+}
+subgraph cluster60 {
+node [style=filled,color=white];
+style=filled;
+color=lightgrey;
+"61:(f m7)"; 
+"62:(f m7)"; 
+"63:(f m7)"; 
+"64:(f m7)"; 
+label = "Mes. 16"
+}
+subgraph cluster64 {
+node [style=filled,color=white];
+style=filled;
+color=lightgrey;
+"65:(eb 7)"; 
+"66:(eb 7)"; 
+"67:(eb 7)"; 
+"68:(eb 7)"; 
+label = "Mes. 17"
+}
+subgraph cluster68 {
+node [style=filled,color=white];
+style=filled;
+color=lightgrey;
+"69:(eb 7)"; 
+"70:(eb 7)"; 
+"71:(eb 7)"; 
+"72:(eb 7)"; 
+label = "Mes. 18"
+}
+subgraph cluster72 {
+node [style=filled,color=white];
+style=filled;
+color=lightgrey;
+"73:(f m7)"; 
+"74:(f m7)"; 
+"75:(f m7)"; 
+"76:(f m7)"; 
+label = "Mes. 19"
+}
+subgraph cluster76 {
+node [style=filled,color=white];
+style=filled;
+color=lightgrey;
+"77:(f m7)"; 
+"78:(f m7)"; 
+"79:(f m7)"; 
+"80:(f m7)"; 
+label = "Mes. 20"
+}
+subgraph cluster80 {
+node [style=filled,color=white];
+style=filled;
+color=lightgrey;
+"81:(eb 7)"; 
+"82:(eb 7)"; 
+"83:(db 7)"; 
+"84:(db 7)"; 
+label = "Mes. 21"
+}
+subgraph cluster84 {
+node [style=filled,color=white];
+style=filled;
+color=lightgrey;
+"85:(c 7)"; 
+"86:(c 7)"; 
+"87:(c 7)"; 
+"88:(c 7)"; 
+label = "Mes. 22"
+}
+subgraph cluster88 {
+node [style=filled,color=white];
+style=filled;
+color=lightgrey;
+"89:(f m7)"; 
+"90:(f m7)"; 
+"91:(f m7)"; 
+"92:(f m7)"; 
+label = "Mes. 23"
+}
+subgraph cluster92 {
+node [style=filled,color=white];
+style=filled;
+color=lightgrey;
+"93:(f m7)"; 
+"94:(f m7)"; 
+"95:(f m7)"; 
+"96:(f m7)"; 
+label = "Mes. 24"
+}
+"1:(f m7)" -> "2:(f m7)" [color="turquoise", constraint=false];
+"2:(f m7)" -> "3:(f m7)" [color="turquoise", constraint=false];
+"3:(f m7)" -> "4:(f m7)" [color="turquoise", constraint=false];
+"4:(f m7)" -> "5:(f m7)" [color="turquoise", constraint=false];
+"5:(f m7)" -> "6:(f m7)" [color="turquoise", constraint=false];
+"6:(f m7)" -> "7:(f m7)" [color="turquoise", constraint=false];
+"7:(f m7)" -> "8:(f m7)" [color="turquoise", constraint=false];
+"8:(f m7)" -> "9:(eb 7)" [color="turquoise", constraint=false];
+"9:(eb 7)" -> "10:(eb 7)" [color="turquoise", constraint=false];
+"10:(eb 7)" -> "11:(eb 7)" [color="turquoise", constraint=false];
+"11:(eb 7)" -> "12:(eb 7)" [color="turquoise", constraint=false];
+"12:(eb 7)" -> "13:(eb 7)" [color="turquoise", constraint=false];
+"13:(eb 7)" -> "14:(eb 7)" [color="turquoise", constraint=false];
+"14:(eb 7)" -> "15:(eb 7)" [color="turquoise", constraint=false];
+"15:(eb 7)" -> "16:(eb 7)" [color="turquoise", constraint=false];
+"16:(eb 7)" -> "17:(db 7)" [color="turquoise", constraint=false];
+"17:(db 7)" -> "18:(db 7)" [color="turquoise", constraint=false];
+"18:(db 7)" -> "19:(db 7)" [color="turquoise", constraint=false];
+"19:(db 7)" -> "20:(db 7)" [color="turquoise", constraint=false];
+"20:(db 7)" -> "21:(c 7)" [color="turquoise", constraint=false];
+"21:(c 7)" -> "22:(c 7)" [color="turquoise", constraint=false];
+"22:(c 7)" -> "23:(c 7)" [color="turquoise", constraint=false];
+"23:(c 7)" -> "24:(c 7)" [color="turquoise", constraint=false];
+"24:(c 7)" -> "25:(f m7)" [color="turquoise", constraint=false];
+"25:(f m7)" -> "26:(f m7)" [color="turquoise", constraint=false];
+"26:(f m7)" -> "27:(f m7)" [color="turquoise", constraint=false];
+"27:(f m7)" -> "28:(f m7)" [color="turquoise", constraint=false];
+"28:(f m7)" -> "29:(f m7)" [color="turquoise", constraint=false];
+"29:(f m7)" -> "30:(f m7)" [color="turquoise", constraint=false];
+"30:(f m7)" -> "31:(f m7)" [color="turquoise", constraint=false];
+"31:(f m7)" -> "32:(f m7)" [color="turquoise", constraint=false];
+"32:(f m7)" -> "33:(f m7)" [color="turquoise", constraint=false];
+"33:(f m7)" -> "34:(f m7)" [color="turquoise", constraint=false];
+"34:(f m7)" -> "35:(f m7)" [color="turquoise", constraint=false];
+"35:(f m7)" -> "36:(f m7)" [color="turquoise", constraint=false];
+"36:(f m7)" -> "37:(f m7)" [color="turquoise", constraint=false];
+"37:(f m7)" -> "38:(f m7)" [color="turquoise", constraint=false];
+"38:(f m7)" -> "39:(f m7)" [color="turquoise", constraint=false];
+"39:(f m7)" -> "40:(f m7)" [color="turquoise", constraint=false];
+"40:(f m7)" -> "41:(eb 7)" [color="turquoise", constraint=false];
+"41:(eb 7)" -> "42:(eb 7)" [color="turquoise", constraint=false];
+"42:(eb 7)" -> "43:(eb 7)" [color="turquoise", constraint=false];
+"43:(eb 7)" -> "44:(eb 7)" [color="turquoise", constraint=false];
+"44:(eb 7)" -> "45:(eb 7)" [color="turquoise", constraint=false];
+"45:(eb 7)" -> "46:(eb 7)" [color="turquoise", constraint=false];
+"46:(eb 7)" -> "47:(eb 7)" [color="turquoise", constraint=false];
+"47:(eb 7)" -> "48:(eb 7)" [color="turquoise", constraint=false];
+"48:(eb 7)" -> "49:(db 7)" [color="turquoise", constraint=false];
+"49:(db 7)" -> "50:(db 7)" [color="turquoise", constraint=false];
+"50:(db 7)" -> "51:(db 7)" [color="turquoise", constraint=false];
+"51:(db 7)" -> "52:(db 7)" [color="turquoise", constraint=false];
+"52:(db 7)" -> "53:(c 7)" [color="turquoise", constraint=false];
+"53:(c 7)" -> "54:(c 7)" [color="turquoise", constraint=false];
+"54:(c 7)" -> "55:(c 7)" [color="turquoise", constraint=false];
+"55:(c 7)" -> "56:(c 7)" [color="turquoise", constraint=false];
+"56:(c 7)" -> "57:(f m7)" [color="turquoise", constraint=false];
+"57:(f m7)" -> "58:(f m7)" [color="turquoise", constraint=false];
+"58:(f m7)" -> "59:(f m7)" [color="turquoise", constraint=false];
+"59:(f m7)" -> "60:(f m7)" [color="turquoise", constraint=false];
+"60:(f m7)" -> "61:(f m7)" [color="turquoise", constraint=false];
+"61:(f m7)" -> "62:(f m7)" [color="turquoise", constraint=false];
+"62:(f m7)" -> "63:(f m7)" [color="turquoise", constraint=false];
+"63:(f m7)" -> "64:(f m7)" [color="turquoise", constraint=false];
+"64:(f m7)" -> "65:(eb 7)" [color="turquoise", constraint=false];
+"65:(eb 7)" -> "66:(eb 7)" [color="turquoise", constraint=false];
+"66:(eb 7)" -> "67:(eb 7)" [color="turquoise", constraint=false];
+"67:(eb 7)" -> "68:(eb 7)" [color="turquoise", constraint=false];
+"68:(eb 7)" -> "69:(eb 7)" [color="turquoise", constraint=false];
+"69:(eb 7)" -> "70:(eb 7)" [color="turquoise", constraint=false];
+"70:(eb 7)" -> "71:(eb 7)" [color="turquoise", constraint=false];
+"71:(eb 7)" -> "72:(eb 7)" [color="turquoise", constraint=false];
+"72:(eb 7)" -> "73:(f m7)" [color="turquoise", constraint=false];
+"73:(f m7)" -> "74:(f m7)" [color="turquoise", constraint=false];
+"74:(f m7)" -> "75:(f m7)" [color="turquoise", constraint=false];
+"75:(f m7)" -> "76:(f m7)" [color="turquoise", constraint=false];
+"76:(f m7)" -> "77:(f m7)" [color="turquoise", constraint=false];
+"77:(f m7)" -> "78:(f m7)" [color="turquoise", constraint=false];
+"78:(f m7)" -> "79:(f m7)" [color="turquoise", constraint=false];
+"79:(f m7)" -> "80:(f m7)" [color="turquoise", constraint=false];
+"80:(f m7)" -> "81:(eb 7)" [color="turquoise", constraint=false];
+"81:(eb 7)" -> "82:(eb 7)" [color="turquoise", constraint=false];
+"82:(eb 7)" -> "83:(db 7)" [color="turquoise", constraint=false];
+"83:(db 7)" -> "84:(db 7)" [color="turquoise", constraint=false];
+"84:(db 7)" -> "85:(c 7)" [color="turquoise", constraint=false];
+"85:(c 7)" -> "86:(c 7)" [color="turquoise", constraint=false];
+"86:(c 7)" -> "87:(c 7)" [color="turquoise", constraint=false];
+"87:(c 7)" -> "88:(c 7)" [color="turquoise", constraint=false];
+"88:(c 7)" -> "89:(f m7)" [color="turquoise", constraint=false];
+"89:(f m7)" -> "90:(f m7)" [color="turquoise", constraint=false];
+"90:(f m7)" -> "91:(f m7)" [color="turquoise", constraint=false];
+"91:(f m7)" -> "92:(f m7)" [color="turquoise", constraint=false];
+"92:(f m7)" -> "93:(f m7)" [color="turquoise", constraint=false];
+"93:(f m7)" -> "94:(f m7)" [color="turquoise", constraint=false];
+"94:(f m7)" -> "95:(f m7)" [color="turquoise", constraint=false];
+"95:(f m7)" -> "96:(f m7)" [color="turquoise", constraint=false];
+"1:(f m7)" -> "8:(f m7)" [label="8 ( t=3/nb=9 t=0/nb=25)" , color="red", constraint=false, width=17.0];
+"2:(f m7)" -> "8:(f m7)" [label="7 ( t=3/nb=10 t=0/nb=26)" , color="red", constraint=false, width=18.0];
+"3:(f m7)" -> "8:(f m7)" [label="6 ( t=3/nb=11 t=0/nb=27)" , color="red", constraint=false, width=19.0];
+"4:(f m7)" -> "8:(f m7)" [label="5 ( t=3/nb=12 t=0/nb=28)" , color="red", constraint=false, width=20.0];
+"5:(f m7)" -> "8:(f m7)" [label="4 ( t=3/nb=13 t=0/nb=29)" , color="red", constraint=false, width=21.0];
+"6:(f m7)" -> "8:(f m7)" [label="3 ( t=3/nb=14 t=0/nb=30)" , color="red", constraint=false, width=22.0];
+"7:(f m7)" -> "8:(f m7)" [label="2 ( t=3/nb=15 t=0/nb=31)" , color="red", constraint=false, width=23.0];
+"9:(eb 7)" -> "16:(eb 7)" [label="8 ( t=2/nb=9)" , color="red", constraint=false, width=4.5];
+"10:(eb 7)" -> "16:(eb 7)" [label="7 ( t=2/nb=10)" , color="red", constraint=false, width=5.0];
+"11:(eb 7)" -> "16:(eb 7)" [label="6 ( t=2/nb=11)" , color="red", constraint=false, width=5.5];
+"12:(eb 7)" -> "16:(eb 7)" [label="5 ( t=2/nb=12)" , color="red", constraint=false, width=6.0];
+"13:(eb 7)" -> "16:(eb 7)" [label="4 ( t=2/nb=13)" , color="red", constraint=false, width=6.5];
+"14:(eb 7)" -> "16:(eb 7)" [label="3 ( t=2/nb=14)" , color="red", constraint=false, width=7.0];
+"15:(eb 7)" -> "16:(eb 7)" [label="2 ( t=2/nb=15)" , color="red", constraint=false, width=7.5];
+"17:(db 7)" -> "20:(db 7)" [label="4 ( t=0/nb=13)" , color="red", constraint=false, width=6.5];
+"18:(db 7)" -> "20:(db 7)" [label="3 ( t=0/nb=14)" , color="red", constraint=false, width=7.0];
+"19:(db 7)" -> "20:(db 7)" [label="2 ( t=0/nb=15)" , color="red", constraint=false, width=7.5];
+"21:(c 7)" -> "24:(c 7)" [label="4 ( t=-1/nb=13)" , color="red", constraint=false, width=6.5];
+"22:(c 7)" -> "24:(c 7)" [label="3 ( t=-1/nb=14)" , color="red", constraint=false, width=7.0];
+"23:(c 7)" -> "24:(c 7)" [label="2 ( t=-1/nb=15)" , color="red", constraint=false, width=7.5];
+"25:(f m7)" -> "40:(f m7)" [label="16 ( t=3/nb=1 t=0/nb=17)" , color="red", constraint=false, width=9.0];
+"26:(f m7)" -> "40:(f m7)" [label="15 ( t=3/nb=2 t=0/nb=18)" , color="red", constraint=false, width=10.0];
+"27:(f m7)" -> "40:(f m7)" [label="14 ( t=3/nb=3 t=0/nb=19)" , color="red", constraint=false, width=11.0];
+"28:(f m7)" -> "40:(f m7)" [label="13 ( t=3/nb=4 t=0/nb=20)" , color="red", constraint=false, width=12.0];
+"29:(f m7)" -> "40:(f m7)" [label="12 ( t=3/nb=5 t=0/nb=21)" , color="red", constraint=false, width=13.0];
+"30:(f m7)" -> "40:(f m7)" [label="11 ( t=3/nb=6 t=0/nb=22)" , color="red", constraint=false, width=14.0];
+"31:(f m7)" -> "40:(f m7)" [label="10 ( t=3/nb=7 t=0/nb=23)" , color="red", constraint=false, width=15.0];
+"32:(f m7)" -> "40:(f m7)" [label="9 ( t=3/nb=8 t=0/nb=24)" , color="red", constraint=false, width=16.0];
+"33:(f m7)" -> "40:(f m7)" [label="8 ( t=3/nb=9 t=0/nb=25)" , color="red", constraint=false, width=17.0];
+"34:(f m7)" -> "40:(f m7)" [label="7 ( t=3/nb=10 t=0/nb=26)" , color="red", constraint=false, width=18.0];
+"35:(f m7)" -> "40:(f m7)" [label="6 ( t=3/nb=11 t=0/nb=27)" , color="red", constraint=false, width=19.0];
+"36:(f m7)" -> "40:(f m7)" [label="5 ( t=3/nb=12 t=0/nb=28)" , color="red", constraint=false, width=20.0];
+"37:(f m7)" -> "40:(f m7)" [label="4 ( t=3/nb=13 t=0/nb=29)" , color="red", constraint=false, width=21.0];
+"38:(f m7)" -> "40:(f m7)" [label="3 ( t=3/nb=14 t=0/nb=30)" , color="red", constraint=false, width=22.0];
+"39:(f m7)" -> "40:(f m7)" [label="2 ( t=3/nb=15 t=0/nb=31)" , color="red", constraint=false, width=23.0];
+"41:(eb 7)" -> "48:(eb 7)" [label="8 ( t=2/nb=9)" , color="red", constraint=false, width=4.5];
+"42:(eb 7)" -> "48:(eb 7)" [label="7 ( t=2/nb=10)" , color="red", constraint=false, width=5.0];
+"43:(eb 7)" -> "48:(eb 7)" [label="6 ( t=2/nb=11)" , color="red", constraint=false, width=5.5];
+"44:(eb 7)" -> "48:(eb 7)" [label="5 ( t=2/nb=12)" , color="red", constraint=false, width=6.0];
+"45:(eb 7)" -> "48:(eb 7)" [label="4 ( t=2/nb=13)" , color="red", constraint=false, width=6.5];
+"46:(eb 7)" -> "48:(eb 7)" [label="3 ( t=2/nb=14)" , color="red", constraint=false, width=7.0];
+"47:(eb 7)" -> "48:(eb 7)" [label="2 ( t=2/nb=15)" , color="red", constraint=false, width=7.5];
+"49:(db 7)" -> "52:(db 7)" [label="4 ( t=0/nb=13)" , color="red", constraint=false, width=6.5];
+"50:(db 7)" -> "52:(db 7)" [label="3 ( t=0/nb=14)" , color="red", constraint=false, width=7.0];
+"51:(db 7)" -> "52:(db 7)" [label="2 ( t=0/nb=15)" , color="red", constraint=false, width=7.5];
+"53:(c 7)" -> "56:(c 7)" [label="4 ( t=-1/nb=13)" , color="red", constraint=false, width=6.5];
+"54:(c 7)" -> "56:(c 7)" [label="3 ( t=-1/nb=14)" , color="red", constraint=false, width=7.0];
+"55:(c 7)" -> "56:(c 7)" [label="2 ( t=-1/nb=15)" , color="red", constraint=false, width=7.5];
+"57:(f m7)" -> "64:(f m7)" [label="8 ( t=3/nb=9 t=0/nb=25)" , color="red", constraint=false, width=17.0];
+"58:(f m7)" -> "64:(f m7)" [label="7 ( t=3/nb=10 t=0/nb=26)" , color="red", constraint=false, width=18.0];
+"59:(f m7)" -> "64:(f m7)" [label="6 ( t=3/nb=11 t=0/nb=27)" , color="red", constraint=false, width=19.0];
+"60:(f m7)" -> "64:(f m7)" [label="5 ( t=3/nb=12 t=0/nb=28)" , color="red", constraint=false, width=20.0];
+"61:(f m7)" -> "64:(f m7)" [label="4 ( t=3/nb=13 t=0/nb=29)" , color="red", constraint=false, width=21.0];
+"62:(f m7)" -> "64:(f m7)" [label="3 ( t=3/nb=14 t=0/nb=30)" , color="red", constraint=false, width=22.0];
+"63:(f m7)" -> "64:(f m7)" [label="2 ( t=3/nb=15 t=0/nb=31)" , color="red", constraint=false, width=23.0];
+"65:(eb 7)" -> "72:(eb 7)" [label="8 ( t=2/nb=9)" , color="red", constraint=false, width=4.5];
+"66:(eb 7)" -> "72:(eb 7)" [label="7 ( t=2/nb=10)" , color="red", constraint=false, width=5.0];
+"67:(eb 7)" -> "72:(eb 7)" [label="6 ( t=2/nb=11)" , color="red", constraint=false, width=5.5];
+"68:(eb 7)" -> "72:(eb 7)" [label="5 ( t=2/nb=12)" , color="red", constraint=false, width=6.0];
+"69:(eb 7)" -> "72:(eb 7)" [label="4 ( t=2/nb=13)" , color="red", constraint=false, width=6.5];
+"70:(eb 7)" -> "72:(eb 7)" [label="3 ( t=2/nb=14)" , color="red", constraint=false, width=7.0];
+"71:(eb 7)" -> "72:(eb 7)" [label="2 ( t=2/nb=15)" , color="red", constraint=false, width=7.5];
+"73:(f m7)" -> "80:(f m7)" [label="8 ( t=3/nb=9 t=0/nb=25)" , color="red", constraint=false, width=17.0];
+"74:(f m7)" -> "80:(f m7)" [label="7 ( t=3/nb=10 t=0/nb=26)" , color="red", constraint=false, width=18.0];
+"75:(f m7)" -> "80:(f m7)" [label="6 ( t=3/nb=11 t=0/nb=27)" , color="red", constraint=false, width=19.0];
+"76:(f m7)" -> "80:(f m7)" [label="5 ( t=3/nb=12 t=0/nb=28)" , color="red", constraint=false, width=20.0];
+"77:(f m7)" -> "80:(f m7)" [label="4 ( t=3/nb=13 t=0/nb=29)" , color="red", constraint=false, width=21.0];
+"78:(f m7)" -> "80:(f m7)" [label="3 ( t=3/nb=14 t=0/nb=30)" , color="red", constraint=false, width=22.0];
+"79:(f m7)" -> "80:(f m7)" [label="2 ( t=3/nb=15 t=0/nb=31)" , color="red", constraint=false, width=23.0];
+"81:(eb 7)" -> "82:(eb 7)" [label="2 ( t=2/nb=15)" , color="red", constraint=false, width=7.5];
+"83:(db 7)" -> "84:(db 7)" [label="2 ( t=0/nb=15)" , color="red", constraint=false, width=7.5];
+"85:(c 7)" -> "88:(c 7)" [label="4 ( t=-1/nb=13)" , color="red", constraint=false, width=6.5];
+"86:(c 7)" -> "88:(c 7)" [label="3 ( t=-1/nb=14)" , color="red", constraint=false, width=7.0];
+"87:(c 7)" -> "88:(c 7)" [label="2 ( t=-1/nb=15)" , color="red", constraint=false, width=7.5];
+"89:(f m7)" -> "96:(f m7)" [label="8 ( t=3/nb=9 t=0/nb=25)" , color="red", constraint=false, width=17.0];
+"90:(f m7)" -> "96:(f m7)" [label="7 ( t=3/nb=10 t=0/nb=26)" , color="red", constraint=false, width=18.0];
+"91:(f m7)" -> "96:(f m7)" [label="6 ( t=3/nb=11 t=0/nb=27)" , color="red", constraint=false, width=19.0];
+"92:(f m7)" -> "96:(f m7)" [label="5 ( t=3/nb=12 t=0/nb=28)" , color="red", constraint=false, width=20.0];
+"93:(f m7)" -> "96:(f m7)" [label="4 ( t=3/nb=13 t=0/nb=29)" , color="red", constraint=false, width=21.0];
+"94:(f m7)" -> "96:(f m7)" [label="3 ( t=3/nb=14 t=0/nb=30)" , color="red", constraint=false, width=22.0];
+"95:(f m7)" -> "96:(f m7)" [label="2 ( t=3/nb=15 t=0/nb=31)" , color="red", constraint=false, width=23.0];
+}

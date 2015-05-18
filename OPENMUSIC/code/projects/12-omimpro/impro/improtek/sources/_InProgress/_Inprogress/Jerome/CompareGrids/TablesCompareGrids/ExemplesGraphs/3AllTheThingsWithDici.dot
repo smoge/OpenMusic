@@ -1,0 +1,653 @@
+digraph G { 
+rankdir=LR 
+subgraph cluster0 {
+node [style=filled,color=white];
+style=filled;
+color=lightgrey;
+"1:(f m7)"; 
+"2:(f m7)"; 
+"3:(f m7)"; 
+"4:(f m7)"; 
+label = "Mes. 1"
+}
+subgraph cluster4 {
+node [style=filled,color=white];
+style=filled;
+color=lightgrey;
+"5:(bb m7)"; 
+"6:(bb m7)"; 
+"7:(bb m7)"; 
+"8:(bb m7)"; 
+label = "Mes. 2"
+}
+subgraph cluster8 {
+node [style=filled,color=white];
+style=filled;
+color=lightgrey;
+"9:(eb 7)"; 
+"10:(eb 7)"; 
+"11:(eb 7)"; 
+"12:(eb 7)"; 
+label = "Mes. 3"
+}
+subgraph cluster12 {
+node [style=filled,color=white];
+style=filled;
+color=lightgrey;
+"13:(ab maj7)"; 
+"14:(ab maj7)"; 
+"15:(ab maj7)"; 
+"16:(ab maj7)"; 
+label = "Mes. 4"
+}
+subgraph cluster16 {
+node [style=filled,color=white];
+style=filled;
+color=lightgrey;
+"17:(db maj7)"; 
+"18:(db maj7)"; 
+"19:(db maj7)"; 
+"20:(db maj7)"; 
+label = "Mes. 5"
+}
+subgraph cluster20 {
+node [style=filled,color=white];
+style=filled;
+color=lightgrey;
+"21:(d m7)"; 
+"22:(d m7)"; 
+"23:(g 7)"; 
+"24:(g 7)"; 
+label = "Mes. 6"
+}
+subgraph cluster24 {
+node [style=filled,color=white];
+style=filled;
+color=lightgrey;
+"25:(c maj7)"; 
+"26:(c maj7)"; 
+"27:(c maj7)"; 
+"28:(c maj7)"; 
+label = "Mes. 7"
+}
+subgraph cluster28 {
+node [style=filled,color=white];
+style=filled;
+color=lightgrey;
+"29:(c maj7)"; 
+"30:(c maj7)"; 
+"31:(c maj7)"; 
+"32:(c maj7)"; 
+label = "Mes. 8"
+}
+subgraph cluster32 {
+node [style=filled,color=white];
+style=filled;
+color=lightgrey;
+"33:(c m7)"; 
+"34:(c m7)"; 
+"35:(c m7)"; 
+"36:(c m7)"; 
+label = "Mes. 9"
+}
+subgraph cluster36 {
+node [style=filled,color=white];
+style=filled;
+color=lightgrey;
+"37:(f m7)"; 
+"38:(f m7)"; 
+"39:(f m7)"; 
+"40:(f m7)"; 
+label = "Mes. 10"
+}
+subgraph cluster40 {
+node [style=filled,color=white];
+style=filled;
+color=lightgrey;
+"41:(bb 7)"; 
+"42:(bb 7)"; 
+"43:(bb 7)"; 
+"44:(bb 7)"; 
+label = "Mes. 11"
+}
+subgraph cluster44 {
+node [style=filled,color=white];
+style=filled;
+color=lightgrey;
+"45:(eb maj7)"; 
+"46:(eb maj7)"; 
+"47:(eb maj7)"; 
+"48:(eb maj7)"; 
+label = "Mes. 12"
+}
+subgraph cluster48 {
+node [style=filled,color=white];
+style=filled;
+color=lightgrey;
+"49:(ab maj7)"; 
+"50:(ab maj7)"; 
+"51:(ab maj7)"; 
+"52:(ab maj7)"; 
+label = "Mes. 13"
+}
+subgraph cluster52 {
+node [style=filled,color=white];
+style=filled;
+color=lightgrey;
+"53:(a m7)"; 
+"54:(a m7)"; 
+"55:(d 7)"; 
+"56:(d 7)"; 
+label = "Mes. 14"
+}
+subgraph cluster56 {
+node [style=filled,color=white];
+style=filled;
+color=lightgrey;
+"57:(g maj7)"; 
+"58:(g maj7)"; 
+"59:(g maj7)"; 
+"60:(g maj7)"; 
+label = "Mes. 15"
+}
+subgraph cluster60 {
+node [style=filled,color=white];
+style=filled;
+color=lightgrey;
+"61:(g maj7)"; 
+"62:(g maj7)"; 
+"63:(g maj7)"; 
+"64:(g maj7)"; 
+label = "Mes. 16"
+}
+subgraph cluster64 {
+node [style=filled,color=white];
+style=filled;
+color=lightgrey;
+"65:(a m7)"; 
+"66:(a m7)"; 
+"67:(a m7)"; 
+"68:(a m7)"; 
+label = "Mes. 17"
+}
+subgraph cluster68 {
+node [style=filled,color=white];
+style=filled;
+color=lightgrey;
+"69:(d 7)"; 
+"70:(d 7)"; 
+"71:(d 7)"; 
+"72:(d 7)"; 
+label = "Mes. 18"
+}
+subgraph cluster72 {
+node [style=filled,color=white];
+style=filled;
+color=lightgrey;
+"73:(g maj7)"; 
+"74:(g maj7)"; 
+"75:(g maj7)"; 
+"76:(g maj7)"; 
+label = "Mes. 19"
+}
+subgraph cluster76 {
+node [style=filled,color=white];
+style=filled;
+color=lightgrey;
+"77:(g maj7)"; 
+"78:(g maj7)"; 
+"79:(g maj7)"; 
+"80:(g maj7)"; 
+label = "Mes. 20"
+}
+subgraph cluster80 {
+node [style=filled,color=white];
+style=filled;
+color=lightgrey;
+"81:(f# m7)"; 
+"82:(f# m7)"; 
+"83:(f# m7)"; 
+"84:(f# m7)"; 
+label = "Mes. 21"
+}
+subgraph cluster84 {
+node [style=filled,color=white];
+style=filled;
+color=lightgrey;
+"85:(b 7)"; 
+"86:(b 7)"; 
+"87:(b 7)"; 
+"88:(b 7)"; 
+label = "Mes. 22"
+}
+subgraph cluster88 {
+node [style=filled,color=white];
+style=filled;
+color=lightgrey;
+"89:(e maj7)"; 
+"90:(e maj7)"; 
+"91:(e maj7)"; 
+"92:(e maj7)"; 
+label = "Mes. 23"
+}
+subgraph cluster92 {
+node [style=filled,color=white];
+style=filled;
+color=lightgrey;
+"93:(g m7)"; 
+"94:(g m7)"; 
+"95:(c 7)"; 
+"96:(c 7)"; 
+label = "Mes. 24"
+}
+subgraph cluster96 {
+node [style=filled,color=white];
+style=filled;
+color=lightgrey;
+"97:(f m7)"; 
+"98:(f m7)"; 
+"99:(f m7)"; 
+"100:(f m7)"; 
+label = "Mes. 25"
+}
+subgraph cluster100 {
+node [style=filled,color=white];
+style=filled;
+color=lightgrey;
+"101:(bb m7)"; 
+"102:(bb m7)"; 
+"103:(bb m7)"; 
+"104:(bb m7)"; 
+label = "Mes. 26"
+}
+subgraph cluster104 {
+node [style=filled,color=white];
+style=filled;
+color=lightgrey;
+"105:(eb 7)"; 
+"106:(eb 7)"; 
+"107:(eb 7)"; 
+"108:(eb 7)"; 
+label = "Mes. 27"
+}
+subgraph cluster108 {
+node [style=filled,color=white];
+style=filled;
+color=lightgrey;
+"109:(ab maj7)"; 
+"110:(ab maj7)"; 
+"111:(ab maj7)"; 
+"112:(ab maj7)"; 
+label = "Mes. 28"
+}
+subgraph cluster112 {
+node [style=filled,color=white];
+style=filled;
+color=lightgrey;
+"113:(db maj7)"; 
+"114:(db maj7)"; 
+"115:(db maj7)"; 
+"116:(db maj7)"; 
+label = "Mes. 29"
+}
+subgraph cluster116 {
+node [style=filled,color=white];
+style=filled;
+color=lightgrey;
+"117:(db m7)"; 
+"118:(db m7)"; 
+"119:(db m7)"; 
+"120:(db m7)"; 
+label = "Mes. 30"
+}
+subgraph cluster120 {
+node [style=filled,color=white];
+style=filled;
+color=lightgrey;
+"121:(c m7)"; 
+"122:(c m7)"; 
+"123:(c m7)"; 
+"124:(c m7)"; 
+label = "Mes. 31"
+}
+subgraph cluster124 {
+node [style=filled,color=white];
+style=filled;
+color=lightgrey;
+"125:(b m7)"; 
+"126:(b m7)"; 
+"127:(b m7)"; 
+"128:(b m7)"; 
+label = "Mes. 32"
+}
+subgraph cluster128 {
+node [style=filled,color=white];
+style=filled;
+color=lightgrey;
+"129:(bb m7)"; 
+"130:(bb m7)"; 
+"131:(bb m7)"; 
+"132:(bb m7)"; 
+label = "Mes. 33"
+}
+subgraph cluster132 {
+node [style=filled,color=white];
+style=filled;
+color=lightgrey;
+"133:(eb 7)"; 
+"134:(eb 7)"; 
+"135:(eb 7)"; 
+"136:(eb 7)"; 
+label = "Mes. 34"
+}
+subgraph cluster136 {
+node [style=filled,color=white];
+style=filled;
+color=lightgrey;
+"137:(ab maj7)"; 
+"138:(ab maj7)"; 
+"139:(ab maj7)"; 
+"140:(ab maj7)"; 
+label = "Mes. 35"
+}
+subgraph cluster140 {
+node [style=filled,color=white];
+style=filled;
+color=lightgrey;
+"141:(g m7)"; 
+"142:(g m7)"; 
+"143:(c 7)"; 
+"144:(c 7)"; 
+label = "Mes. 36"
+}
+"1:(f m7)" -> "2:(f m7)" [color="turquoise", constraint=true];
+"2:(f m7)" -> "3:(f m7)" [color="turquoise", constraint=true];
+"3:(f m7)" -> "4:(f m7)" [color="turquoise", constraint=true];
+"4:(f m7)" -> "5:(bb m7)" [color="turquoise", constraint=true];
+"5:(bb m7)" -> "6:(bb m7)" [color="turquoise", constraint=true];
+"6:(bb m7)" -> "7:(bb m7)" [color="turquoise", constraint=true];
+"7:(bb m7)" -> "8:(bb m7)" [color="turquoise", constraint=true];
+"8:(bb m7)" -> "9:(eb 7)" [color="turquoise", constraint=true];
+"9:(eb 7)" -> "10:(eb 7)" [color="turquoise", constraint=true];
+"10:(eb 7)" -> "11:(eb 7)" [color="turquoise", constraint=true];
+"11:(eb 7)" -> "12:(eb 7)" [color="turquoise", constraint=true];
+"12:(eb 7)" -> "13:(ab maj7)" [color="turquoise", constraint=true];
+"13:(ab maj7)" -> "14:(ab maj7)" [color="turquoise", constraint=true];
+"14:(ab maj7)" -> "15:(ab maj7)" [color="turquoise", constraint=true];
+"15:(ab maj7)" -> "16:(ab maj7)" [color="turquoise", constraint=true];
+"16:(ab maj7)" -> "17:(db maj7)" [color="turquoise", constraint=true];
+"17:(db maj7)" -> "18:(db maj7)" [color="turquoise", constraint=true];
+"18:(db maj7)" -> "19:(db maj7)" [color="turquoise", constraint=true];
+"19:(db maj7)" -> "20:(db maj7)" [color="turquoise", constraint=true];
+"20:(db maj7)" -> "21:(d m7)" [color="turquoise", constraint=true];
+"21:(d m7)" -> "22:(d m7)" [color="turquoise", constraint=true];
+"22:(d m7)" -> "23:(g 7)" [color="turquoise", constraint=true];
+"23:(g 7)" -> "24:(g 7)" [color="turquoise", constraint=true];
+"24:(g 7)" -> "25:(c maj7)" [color="turquoise", constraint=true];
+"25:(c maj7)" -> "26:(c maj7)" [color="turquoise", constraint=true];
+"26:(c maj7)" -> "27:(c maj7)" [color="turquoise", constraint=true];
+"27:(c maj7)" -> "28:(c maj7)" [color="turquoise", constraint=true];
+"28:(c maj7)" -> "29:(c maj7)" [color="turquoise", constraint=true];
+"29:(c maj7)" -> "30:(c maj7)" [color="turquoise", constraint=true];
+"30:(c maj7)" -> "31:(c maj7)" [color="turquoise", constraint=true];
+"31:(c maj7)" -> "32:(c maj7)" [color="turquoise", constraint=true];
+"32:(c maj7)" -> "33:(c m7)" [color="turquoise", constraint=true];
+"33:(c m7)" -> "34:(c m7)" [color="turquoise", constraint=true];
+"34:(c m7)" -> "35:(c m7)" [color="turquoise", constraint=true];
+"35:(c m7)" -> "36:(c m7)" [color="turquoise", constraint=true];
+"36:(c m7)" -> "37:(f m7)" [color="turquoise", constraint=true];
+"37:(f m7)" -> "38:(f m7)" [color="turquoise", constraint=true];
+"38:(f m7)" -> "39:(f m7)" [color="turquoise", constraint=true];
+"39:(f m7)" -> "40:(f m7)" [color="turquoise", constraint=true];
+"40:(f m7)" -> "41:(bb 7)" [color="turquoise", constraint=true];
+"41:(bb 7)" -> "42:(bb 7)" [color="turquoise", constraint=true];
+"42:(bb 7)" -> "43:(bb 7)" [color="turquoise", constraint=true];
+"43:(bb 7)" -> "44:(bb 7)" [color="turquoise", constraint=true];
+"44:(bb 7)" -> "45:(eb maj7)" [color="turquoise", constraint=true];
+"45:(eb maj7)" -> "46:(eb maj7)" [color="turquoise", constraint=true];
+"46:(eb maj7)" -> "47:(eb maj7)" [color="turquoise", constraint=true];
+"47:(eb maj7)" -> "48:(eb maj7)" [color="turquoise", constraint=true];
+"48:(eb maj7)" -> "49:(ab maj7)" [color="turquoise", constraint=true];
+"49:(ab maj7)" -> "50:(ab maj7)" [color="turquoise", constraint=true];
+"50:(ab maj7)" -> "51:(ab maj7)" [color="turquoise", constraint=true];
+"51:(ab maj7)" -> "52:(ab maj7)" [color="turquoise", constraint=true];
+"52:(ab maj7)" -> "53:(a m7)" [color="turquoise", constraint=true];
+"53:(a m7)" -> "54:(a m7)" [color="turquoise", constraint=true];
+"54:(a m7)" -> "55:(d 7)" [color="turquoise", constraint=true];
+"55:(d 7)" -> "56:(d 7)" [color="turquoise", constraint=true];
+"56:(d 7)" -> "57:(g maj7)" [color="turquoise", constraint=true];
+"57:(g maj7)" -> "58:(g maj7)" [color="turquoise", constraint=true];
+"58:(g maj7)" -> "59:(g maj7)" [color="turquoise", constraint=true];
+"59:(g maj7)" -> "60:(g maj7)" [color="turquoise", constraint=true];
+"60:(g maj7)" -> "61:(g maj7)" [color="turquoise", constraint=true];
+"61:(g maj7)" -> "62:(g maj7)" [color="turquoise", constraint=true];
+"62:(g maj7)" -> "63:(g maj7)" [color="turquoise", constraint=true];
+"63:(g maj7)" -> "64:(g maj7)" [color="turquoise", constraint=true];
+"64:(g maj7)" -> "65:(a m7)" [color="turquoise", constraint=true];
+"65:(a m7)" -> "66:(a m7)" [color="turquoise", constraint=true];
+"66:(a m7)" -> "67:(a m7)" [color="turquoise", constraint=true];
+"67:(a m7)" -> "68:(a m7)" [color="turquoise", constraint=true];
+"68:(a m7)" -> "69:(d 7)" [color="turquoise", constraint=true];
+"69:(d 7)" -> "70:(d 7)" [color="turquoise", constraint=true];
+"70:(d 7)" -> "71:(d 7)" [color="turquoise", constraint=true];
+"71:(d 7)" -> "72:(d 7)" [color="turquoise", constraint=true];
+"72:(d 7)" -> "73:(g maj7)" [color="turquoise", constraint=true];
+"73:(g maj7)" -> "74:(g maj7)" [color="turquoise", constraint=true];
+"74:(g maj7)" -> "75:(g maj7)" [color="turquoise", constraint=true];
+"75:(g maj7)" -> "76:(g maj7)" [color="turquoise", constraint=true];
+"76:(g maj7)" -> "77:(g maj7)" [color="turquoise", constraint=true];
+"77:(g maj7)" -> "78:(g maj7)" [color="turquoise", constraint=true];
+"78:(g maj7)" -> "79:(g maj7)" [color="turquoise", constraint=true];
+"79:(g maj7)" -> "80:(g maj7)" [color="turquoise", constraint=true];
+"80:(g maj7)" -> "81:(f# m7)" [color="turquoise", constraint=true];
+"81:(f# m7)" -> "82:(f# m7)" [color="turquoise", constraint=true];
+"82:(f# m7)" -> "83:(f# m7)" [color="turquoise", constraint=true];
+"83:(f# m7)" -> "84:(f# m7)" [color="turquoise", constraint=true];
+"84:(f# m7)" -> "85:(b 7)" [color="turquoise", constraint=true];
+"85:(b 7)" -> "86:(b 7)" [color="turquoise", constraint=true];
+"86:(b 7)" -> "87:(b 7)" [color="turquoise", constraint=true];
+"87:(b 7)" -> "88:(b 7)" [color="turquoise", constraint=true];
+"88:(b 7)" -> "89:(e maj7)" [color="turquoise", constraint=true];
+"89:(e maj7)" -> "90:(e maj7)" [color="turquoise", constraint=true];
+"90:(e maj7)" -> "91:(e maj7)" [color="turquoise", constraint=true];
+"91:(e maj7)" -> "92:(e maj7)" [color="turquoise", constraint=true];
+"92:(e maj7)" -> "93:(g m7)" [color="turquoise", constraint=true];
+"93:(g m7)" -> "94:(g m7)" [color="turquoise", constraint=true];
+"94:(g m7)" -> "95:(c 7)" [color="turquoise", constraint=true];
+"95:(c 7)" -> "96:(c 7)" [color="turquoise", constraint=true];
+"96:(c 7)" -> "97:(f m7)" [color="turquoise", constraint=true];
+"97:(f m7)" -> "98:(f m7)" [color="turquoise", constraint=true];
+"98:(f m7)" -> "99:(f m7)" [color="turquoise", constraint=true];
+"99:(f m7)" -> "100:(f m7)" [color="turquoise", constraint=true];
+"100:(f m7)" -> "101:(bb m7)" [color="turquoise", constraint=true];
+"101:(bb m7)" -> "102:(bb m7)" [color="turquoise", constraint=true];
+"102:(bb m7)" -> "103:(bb m7)" [color="turquoise", constraint=true];
+"103:(bb m7)" -> "104:(bb m7)" [color="turquoise", constraint=true];
+"104:(bb m7)" -> "105:(eb 7)" [color="turquoise", constraint=true];
+"105:(eb 7)" -> "106:(eb 7)" [color="turquoise", constraint=true];
+"106:(eb 7)" -> "107:(eb 7)" [color="turquoise", constraint=true];
+"107:(eb 7)" -> "108:(eb 7)" [color="turquoise", constraint=true];
+"108:(eb 7)" -> "109:(ab maj7)" [color="turquoise", constraint=true];
+"109:(ab maj7)" -> "110:(ab maj7)" [color="turquoise", constraint=true];
+"110:(ab maj7)" -> "111:(ab maj7)" [color="turquoise", constraint=true];
+"111:(ab maj7)" -> "112:(ab maj7)" [color="turquoise", constraint=true];
+"112:(ab maj7)" -> "113:(db maj7)" [color="turquoise", constraint=true];
+"113:(db maj7)" -> "114:(db maj7)" [color="turquoise", constraint=true];
+"114:(db maj7)" -> "115:(db maj7)" [color="turquoise", constraint=true];
+"115:(db maj7)" -> "116:(db maj7)" [color="turquoise", constraint=true];
+"116:(db maj7)" -> "117:(db m7)" [color="turquoise", constraint=true];
+"117:(db m7)" -> "118:(db m7)" [color="turquoise", constraint=true];
+"118:(db m7)" -> "119:(db m7)" [color="turquoise", constraint=true];
+"119:(db m7)" -> "120:(db m7)" [color="turquoise", constraint=true];
+"120:(db m7)" -> "121:(c m7)" [color="turquoise", constraint=true];
+"121:(c m7)" -> "122:(c m7)" [color="turquoise", constraint=true];
+"122:(c m7)" -> "123:(c m7)" [color="turquoise", constraint=true];
+"123:(c m7)" -> "124:(c m7)" [color="turquoise", constraint=true];
+"124:(c m7)" -> "125:(b m7)" [color="turquoise", constraint=true];
+"125:(b m7)" -> "126:(b m7)" [color="turquoise", constraint=true];
+"126:(b m7)" -> "127:(b m7)" [color="turquoise", constraint=true];
+"127:(b m7)" -> "128:(b m7)" [color="turquoise", constraint=true];
+"128:(b m7)" -> "129:(bb m7)" [color="turquoise", constraint=true];
+"129:(bb m7)" -> "130:(bb m7)" [color="turquoise", constraint=true];
+"130:(bb m7)" -> "131:(bb m7)" [color="turquoise", constraint=true];
+"131:(bb m7)" -> "132:(bb m7)" [color="turquoise", constraint=true];
+"132:(bb m7)" -> "133:(eb 7)" [color="turquoise", constraint=true];
+"133:(eb 7)" -> "134:(eb 7)" [color="turquoise", constraint=true];
+"134:(eb 7)" -> "135:(eb 7)" [color="turquoise", constraint=true];
+"135:(eb 7)" -> "136:(eb 7)" [color="turquoise", constraint=true];
+"136:(eb 7)" -> "137:(ab maj7)" [color="turquoise", constraint=true];
+"137:(ab maj7)" -> "138:(ab maj7)" [color="turquoise", constraint=true];
+"138:(ab maj7)" -> "139:(ab maj7)" [color="turquoise", constraint=true];
+"139:(ab maj7)" -> "140:(ab maj7)" [color="turquoise", constraint=true];
+"140:(ab maj7)" -> "141:(g m7)" [color="turquoise", constraint=true];
+"141:(g m7)" -> "142:(g m7)" [color="turquoise", constraint=true];
+"142:(g m7)" -> "143:(c 7)" [color="turquoise", constraint=true];
+"143:(c 7)" -> "144:(c 7)" [color="turquoise", constraint=true];
+"1:(f m7)" -> "8:(bb m7)" [label="8 ( t=5/nb=3)" , color="red", constraint=true];
+"5:(bb m7)" -> "20:(db maj7)" [label="16 ( t=5/nb=2)" , color="red", constraint=true];
+"5:(bb m7)" -> "13:(ab maj7)" [label="9 ( t=5/nb=2)" , color="lightsalmon", constraint=true];
+"5:(bb m7)" -> "14:(ab maj7)" [label="10 ( t=5/nb=2)" , color="lightsalmon", constraint=true];
+"5:(bb m7)" -> "15:(ab maj7)" [label="11 ( t=5/nb=2)" , color="lightsalmon", constraint=true];
+"5:(bb m7)" -> "16:(ab maj7)" [label="12 ( t=5/nb=2)" , color="lightsalmon", constraint=true];
+"5:(bb m7)" -> "17:(db maj7)" [label="13 ( t=5/nb=2)" , color="lightsalmon", constraint=true];
+"5:(bb m7)" -> "18:(db maj7)" [label="14 ( t=5/nb=2)" , color="lightsalmon", constraint=true];
+"5:(bb m7)" -> "19:(db maj7)" [label="15 ( t=5/nb=2)" , color="lightsalmon", constraint=true];
+"6:(bb m7)" -> "20:(db maj7)" [label="15 ( t=5/nb=2)" , color="red", constraint=true];
+"6:(bb m7)" -> "14:(ab maj7)" [label="9 ( t=5/nb=2)" , color="lightsalmon", constraint=true];
+"6:(bb m7)" -> "15:(ab maj7)" [label="10 ( t=5/nb=2)" , color="lightsalmon", constraint=true];
+"6:(bb m7)" -> "16:(ab maj7)" [label="11 ( t=5/nb=2)" , color="lightsalmon", constraint=true];
+"6:(bb m7)" -> "17:(db maj7)" [label="12 ( t=5/nb=2)" , color="lightsalmon", constraint=true];
+"6:(bb m7)" -> "18:(db maj7)" [label="13 ( t=5/nb=2)" , color="lightsalmon", constraint=true];
+"6:(bb m7)" -> "19:(db maj7)" [label="14 ( t=5/nb=2)" , color="lightsalmon", constraint=true];
+"7:(bb m7)" -> "20:(db maj7)" [label="14 ( t=5/nb=2)" , color="red", constraint=true];
+"7:(bb m7)" -> "15:(ab maj7)" [label="9 ( t=5/nb=2)" , color="lightsalmon", constraint=true];
+"7:(bb m7)" -> "16:(ab maj7)" [label="10 ( t=5/nb=2)" , color="lightsalmon", constraint=true];
+"7:(bb m7)" -> "17:(db maj7)" [label="11 ( t=5/nb=2)" , color="lightsalmon", constraint=true];
+"7:(bb m7)" -> "18:(db maj7)" [label="12 ( t=5/nb=2)" , color="lightsalmon", constraint=true];
+"7:(bb m7)" -> "19:(db maj7)" [label="13 ( t=5/nb=2)" , color="lightsalmon", constraint=true];
+"8:(bb m7)" -> "20:(db maj7)" [label="13 ( t=5/nb=2)" , color="red", constraint=true];
+"8:(bb m7)" -> "16:(ab maj7)" [label="9 ( t=5/nb=2)" , color="lightsalmon", constraint=true];
+"8:(bb m7)" -> "17:(db maj7)" [label="10 ( t=5/nb=2)" , color="lightsalmon", constraint=true];
+"8:(bb m7)" -> "18:(db maj7)" [label="11 ( t=5/nb=2)" , color="lightsalmon", constraint=true];
+"8:(bb m7)" -> "19:(db maj7)" [label="12 ( t=5/nb=2)" , color="lightsalmon", constraint=true];
+"9:(eb 7)" -> "20:(db maj7)" [label="12 ( t=5/nb=2)" , color="red", constraint=true];
+"9:(eb 7)" -> "17:(db maj7)" [label="9 ( t=5/nb=2)" , color="lightsalmon", constraint=true];
+"9:(eb 7)" -> "18:(db maj7)" [label="10 ( t=5/nb=2)" , color="lightsalmon", constraint=true];
+"9:(eb 7)" -> "19:(db maj7)" [label="11 ( t=5/nb=2)" , color="lightsalmon", constraint=true];
+"10:(eb 7)" -> "20:(db maj7)" [label="11 ( t=5/nb=2)" , color="red", constraint=true];
+"10:(eb 7)" -> "18:(db maj7)" [label="9 ( t=5/nb=2)" , color="lightsalmon", constraint=true];
+"10:(eb 7)" -> "19:(db maj7)" [label="10 ( t=5/nb=2)" , color="lightsalmon", constraint=true];
+"11:(eb 7)" -> "20:(db maj7)" [label="10 ( t=5/nb=2)" , color="red", constraint=true];
+"11:(eb 7)" -> "19:(db maj7)" [label="9 ( t=5/nb=2)" , color="lightsalmon", constraint=true];
+"12:(eb 7)" -> "20:(db maj7)" [label="9 ( t=5/nb=2)" , color="red", constraint=true];
+"13:(ab maj7)" -> "20:(db maj7)" [label="8 ( t=5/nb=2)" , color="red", constraint=true];
+"33:(c m7)" -> "40:(f m7)" [label="8 ( t=0/nb=3)" , color="red", constraint=true];
+"37:(f m7)" -> "52:(ab maj7)" [label="16 ( t=0/nb=2)" , color="red", constraint=true];
+"37:(f m7)" -> "45:(eb maj7)" [label="9 ( t=0/nb=2)" , color="lightsalmon", constraint=true];
+"37:(f m7)" -> "46:(eb maj7)" [label="10 ( t=0/nb=2)" , color="lightsalmon", constraint=true];
+"37:(f m7)" -> "47:(eb maj7)" [label="11 ( t=0/nb=2)" , color="lightsalmon", constraint=true];
+"37:(f m7)" -> "48:(eb maj7)" [label="12 ( t=0/nb=2)" , color="lightsalmon", constraint=true];
+"37:(f m7)" -> "49:(ab maj7)" [label="13 ( t=0/nb=2)" , color="lightsalmon", constraint=true];
+"37:(f m7)" -> "50:(ab maj7)" [label="14 ( t=0/nb=2)" , color="lightsalmon", constraint=true];
+"37:(f m7)" -> "51:(ab maj7)" [label="15 ( t=0/nb=2)" , color="lightsalmon", constraint=true];
+"38:(f m7)" -> "52:(ab maj7)" [label="15 ( t=0/nb=2)" , color="red", constraint=true];
+"38:(f m7)" -> "46:(eb maj7)" [label="9 ( t=0/nb=2)" , color="lightsalmon", constraint=true];
+"38:(f m7)" -> "47:(eb maj7)" [label="10 ( t=0/nb=2)" , color="lightsalmon", constraint=true];
+"38:(f m7)" -> "48:(eb maj7)" [label="11 ( t=0/nb=2)" , color="lightsalmon", constraint=true];
+"38:(f m7)" -> "49:(ab maj7)" [label="12 ( t=0/nb=2)" , color="lightsalmon", constraint=true];
+"38:(f m7)" -> "50:(ab maj7)" [label="13 ( t=0/nb=2)" , color="lightsalmon", constraint=true];
+"38:(f m7)" -> "51:(ab maj7)" [label="14 ( t=0/nb=2)" , color="lightsalmon", constraint=true];
+"39:(f m7)" -> "52:(ab maj7)" [label="14 ( t=0/nb=2)" , color="red", constraint=true];
+"39:(f m7)" -> "47:(eb maj7)" [label="9 ( t=0/nb=2)" , color="lightsalmon", constraint=true];
+"39:(f m7)" -> "48:(eb maj7)" [label="10 ( t=0/nb=2)" , color="lightsalmon", constraint=true];
+"39:(f m7)" -> "49:(ab maj7)" [label="11 ( t=0/nb=2)" , color="lightsalmon", constraint=true];
+"39:(f m7)" -> "50:(ab maj7)" [label="12 ( t=0/nb=2)" , color="lightsalmon", constraint=true];
+"39:(f m7)" -> "51:(ab maj7)" [label="13 ( t=0/nb=2)" , color="lightsalmon", constraint=true];
+"40:(f m7)" -> "52:(ab maj7)" [label="13 ( t=0/nb=2)" , color="red", constraint=true];
+"40:(f m7)" -> "48:(eb maj7)" [label="9 ( t=0/nb=2)" , color="lightsalmon", constraint=true];
+"40:(f m7)" -> "49:(ab maj7)" [label="10 ( t=0/nb=2)" , color="lightsalmon", constraint=true];
+"40:(f m7)" -> "50:(ab maj7)" [label="11 ( t=0/nb=2)" , color="lightsalmon", constraint=true];
+"40:(f m7)" -> "51:(ab maj7)" [label="12 ( t=0/nb=2)" , color="lightsalmon", constraint=true];
+"41:(bb 7)" -> "52:(ab maj7)" [label="12 ( t=0/nb=2)" , color="red", constraint=true];
+"41:(bb 7)" -> "49:(ab maj7)" [label="9 ( t=0/nb=2)" , color="lightsalmon", constraint=true];
+"41:(bb 7)" -> "50:(ab maj7)" [label="10 ( t=0/nb=2)" , color="lightsalmon", constraint=true];
+"41:(bb 7)" -> "51:(ab maj7)" [label="11 ( t=0/nb=2)" , color="lightsalmon", constraint=true];
+"42:(bb 7)" -> "52:(ab maj7)" [label="11 ( t=0/nb=2)" , color="red", constraint=true];
+"42:(bb 7)" -> "50:(ab maj7)" [label="9 ( t=0/nb=2)" , color="lightsalmon", constraint=true];
+"42:(bb 7)" -> "51:(ab maj7)" [label="10 ( t=0/nb=2)" , color="lightsalmon", constraint=true];
+"43:(bb 7)" -> "52:(ab maj7)" [label="10 ( t=0/nb=2)" , color="red", constraint=true];
+"43:(bb 7)" -> "51:(ab maj7)" [label="9 ( t=0/nb=2)" , color="lightsalmon", constraint=true];
+"44:(bb 7)" -> "52:(ab maj7)" [label="9 ( t=0/nb=2)" , color="red", constraint=true];
+"45:(eb maj7)" -> "52:(ab maj7)" [label="8 ( t=0/nb=2)" , color="red", constraint=true];
+"65:(a m7)" -> "76:(g maj7)" [label="12 ( t=4/nb=2)" , color="red", constraint=true];
+"65:(a m7)" -> "73:(g maj7)" [label="9 ( t=4/nb=2)" , color="lightsalmon", constraint=true];
+"65:(a m7)" -> "74:(g maj7)" [label="10 ( t=4/nb=2)" , color="lightsalmon", constraint=true];
+"65:(a m7)" -> "75:(g maj7)" [label="11 ( t=4/nb=2)" , color="lightsalmon", constraint=true];
+"66:(a m7)" -> "76:(g maj7)" [label="11 ( t=4/nb=2)" , color="red", constraint=true];
+"66:(a m7)" -> "74:(g maj7)" [label="9 ( t=4/nb=2)" , color="lightsalmon", constraint=true];
+"66:(a m7)" -> "75:(g maj7)" [label="10 ( t=4/nb=2)" , color="lightsalmon", constraint=true];
+"67:(a m7)" -> "76:(g maj7)" [label="10 ( t=4/nb=2)" , color="red", constraint=true];
+"67:(a m7)" -> "75:(g maj7)" [label="9 ( t=4/nb=2)" , color="lightsalmon", constraint=true];
+"68:(a m7)" -> "76:(g maj7)" [label="9 ( t=4/nb=2)" , color="red", constraint=true];
+"69:(d 7)" -> "76:(g maj7)" [label="8 ( t=4/nb=2)" , color="red", constraint=true];
+"81:(f# m7)" -> "92:(e maj7)" [label="12 ( t=1/nb=2)" , color="red", constraint=true];
+"81:(f# m7)" -> "89:(e maj7)" [label="9 ( t=1/nb=2)" , color="lightsalmon", constraint=true];
+"81:(f# m7)" -> "90:(e maj7)" [label="10 ( t=1/nb=2)" , color="lightsalmon", constraint=true];
+"81:(f# m7)" -> "91:(e maj7)" [label="11 ( t=1/nb=2)" , color="lightsalmon", constraint=true];
+"82:(f# m7)" -> "92:(e maj7)" [label="11 ( t=1/nb=2)" , color="red", constraint=true];
+"82:(f# m7)" -> "90:(e maj7)" [label="9 ( t=1/nb=2)" , color="lightsalmon", constraint=true];
+"82:(f# m7)" -> "91:(e maj7)" [label="10 ( t=1/nb=2)" , color="lightsalmon", constraint=true];
+"83:(f# m7)" -> "92:(e maj7)" [label="10 ( t=1/nb=2)" , color="red", constraint=true];
+"83:(f# m7)" -> "91:(e maj7)" [label="9 ( t=1/nb=2)" , color="lightsalmon", constraint=true];
+"84:(f# m7)" -> "92:(e maj7)" [label="9 ( t=1/nb=2)" , color="red", constraint=true];
+"85:(b 7)" -> "92:(e maj7)" [label="8 ( t=1/nb=2)" , color="red", constraint=true];
+"97:(f m7)" -> "104:(bb m7)" [label="8 ( t=5/nb=3)" , color="red", constraint=true];
+"101:(bb m7)" -> "116:(db maj7)" [label="16 ( t=5/nb=2)" , color="red", constraint=true];
+"101:(bb m7)" -> "109:(ab maj7)" [label="9 ( t=5/nb=2)" , color="lightsalmon", constraint=true];
+"101:(bb m7)" -> "110:(ab maj7)" [label="10 ( t=5/nb=2)" , color="lightsalmon", constraint=true];
+"101:(bb m7)" -> "111:(ab maj7)" [label="11 ( t=5/nb=2)" , color="lightsalmon", constraint=true];
+"101:(bb m7)" -> "112:(ab maj7)" [label="12 ( t=5/nb=2)" , color="lightsalmon", constraint=true];
+"101:(bb m7)" -> "113:(db maj7)" [label="13 ( t=5/nb=2)" , color="lightsalmon", constraint=true];
+"101:(bb m7)" -> "114:(db maj7)" [label="14 ( t=5/nb=2)" , color="lightsalmon", constraint=true];
+"101:(bb m7)" -> "115:(db maj7)" [label="15 ( t=5/nb=2)" , color="lightsalmon", constraint=true];
+"102:(bb m7)" -> "116:(db maj7)" [label="15 ( t=5/nb=2)" , color="red", constraint=true];
+"102:(bb m7)" -> "110:(ab maj7)" [label="9 ( t=5/nb=2)" , color="lightsalmon", constraint=true];
+"102:(bb m7)" -> "111:(ab maj7)" [label="10 ( t=5/nb=2)" , color="lightsalmon", constraint=true];
+"102:(bb m7)" -> "112:(ab maj7)" [label="11 ( t=5/nb=2)" , color="lightsalmon", constraint=true];
+"102:(bb m7)" -> "113:(db maj7)" [label="12 ( t=5/nb=2)" , color="lightsalmon", constraint=true];
+"102:(bb m7)" -> "114:(db maj7)" [label="13 ( t=5/nb=2)" , color="lightsalmon", constraint=true];
+"102:(bb m7)" -> "115:(db maj7)" [label="14 ( t=5/nb=2)" , color="lightsalmon", constraint=true];
+"103:(bb m7)" -> "116:(db maj7)" [label="14 ( t=5/nb=2)" , color="red", constraint=true];
+"103:(bb m7)" -> "111:(ab maj7)" [label="9 ( t=5/nb=2)" , color="lightsalmon", constraint=true];
+"103:(bb m7)" -> "112:(ab maj7)" [label="10 ( t=5/nb=2)" , color="lightsalmon", constraint=true];
+"103:(bb m7)" -> "113:(db maj7)" [label="11 ( t=5/nb=2)" , color="lightsalmon", constraint=true];
+"103:(bb m7)" -> "114:(db maj7)" [label="12 ( t=5/nb=2)" , color="lightsalmon", constraint=true];
+"103:(bb m7)" -> "115:(db maj7)" [label="13 ( t=5/nb=2)" , color="lightsalmon", constraint=true];
+"104:(bb m7)" -> "116:(db maj7)" [label="13 ( t=5/nb=2)" , color="red", constraint=true];
+"104:(bb m7)" -> "112:(ab maj7)" [label="9 ( t=5/nb=2)" , color="lightsalmon", constraint=true];
+"104:(bb m7)" -> "113:(db maj7)" [label="10 ( t=5/nb=2)" , color="lightsalmon", constraint=true];
+"104:(bb m7)" -> "114:(db maj7)" [label="11 ( t=5/nb=2)" , color="lightsalmon", constraint=true];
+"104:(bb m7)" -> "115:(db maj7)" [label="12 ( t=5/nb=2)" , color="lightsalmon", constraint=true];
+"105:(eb 7)" -> "116:(db maj7)" [label="12 ( t=5/nb=2)" , color="red", constraint=true];
+"105:(eb 7)" -> "113:(db maj7)" [label="9 ( t=5/nb=2)" , color="lightsalmon", constraint=true];
+"105:(eb 7)" -> "114:(db maj7)" [label="10 ( t=5/nb=2)" , color="lightsalmon", constraint=true];
+"105:(eb 7)" -> "115:(db maj7)" [label="11 ( t=5/nb=2)" , color="lightsalmon", constraint=true];
+"106:(eb 7)" -> "116:(db maj7)" [label="11 ( t=5/nb=2)" , color="red", constraint=true];
+"106:(eb 7)" -> "114:(db maj7)" [label="9 ( t=5/nb=2)" , color="lightsalmon", constraint=true];
+"106:(eb 7)" -> "115:(db maj7)" [label="10 ( t=5/nb=2)" , color="lightsalmon", constraint=true];
+"107:(eb 7)" -> "116:(db maj7)" [label="10 ( t=5/nb=2)" , color="red", constraint=true];
+"107:(eb 7)" -> "115:(db maj7)" [label="9 ( t=5/nb=2)" , color="lightsalmon", constraint=true];
+"108:(eb 7)" -> "116:(db maj7)" [label="9 ( t=5/nb=2)" , color="red", constraint=true];
+"109:(ab maj7)" -> "116:(db maj7)" [label="8 ( t=5/nb=2)" , color="red", constraint=true];
+"129:(bb m7)" -> "140:(ab maj7)" [label="12 ( t=5/nb=2)" , color="red", constraint=true];
+"129:(bb m7)" -> "137:(ab maj7)" [label="9 ( t=5/nb=2)" , color="lightsalmon", constraint=true];
+"129:(bb m7)" -> "138:(ab maj7)" [label="10 ( t=5/nb=2)" , color="lightsalmon", constraint=true];
+"129:(bb m7)" -> "139:(ab maj7)" [label="11 ( t=5/nb=2)" , color="lightsalmon", constraint=true];
+"130:(bb m7)" -> "140:(ab maj7)" [label="11 ( t=5/nb=2)" , color="red", constraint=true];
+"130:(bb m7)" -> "138:(ab maj7)" [label="9 ( t=5/nb=2)" , color="lightsalmon", constraint=true];
+"130:(bb m7)" -> "139:(ab maj7)" [label="10 ( t=5/nb=2)" , color="lightsalmon", constraint=true];
+"131:(bb m7)" -> "140:(ab maj7)" [label="10 ( t=5/nb=2)" , color="red", constraint=true];
+"131:(bb m7)" -> "139:(ab maj7)" [label="9 ( t=5/nb=2)" , color="lightsalmon", constraint=true];
+"132:(bb m7)" -> "140:(ab maj7)" [label="9 ( t=5/nb=2)" , color="red", constraint=true];
+"133:(eb 7)" -> "140:(ab maj7)" [label="8 ( t=5/nb=2)" , color="red", constraint=true];
+}
