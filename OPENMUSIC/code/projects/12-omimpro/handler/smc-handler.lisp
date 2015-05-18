@@ -68,7 +68,7 @@ This object can automate improvization generation based on the rtimprovizer clas
                       res)))))
     (values slice-index output-list)))
 
-(defmethod! modifiy-scenario ((self impro-handler) new-fragment start-index)
+(defmethod! modify-scenario ((self impro-handler) new-fragment start-index)
   (let ((new-scenario (scenario self)))
     (setf (nthcdr start-index new-scenario) (new-fragment))
     (setf (scenario self) new-scenario)))

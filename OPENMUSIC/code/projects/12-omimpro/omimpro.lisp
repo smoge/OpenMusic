@@ -3,7 +3,7 @@
 (defvar *omimpro-files* nil)
 
 (setq *omimpro-files*
-      '("ImproteK\&co;improtek;sources;LoadImprotek.lisp"
+      '("impro;improtek;sources;LoadImprotek.lisp"
         "database;scenarios;scenarios.lisp"
         "database;oracles;oracles.lisp"
         "handler;impro-handler"))
