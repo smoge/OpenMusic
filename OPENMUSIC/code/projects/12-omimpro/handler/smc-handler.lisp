@@ -5,7 +5,7 @@
    ;;;Improvizer
    (rtimprovizer :initform nil :accessor rtimprovizer)
    (scenario :initform nil :accessor scenario :initarg :scenario :type list)
-   (expanded-scenario :initform nil :accessor expanded-scenario :type list)
+   (expanded-scenario :initform nil :accessor expanded-scenario :initarg :expanded-scenario :type list)
    (db-path :initform nil :accessor db-path :initarg :db-path :type (or null string))
    ;;;Slice Data
    (slice-list :initform nil :accessor slice-list :type list)
@@ -18,25 +18,29 @@
    (output-slice-fun :initform nil :accessor output-slice-fun :initarg :output-slice-fun :type (or null function))
    (epsilon :initform 3 :accessor epsilon :initarg :epsilon :type integer)
    (play-pos :initform 0 :accessor play-pos :type integer)
-   (queries :iniform '() :accessor queries :type list)
+   (queries :iniform '() :accessor queries :initarg :queries :type list)
    (waiting-processes :initform '() :accessor waiting-processes :type list))
   (:documentation "
 A handler for Improtek (Copyright 2013 (C) J.Nika).
 This object can automate improvization generation based on the rtimprovizer class from Improtek."))
 
 ;;;Build an Improvizer Handler from a scenario and a database
-(defun build-impro-handler (&key name scenario db-path epsilon output-fun)
+(defun build-impro-handler (&key name scenario db-path epsilon output-fun expanded-scenario)
   (let ((handler (make-instance 'impro-handler 
                                 :name (or name "Improvizer-Handler")
                                 :scenario scenario
-                                :expanded-scenario (expand_grid scenario)
+                                :expanded-scenario expanded-scenario;(expand_grid scenario)
                                 :db-path db-path
                                 :epsilon (or epsilon 3)
-                                :output-fun output-fun)))
+                                :output-slice-fun output-fun
+                                :queries (list)))) 
     (setf (rtimprovizer handler) (if db-path
                                      (load-realtimeImprovizer-fromSavedImprovizer (db-path handler))
                                    (NewRealtimeImprovizer))
           (slice-max-pos handler) (length (expanded-scenario handler)))
+    ;;;ca restera pas toute la vie
+    (ImprovizerExBeat->MidiHarmBeat (rtimprovizer handler))
+    ;(om-inspect (rtimprovizer handler))
     handler))
 
 ;;;Run the first generation step
@@ -46,20 +50,25 @@ This object can automate improvization generation based on the rtimprovizer clas
 
 ;;;Run one generation step
 (defmethod proceed-impro-handler ((self impro-handler) gen-start)
-  (let* ((slice-index gen-start)
-         (scenario-suffix (nthcdr slice-index (expanded-scenario self)))
+  (let* ((scenario-suffix (nthcdr gen-start (expanded-scenario self)))
          result-slice-list
          result-length 
-         output-list)
+         output-list
+         (i -1))
     ;;;When improvization is not over
-    (when (< slice-index (slice-max-pos self))
+    (when (< gen-start (slice-max-pos self))
       ;;;Run improvization as far as possible
-      (setq result-slice-list (improvize-loop-next-factor (rtimprovizer self)
-                                                          scenario-suffix
-                                                          slice-index)
+      (print (list (rtimprovizer self)
+                                                  (length scenario-suffix)
+                                                  scenario-suffix
+                                                  gen-start))
+      (setq result-slice-list (improvize_onephase (rtimprovizer self)
+                                                  (length scenario-suffix)
+                                                  scenario-suffix
+                                                  gen-start)
             result-length (length result-slice-list))
       ;;;Add the generated slice list to the handler slice-list, set the new empty position and the next generation index
-      (setf (slice-list self) (append (nthcar slice-index (slice-list self)) result-slice-list)
+      (setf (slice-list self) (append (nthcar gen-start (slice-list self)) result-slice-list)
             (empty-pos self) (length (slice-list self))
             ;(slice-index self) (- (empty-pos self) result-length) ;slice-index result-length))
             ) 
@@ -67,7 +76,7 @@ This object can automate improvization generation based on the rtimprovizer clas
       (when result-slice-list
         (setq output-list
               (loop for slice in result-slice-list collect
-                    (let ((res (funcall (output-slice-fun self) slice slice-index slice-date)))
+                    (let ((res (funcall (output-slice-fun self) slice (+ gen-start (incf i)) (slice-date self))))
                       (incf (slice-date self) (duration slice))
                       res)))))
     output-list))

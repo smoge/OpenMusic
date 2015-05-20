@@ -6,7 +6,7 @@
             (:print-object
              (lambda (q stream)
                (print-unreadable-object (q stream :type t :identity t)
-                 (princ `(:query :=,(q-name q) :at ,(q-gen-start q) :. :from :=,(q-origin q)) stream))))
+                 (princ `(:query :=,(q-name q) :at ,(q-gen-start q) :. :from :=,(q-inputs q)) stream))))
             (:conc-name q-))
   (name "Improvisation-Query" :type string)
   (handler nil :type (or null impro-handler))
@@ -18,7 +18,9 @@
   (:documentation ""))
 
 (defmethod q-curpos ((self impro-query))
-  (currentimproidx (rtimprovizer (handler self))))
+  (1- (if (q-process self)
+          (currentimproidx (rtimprovizer (q-handler self)))
+        (q-gen-start self))))
 
 (defmethod same-inputs ((q1 impro-query) (q2 impro-query))
   (let ((res t))
@@ -50,14 +52,13 @@
 	      cache-size (* 2 cache-size)))
       (let ((query (pop cache-list)))
 	(setf (q-name query) name
-              (q-handler handler)
+              (q-handler query) handler
               (q-inputs query) inputs
               (q-vals query) vals
               (q-gen-start query) gen-start
               (q-process query) process)
         (if (eq (q-inputs query) '(scenario))
             (setf (scenario (handler query)) (car (q-vals query))))
-        (push query *current-queries*)
         query)))
 
   (defmethod query-free ((self impro-query))
@@ -75,53 +76,72 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defmethod run ((self impro-query))
+(defmethod run ((self impro-query)) (print (list "RUN" self))
   (loop for inp in (q-inputs self)
-        for val in (q-vals sef) do
+        for val in (q-vals self) do
         (if (not (eq inp 'scenario))
             (setf (slot-value (handler self) inp) val))) ;;;warning: slot dans le rtimpro plutot que dans l'handler: faire une redirection EZ
   (setf (q-process self) (mp:process-run-function (q-name self) nil 
-                                                  #'(lambda (hnd gnstrt) (setf (q-output self) (proceed-impro-handler hnd gnstrt))) 
+                                                  #'(lambda (hnd gnstrt) 
+                                                      (print (list "BEFORE" (currentimproidx (rtimprovizer (q-handler self)))))
+                                                      (setf (q-output self) (proceed-impro-handler hnd gnstrt))
+                                                      (print (list "AFTER" (currentimproidx (rtimprovizer (q-handler self)))))
+                                                      ) 
                                                   (q-handler self) 
                                                   (q-gen-start self))))
 
-(defmethod kill ((self impro-query))
+(defmethod kill ((self impro-query)) (print (list "KILL" self))
   (if (q-process self)
       (mp:process-kill (q-process self)))
-  (query-free self))
+  ;(query-free self)
+  )
 
-(defmethod relay ((old-query impro-query) (new-query impro-query) pivot)
+(defmethod relay ((old-query impro-query) (new-query impro-query) pivot) (print (list "RELAY" old-query new-query))
   (setf (q-output new-query) (subseq (q-output old-query) 0 (- pivot (q-gen-start old-query)))
         (q-gen-start new-query) pivot)
   (kill old-query)
   (run new-query))
 
-(defmethod wait-for-relay ((old-query impro-query) (new-query impro-query) pivot)
+(defmethod wait-for-relay ((old-query impro-query) (new-query impro-query) pivot) (print (list "WAIT-FOR-RELAY" old-query new-query))
   (push (mp:process-run-function "Wait-For-Relay" nil
                                  #'(lambda (q1 q2 p)
                                      (mp:process-wait "Waiting..." 
-                                                      #'(lambda () (>= (q-curpos q1) p)))
+                                                      ;#'(lambda () (>= (q-curpos q1) p)))
+                                                      #'(lambda () (not (mp:process-alive-p (q-process q1)))))
                                      (relay q1 q2 p))
                                  old-query new-query pivot)
-        (waiting-processes (handler old-query))))
+        (waiting-processes (q-handler old-query))))
 
-(defmethod merge ((old-query impro-query) (new-query impro-query))
+(defmethod merge-query ((old-query impro-query) (new-query impro-query)) (print (list "MERGE" old-query new-query))
   (let ((inputs (append (q-inputs old-query) (q-inputs new-query)))
         (vals (append (q-vals old-query) (q-vals new-query))))
   (kill old-query)
-  (run (query-alloc :inputs inputs :vals vals :gen-start (q-gen-start new-query)))))
+  (process-new-query (query-alloc :inputs inputs :vals vals :gen-start (q-gen-start new-query)))))
 
 (defmethod process-new-query ((self impro-query))
-  (loop for qi in *current-queries* do
-        (cond ((= (q-gen-start self) (q-gen-start qi))
-               (if (same-inputs self qi)
-                   (kill qi)
-                 (merge self qi)))
+  (if (not (queries (q-handler self)))
+      (progn
+        (push self (queries (q-handler self)))
+        (run self))
+    (loop for qi in (queries (q-handler self)) do
+          (cond ((= (q-gen-start self) (q-gen-start qi))
+                 (if (same-inputs self qi)
+                     (progn
+                       (kill qi)
+                       (push self (queries (q-handler self)))
+                       (process-new-query self))
+                   (merge-query self qi)))
 
-              ((> (q-gen-start self) (q-gen-start qi))
-               (if (< (q-gen-start self) (q-curpos qi))
-                   (relay self qi (q-gen-start self))
-                 (wait-for-relay self qi (q-gen-start self))))
+                ((> (q-gen-start self) (q-gen-start qi))
+                 (if (< (q-gen-start self) (q-curpos qi))
+                     (progn
+                       (push self (queries (q-handler self)))
+                       (relay self qi (q-gen-start self)))
+                   (progn
+                     (push self (queries (q-handler self)))
+                     (wait-for-relay qi self (q-gen-start self)))))
 
-              ((< (q-gen-start self) (q-gen-start qi))
-               (wait-for-relay qi self (q-gen-start self))))))
+                ((< (q-gen-start self) (q-gen-start qi))
+                 (progn
+                     (push self (queries (q-handler self)))
+                     (wait-for-relay qi self (q-gen-start self))))))))

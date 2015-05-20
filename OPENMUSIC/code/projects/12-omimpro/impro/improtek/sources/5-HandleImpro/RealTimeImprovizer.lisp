@@ -78,8 +78,8 @@
           while (not (StartingPointNextPhaseFound? self)))))
 
 (defmethod ImprovizeFormat_OnePhase ((self RealtimeImprovizer) &optional (scenario nil) (eventduration t) (eventIdxInImpro t))
-  (let ((GeneratedImpro (ImprovizeImprovize_OnePhase self (list-length scenario) scenario eventIdxInImpro))
-        (FormatOutputSequence GeneratedImpro eventduration))))
+  (let ((GeneratedImpro (ImprovizeImprovize_OnePhase self (list-length scenario) scenario eventIdxInImpro)))
+        (FormatOutputSequence GeneratedImpro eventduration)))
 
 ;ex Improvize&send-groupsAnte-loop-next-factor
 (defmethod ImprovizeFormatSend_OnePhase ((self RealtimeImprovizer) &optional (scenario nil) (eventduration t) (eventIdxInImpro t) (hostsend t) (portsend t) (adresssend simple-base-string) (numVoice t))
@@ -92,7 +92,8 @@
 ; --------------------------------------------------------------------------
 (defmethod go-backwards-with-improtrace? ((self RealtimeImprovizer) (eventIdxInImpro t))
   (if (< eventIdxInImpro 2) 
-      ;(format *om-stream* "I FEEL LIKE RESETING !!~%")
+      (reset-navigation-params self)
+;(format *om-stream* "I FEEL LIKE RESETING !!~%")
     (if (not (= eventIdxInImpro (1+ (CurrentImproIdx self))))
         (progn
           (setf (CurrentImproIdx self) (- eventIdxInImpro 1))
@@ -135,7 +136,7 @@
   (if *print-navig-basics* (format *om-stream* "ImproIdx ~D : " (CurrentImproIdx self)))
   (setf (gethash (CurrentImproIdx self) (improTrace self)) (list (CurrentStateIdx self) (continuity self)))
   ;;;;;
-  (setf (start-region self) (list (nth 0 (start-region self)) (min (- (maxetat self) 1) (+ 1 (nth 1 (start-region self))) ))) 
+  ;(setf (start-region self) (list (nth 0 (start-region self)) (min (- (maxetat self) 1) (+ 1 (nth 1 (start-region self))) ))) 
 )
 
 

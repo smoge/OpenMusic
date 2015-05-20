@@ -21,6 +21,8 @@
     (start-region :initform '(0 100) :initarg :start-region :accessor start-region)
     (fwsuffix :initform T :initarg :fwsuffix :accessor fwsuffix)
     (bwsuffix :initform T :initarg :bwsuffix :accessor bwsuffix)
+    (bestSuffixMode :initform nil :initarg :bestSuffixMode :accessor bestSuffixMode)  
+
     (RefHarmScen :initform nil :initarg :RefHarmScen :accessor RefHarmScen)
     (HarmScenLength :initform 48 :initarg :HarmScenLength :accessor HarmScenLength)
     (Beats/Measure :initform 4 :initarg :Beats/Measure :accessor Beats/Measure)
@@ -411,8 +413,8 @@
          (progn
            (setf supps
                  (loop for cont in (append back-cont forw-cont)
-                       if (= (second cont) max-suffix) collect (first cont))
-                 (append back-cont forw-cont))
+                       if (= (second cont) max-suffix) collect (first cont)))
+           
            (if supps supps (append back-cont forw-cont)))
        (append back-cont forw-cont)
      )))
