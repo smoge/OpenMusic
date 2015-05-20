@@ -54,7 +54,7 @@ This object can automate improvization generation based on the rtimprovizer clas
          result-slice-list
          result-length 
          output-list
-         (i -1))
+         (i -1)) ;(print (formatlabellist scenario-suffix))
     ;;;When improvization is not over
     (when (< gen-start (slice-max-pos self))
       ;;;Run improvization as far as possible
