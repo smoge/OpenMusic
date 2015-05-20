@@ -22,7 +22,8 @@
     (fwsuffix :initform T :initarg :fwsuffix :accessor fwsuffix)
     (bwsuffix :initform T :initarg :bwsuffix :accessor bwsuffix)
     (bestSuffixMode :initform nil :initarg :bestSuffixMode :accessor bestSuffixMode)  
-
+    (useEstrada :initform nil :initarg :useEstrada :accessor useEstrada)
+    (useHindemith :initform nil :initarg :useHindemith :accessor useHindemith)
     (RefHarmScen :initform nil :initarg :RefHarmScen :accessor RefHarmScen)
     (HarmScenLength :initform 48 :initarg :HarmScenLength :accessor HarmScenLength)
     (Beats/Measure :initform 4 :initarg :Beats/Measure :accessor Beats/Measure)
@@ -319,15 +320,7 @@
               (setf (continuity self) 0))
           (progn               
             (if *print-navig-basics* (format *om-stream* "~a~%" 'empty))
-            
-            (if (nexteventifnosolution self) 
-                (progn
-                  (if *print-navig-basics* (format *om-stream* "-> nextevent ~a~%" (+ index 1)))
-                  (setf nextindex (+ index 1))
-                  )
-              (setf nextindex 0))
-            
-            )))))
+            (setf nextindex 0))))))
     nextindex))
 
 ; *print_info_navig* defini dans LoadImproteK   (setf *print_info_navig* 1)
@@ -365,7 +358,7 @@
     (false (setf (continuity self) 0))))
 
 (defmethod eligible-index? (index (self improvizer))
-  (and (or (not (tabou-mode self)) (not (gethash index (tabou self))))
+  (and ;(or (not (tabou-mode self)) (not (gethash index (tabou self))))
        (>= index (first (start-region self))) (<= index (second (start-region self)))))
 
 (defmethod eligible-feature? ((self event) (o improvizer))
@@ -378,91 +371,6 @@
   (remove nil list-of-choices :test #'(lambda (x y) (not (and (eligible-index? y self) 
                                                               (eligible-feature? (otext self y) self))))))
 
-
-;JEROME avril 2015
-(defmethod available-continuations-by-suppleance ((self improvizer) index label)
-  (let (back-cont forw-cont (best-suffix-state -1) (max-suffix 0) (supps nil))
-     (when (bwSuffix self)
-       (setf back-cont
-             (loop for supp = (suppleance self index) then (suppleance self supp)
-                   with previous = index
-                   with suffix-length = 0
-                   while (and supp (> supp 0))
-                   do 
-                   ;(print (lrs self previous)) 
-                   (when (bestSuffixMode self) (setf suffix-length (lrs self previous)  previous supp))
-                   append (loop for cont in (flink self  supp)
-                                if (eligible-event? (otext self cont) label)
-                                do (when (> suffix-length max-suffix) (setf max-suffix suffix-length))
-                                and collect (list cont suffix-length)))))
-     (when (fwSuffix self)
-       (setf forw-cont 
-             (loop for supp = (suppleance-> self index) then (suppleance-> self supp)
-                   with suffix-length = 0
-                   while supp
-                   do
-                   (when (bestSuffixMode self) (setf suffix-length (lrs self supp)))
-                   ;(print (list '-> (lrs self supp)))
-                   ;(when (> suffix-length max-suffix) (setf best-suffix-state supp max-suffix suffix-length))
-                   append (loop for cont in (flink self supp)
-                                if (eligible-event? (otext self cont) label)
-
-                                do (when (> suffix-length max-suffix) (setf max-suffix suffix-length))
-                                and collect (list cont suffix-length)))))
-     (if (bestSuffixMode self)   
-         (progn
-           (setf supps
-                 (loop for cont in (append back-cont forw-cont)
-                       if (= (second cont) max-suffix) collect (first cont)))
-           (if supps supps (append back-cont forw-cont)))
-       (append back-cont forw-cont)
-     )))
-
-
-
-
-(defmethod continuations-by-suppleance ((self improvizer) index label)
-   (let (back-cont forw-cont (best-suffix-state -1) (max-suffix 0))
-     (when (bwSuffix self)
-       (setf back-cont
-             (loop for supp = (suppleance self index) then (suppleance self supp)
-                   with previous = index
-                   with suffix-length = 0
-                   while (and supp (> supp 0))
-                   do 
-                   ;(print (lrs self previous)) 
-                   (when (bestSuffixMode self) (setf suffix-length (lrs self previous)  previous supp))
-                   append (loop for cont in (flink self  supp)
-                                if (eligible-event? (otext self cont) label)
-                                do (when (> suffix-length max-suffix) (setf max-suffix suffix-length))
-                                and collect (list cont suffix-length)))))
-     (when (fwSuffix self)
-       (setf forw-cont 
-             (loop for supp = (suppleance-> self index) then (suppleance-> self supp)
-                   with suffix-length = 0
-                   while supp
-                   do
-                   (when (bestSuffixMode self) (setf suffix-length (lrs self supp)))
-                   ;(print (list '-> (lrs self supp)))
-                   ;(when (> suffix-length max-suffix) (setf best-suffix-state supp max-suffix suffix-length))
-                   append (loop for cont in (flink self supp)
-                                if (eligible-event? (otext self cont) label)
-
-                                do (when (> suffix-length max-suffix) (setf max-suffix suffix-length))
-                                and collect (list cont suffix-length)))))   
-
-     (if (bestSuffixMode self)    ;MARC 24/4/2012 bestSuffixMode = nil
-                                  ;since bestSuffixMode = t => TOO RESTRICTED: always the same path in the oracle
-       
-       (nth-random (loop for cont in (append back-cont forw-cont)
-                         if (= (second cont) max-suffix) collect (first cont)))
-       (let ((chosen-index (nth-random (reduce-eligible-events self                          ;;;;MARC 11/5/12      ???????????????????? JEROME : POURQUOI PAS redude.... dans le cas best ?
-                                                              (mapcar 'first (append back-cont forw-cont))    ))))
-         (when chosen-index (setf (gethash chosen-index (tabou self)) t))
-         chosen-index)
-       )))
-
-#|
 (defmethod continuations-by-suppleance ((self improvizer) index label)
    (let (back-cont forw-cont (best-suffix-state -1) (max-suffix 0))
      (when (bwSuffix self)
@@ -503,7 +411,7 @@
          (when chosen-index (setf (gethash chosen-index (tabou self)) t))
          chosen-index)
        )))
-|#
+
 ;================================================================================== FIND-PREFIX-LABEL-MATCH ================================================================================
 ;SEARCH FOR A BEAT WITHOUT CONTINUITY
 

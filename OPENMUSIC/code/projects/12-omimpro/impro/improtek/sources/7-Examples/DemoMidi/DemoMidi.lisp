@@ -25,8 +25,10 @@
       (load-old-improvizer (make-pathname :directory path_dir_saved_improvizers :name name_saved_improvizer_accomp)))
 ;(om-inspect memory_solo)
 
-; GENERATE
-;----------
+
+
+; GENERATE WHOLE IMPRO WITH IMPROVIZER
+;----------------------------------------
 (setf impro_solo 
       (ImprovizeOnHarmGrid memory_solo (length scenario_part1) scenario_part1)
       impro_accomp 
@@ -37,6 +39,24 @@
 ; PLAY
 ;----------
 (play impro_mix)
+
+#|
+; Just one query beginning at idx-beginning-next-phase with real-time improvizer
+(let* (
+        (idx-beginning-next-phase 5)
+        (current-scenario-suffix (nthcdr idx-beginning-next-phase scenario_part1))             
+        (impro-fragment nil)
+        (memory_solo (load-realtimeImprovizer-fromSavedOldImprovizer (make-pathname :directory path_dir_saved_improvizers :name name_saved_improvizer_solo)))
+
+        )
+      (setf impro-fragment 
+            (Improvize_OnePhase 
+             memory_solo (list-length current-scenario-suffix) current-scenario-suffix idx-beginning-next-phase))
+      (setf impro_mix (chseq-mix-melo-accomp impro-fragment impro-fragment (beatduration tune) 4 4))
+
+      (play impro_mix))
+|#
+
 
 
 ; MEMORY 2 : "BALAIO", Hermeto Pascoal, played by Jovino Santos Neto
