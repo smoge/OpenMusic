@@ -18,7 +18,7 @@
    (output-slice-fun :initform nil :accessor output-slice-fun :initarg :output-slice-fun :type (or null function))
    (epsilon :initform 3 :accessor epsilon :initarg :epsilon :type integer)
    (play-pos :initform 0 :accessor play-pos :type integer)
-   (queries :iniform '() :accessor queries :initarg :queries :type list)
+   (queries :initform '() :accessor queries :initarg :queries :type list)
    (waiting-processes :initform '() :accessor waiting-processes :type list))
   (:documentation "
 A handler for Improtek (Copyright 2013 (C) J.Nika).
@@ -32,8 +32,7 @@ This object can automate improvization generation based on the rtimprovizer clas
                                 :expanded-scenario expanded-scenario;(expand_grid scenario)
                                 :db-path db-path
                                 :epsilon (or epsilon 3)
-                                :output-slice-fun output-fun
-                                :queries (list)))) 
+                                :output-slice-fun output-fun))) 
     (setf (rtimprovizer handler) (if db-path
                                      (load-realtimeImprovizer-fromSavedImprovizer (db-path handler))
                                    (NewRealtimeImprovizer))
@@ -58,10 +57,6 @@ This object can automate improvization generation based on the rtimprovizer clas
     ;;;When improvization is not over
     (when (< gen-start (slice-max-pos self))
       ;;;Run improvization as far as possible
-      (print (list (rtimprovizer self)
-                                                  (length scenario-suffix)
-                                                  scenario-suffix
-                                                  gen-start))
       (setq result-slice-list (improvize_onephase (rtimprovizer self)
                                                   (length scenario-suffix)
                                                   scenario-suffix
@@ -76,9 +71,11 @@ This object can automate improvization generation based on the rtimprovizer clas
       (when result-slice-list
         (setq output-list
               (loop for slice in result-slice-list collect
-                    (let ((res (funcall (output-slice-fun self) slice (+ gen-start (incf i)) (slice-date self))))
-                      (incf (slice-date self) (duration slice))
-                      res)))))
+                    (funcall (output-slice-fun self)
+                             slice 
+                             (+ gen-start (incf i)) 
+                             (reduce #'+ (nthcar (+ gen-start i) (slice-list self)) :key #'duration)
+                             )))))
     output-list))
 
 (defmethod! modify-scenario ((self impro-handler) new-fragment start-index)

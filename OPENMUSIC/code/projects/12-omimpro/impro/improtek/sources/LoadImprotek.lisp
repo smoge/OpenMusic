@@ -18,7 +18,7 @@
 ;GLOBAL VARIABLES FOR NAVIGATION INFO DISPLAY
 ;---------------------------------------------
 ;Jerome 26/10/13
-(defparameter *print-navig-basics* t) ; Print labels and min. info during navigation
+(defparameter *print-navig-basics* nil) ; Print labels and min. info during navigation
 (defparameter *print_info_MP* 0) ;Print every step in "Morris&Pratt"
 (defparameter *print_info_find* 0) ;Print every step in "find-prefix-label-match"
 (defparameter *print_info_navig* 0) ;Print every step in "Improvize"

@@ -83,10 +83,7 @@
             (setf (slot-value (handler self) inp) val))) ;;;warning: slot dans le rtimpro plutot que dans l'handler: faire une redirection EZ
   (setf (q-process self) (mp:process-run-function (q-name self) nil 
                                                   #'(lambda (hnd gnstrt) 
-                                                      (print (list "BEFORE" (currentimproidx (rtimprovizer (q-handler self)))))
-                                                      (setf (q-output self) (proceed-impro-handler hnd gnstrt))
-                                                      (print (list "AFTER" (currentimproidx (rtimprovizer (q-handler self)))))
-                                                      ) 
+                                                      (setf (q-output self) (proceed-impro-handler hnd gnstrt))) 
                                                   (q-handler self) 
                                                   (q-gen-start self))))
 
@@ -96,13 +93,17 @@
   ;(query-free self)
   )
 
-(defmethod relay ((old-query impro-query) (new-query impro-query) pivot) (print (list "RELAY" old-query new-query))
+(defmethod %relay ((old-query impro-query) (new-query impro-query) pivot) (print (list "RELAY" old-query new-query))
   (setf (q-output new-query) (subseq (q-output old-query) 0 (- pivot (q-gen-start old-query)))
         (q-gen-start new-query) pivot)
   (kill old-query)
   (run new-query))
 
-(defmethod wait-for-relay ((old-query impro-query) (new-query impro-query) pivot) (print (list "WAIT-FOR-RELAY" old-query new-query))
+(defmethod relay ((old-query impro-query) (new-query impro-query) pivot)
+  (push new-query (queries (q-handler new-query)))
+  (%relay new-query old-query pivot))
+
+(defmethod %wait-for-relay ((old-query impro-query) (new-query impro-query) pivot) (print (list "WAIT-FOR-RELAY" old-query new-query))
   (push (mp:process-run-function "Wait-For-Relay" nil
                                  #'(lambda (q1 q2 p)
                                      (mp:process-wait "Waiting..." 
@@ -111,6 +112,10 @@
                                      (relay q1 q2 p))
                                  old-query new-query pivot)
         (waiting-processes (q-handler old-query))))
+
+(defmethod wait-for-relay ((old-query impro-query) (new-query impro-query) pivot)
+  (push new-query (queries (q-handler new-query)))
+  (%wait-for-relay old-query new-query pivot))
 
 (defmethod merge-query ((old-query impro-query) (new-query impro-query)) (print (list "MERGE" old-query new-query))
   (let ((inputs (append (q-inputs old-query) (q-inputs new-query)))
@@ -134,14 +139,8 @@
 
                 ((> (q-gen-start self) (q-gen-start qi))
                  (if (< (q-gen-start self) (q-curpos qi))
-                     (progn
-                       (push self (queries (q-handler self)))
-                       (relay self qi (q-gen-start self)))
-                   (progn
-                     (push self (queries (q-handler self)))
-                     (wait-for-relay qi self (q-gen-start self)))))
+                     (relay self qi (q-gen-start self))
+                   (wait-for-relay qi self (q-gen-start self))))
 
                 ((< (q-gen-start self) (q-gen-start qi))
-                 (progn
-                     (push self (queries (q-handler self)))
-                     (wait-for-relay qi self (q-gen-start self))))))))
+                 (wait-for-relay qi self (q-gen-start self)))))))
