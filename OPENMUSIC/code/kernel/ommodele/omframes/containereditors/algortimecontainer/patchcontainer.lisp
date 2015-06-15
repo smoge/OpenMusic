@@ -140,11 +140,7 @@ Elements of patchPanels are instace of the boxframe class.#enddoc#
                      (("d") "show Documentation")
                      (("e") "Edit lisp code")
                      (("t") "show Tutorial patch")
-<<<<<<< HEAD
-=======
-                     
                      #+om-reactive(("r") "reactive box on/off")
->>>>>>> master
                      ))
 
 (setf *patchhelp2* '((("c") "Change Connection Color")
