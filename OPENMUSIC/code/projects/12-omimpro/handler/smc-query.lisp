@@ -83,7 +83,9 @@
             (setf (slot-value (handler self) inp) val))) ;;;warning: slot dans le rtimpro plutot que dans l'handler: faire une redirection EZ
   (setf (q-process self) (mp:process-run-function (q-name self) nil 
                                                   #'(lambda (hnd gnstrt) 
-                                                      (setf (q-output self) (proceed-impro-handler hnd gnstrt))) 
+                                                      (setf (q-output self) (append 
+                                                                             (q-output self)
+                                                                             (proceed-impro-handler hnd gnstrt))))
                                                   (q-handler self) 
                                                   (q-gen-start self))))
 
@@ -101,7 +103,7 @@
 
 (defmethod relay ((old-query impro-query) (new-query impro-query) pivot)
   (push new-query (queries (q-handler new-query)))
-  (%relay new-query old-query pivot))
+  (%relay old-query new-query pivot))
 
 (defmethod %wait-for-relay ((old-query impro-query) (new-query impro-query) pivot) (print (list "WAIT-FOR-RELAY" old-query new-query))
   (push (mp:process-run-function "Wait-For-Relay" nil

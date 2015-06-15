@@ -269,15 +269,11 @@ Elements of patchPanels are instace of the boxframe class.#enddoc#
 
       (#\< (mapc #'(lambda (item) (delete-one-input item)) actives))
       (#\> (mapc #'(lambda (item) (add-all-inputs item)) actives))
-      
-<<<<<<< HEAD
-=======
       (#\r #+om-reactive(mapc #'(lambda (boxframe) 
                                   (set-active (object boxframe) (not (active (object boxframe))))
                                   (om-invalidate-view boxframe))
                               actives))
       
->>>>>>> master
       (otherwise (om-beep)))))
 
 
