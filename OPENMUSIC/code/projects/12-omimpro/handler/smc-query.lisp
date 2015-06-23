@@ -1,7 +1,5 @@
 (in-package :om)
 
-(defvar *current-queries* '())
-
 (defstruct (impro-query
             (:print-object
              (lambda (q stream)
@@ -14,6 +12,8 @@
   (vals '() :type list)
   (gen-start 0 :type integer)
   (process nil :type (or null mp:process))
+  (will-be-relayed nil :type (or null impro-query))
+  (waiting-for nil :type (or null impro-query))
   (output nil)
   (:documentation ""))
 
@@ -30,7 +30,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;Query pool;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun new-query-pool (size)
+(defun q2-pool (size)
   (let ((list (make-list size)))
     (loop
      for n on list do
@@ -43,12 +43,12 @@
   (declare (type fixnum cache-size))
 
   (mp:with-lock (cache-lock)
-    (setf cache-list (new-query-pool cache-size)))
+    (setf cache-list (q2-pool cache-size)))
 
   (defun query-alloc (&key (name "Improvisation-Query") (inputs '()) (vals '()) (gen-start 0) process handler)
     (mp:with-lock (cache-lock)
       (when (null cache-list)
-	(setf cache-list (new-query-pool cache-size)
+	(setf cache-list (q2-pool cache-size)
 	      cache-size (* 2 cache-size)))
       (let ((query (pop cache-list)))
 	(setf (q-name query) name
@@ -56,13 +56,13 @@
               (q-inputs query) inputs
               (q-vals query) vals
               (q-gen-start query) gen-start
-              (q-process query) process)
+              (q-process query) process
+              (q-will-be-relayed query) nil)
         (if (eq (q-inputs query) '(scenario))
             (setf (scenario (handler query)) (car (q-vals query))))
         query)))
 
   (defmethod query-free ((self impro-query))
-    (remove self *current-queries*)
     (mp:with-lock (cache-lock)
       (setf (q-name self) "Improvisation-Query"
             (q-handler self) nil
@@ -70,7 +70,8 @@
             (q-vals) '()
             (q-gen-start self) 0
             (q-process self) nil
-            (q-output self) nil)
+            (q-output self) nil
+            (q-will-be-relayed self) nil)
       (push self cache-list)
       nil)))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -83,9 +84,15 @@
             (setf (slot-value (handler self) inp) val))) ;;;warning: slot dans le rtimpro plutot que dans l'handler: faire une redirection EZ
   (setf (q-process self) (mp:process-run-function (q-name self) nil 
                                                   #'(lambda (hnd gnstrt) 
-                                                      (setf (q-output self) (append 
-                                                                             (q-output self)
-                                                                             (proceed-impro-handler hnd gnstrt))))
+                                                      (setf (q-output self) (proceed-impro-handler hnd gnstrt))
+                                                      (loop for slice in (q-output self)
+                                                            for i from 0 do
+                                                            (funcall (output-slice-fun (q-handler self))
+                                                                     slice
+                                                                     (+ (q-gen-start self) i)
+                                                                     (reduce #'+ (nthcar (+ (q-gen-start self) i) (slice-list (q-handler self))) :key #'duration)
+                                                                     ))
+                                                      )
                                                   (q-handler self) 
                                                   (q-gen-start self))))
 
@@ -95,35 +102,65 @@
   ;(query-free self)
   )
 
-(defmethod %relay ((old-query impro-query) (new-query impro-query) pivot) (print (list "RELAY" old-query new-query))
-  (setf (q-output new-query) (subseq (q-output old-query) 0 (- pivot (q-gen-start old-query)))
-        (q-gen-start new-query) pivot)
-  (kill old-query)
-  (run new-query))
+(defmethod %relay ((q1 impro-query) (q2 impro-query)) (print (list "RELAY" q1 q2))
+  ;(setf (q-gen-start q2) pivot)
+  (let* ((n 0)
+         (out (output (rtimprovizer (q-handler q1))))
+         (max (min (abs (- (q-gen-start q2) (q-gen-start q1))) (1- (length out)))))
+    (loop for slice in (subseq out 0 max)
+          do
+          (funcall (output-slice-fun (q-handler q1))
+                   slice
+                   (+ (q-gen-start q1) n)
+                   (+ (* (q-gen-start q1) (duration slice))
+                      (reduce #'+ (nthcar n
+                                          (subseq out 0 max))
+                              :key #'duration)))
+          (incf n))
+    (kill q1)
+    (run q2)))
 
-(defmethod relay ((old-query impro-query) (new-query impro-query) pivot)
-  (push new-query (queries (q-handler new-query)))
-  (%relay old-query new-query pivot))
+(defmethod relay ((q1 impro-query) (q2 impro-query))
+  (push q2 (queries (q-handler q2)))
+  (%relay q1 q2))
 
-(defmethod %wait-for-relay ((old-query impro-query) (new-query impro-query) pivot) (print (list "WAIT-FOR-RELAY" old-query new-query))
-  (push (mp:process-run-function "Wait-For-Relay" nil
-                                 #'(lambda (q1 q2 p)
-                                     (mp:process-wait "Waiting..." 
-                                                      ;#'(lambda () (>= (q-curpos q1) p)))
-                                                      #'(lambda () (not (mp:process-alive-p (q-process q1)))))
-                                     (relay q1 q2 p))
-                                 old-query new-query pivot)
-        (waiting-processes (q-handler old-query))))
+(defmethod %wait-for-relay ((q1 impro-query) (q2 impro-query)) ;;;VERIFIER SI RUNNING
+  (let ((q2waswaiting (q-waiting-for q2)))
+    (setf (q-will-be-relayed q1) q2
+          (q-waiting-for q2) q1)
+    (if (not q2waswaiting)
+        (progn
+          (print (list "WAIT-FOR-RELAY" q1 q2))
+          (push (mp:process-run-function "Wait-For-Relay" nil
+                                         #'(lambda (query)
+                                             (mp:process-wait "Waiting..." 
+                                                              #'(lambda () (>= (q-curpos (q-waiting-for query)) (q-gen-start query)))
+                                                      ;#'(lambda () (not (mp:process-alive-p (q-process q1))))
+                                                              )
+                                             (relay (q-waiting-for query) query))
+                                         q2)
+                (waiting-processes (q-handler q2)))))))
 
-(defmethod wait-for-relay ((old-query impro-query) (new-query impro-query) pivot)
-  (push new-query (queries (q-handler new-query)))
-  (%wait-for-relay old-query new-query pivot))
 
-(defmethod merge-query ((old-query impro-query) (new-query impro-query)) (print (list "MERGE" old-query new-query))
-  (let ((inputs (append (q-inputs old-query) (q-inputs new-query)))
-        (vals (append (q-vals old-query) (q-vals new-query))))
-  (kill old-query)
-  (process-new-query (query-alloc :inputs inputs :vals vals :gen-start (q-gen-start new-query)))))
+
+
+(defmethod wait-for-relay ((q1 impro-query) (q2 impro-query))
+  ;(print (list "OLD" q1 "NEW" q2 "RELAYBY" (q-will-be-relayed q1)))
+  (if (and (q-will-be-relayed q1) (> (q-gen-start (q-will-be-relayed q1)) (q-gen-start q2)))
+      (progn 
+        (push q2 (queries (q-handler q2)))
+        (setf (q-waiting-for (q-will-be-relayed q1)) q2)
+        (%wait-for-relay q1 q2))
+    (if (not (q-will-be-relayed q1))
+        (progn 
+           (push q2 (queries (q-handler q2)))
+           (%wait-for-relay q1 q2)))))
+
+(defmethod merge-query ((q1 impro-query) (q2 impro-query)) (print (list "MERGE" q1 q2))
+  (let ((inputs (append (q-inputs q1) (q-inputs q2)))
+        (vals (append (q-vals q1) (q-vals q2))))
+  (kill q1)
+  (process-q2 (query-alloc :inputs inputs :vals vals :gen-start (q-gen-start q2)))))
 
 (defmethod process-new-query ((self impro-query))
   (if (not (queries (q-handler self)))
@@ -141,8 +178,8 @@
 
                 ((> (q-gen-start self) (q-gen-start qi))
                  (if (< (q-gen-start self) (q-curpos qi))
-                     (relay self qi (q-gen-start self))
-                   (wait-for-relay qi self (q-gen-start self))))
+                     (relay self qi)
+                   (wait-for-relay qi self)))
 
                 ((< (q-gen-start self) (q-gen-start qi))
-                 (wait-for-relay qi self (q-gen-start self)))))))
+                 (wait-for-relay self qi))))))

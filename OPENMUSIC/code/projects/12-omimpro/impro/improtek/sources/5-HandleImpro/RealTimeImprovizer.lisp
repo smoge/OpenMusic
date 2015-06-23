@@ -7,15 +7,21 @@
 ;= CLASS =
 ;=========
 (defclass* RealtimeImprovizer (improvizer)
-   (
-    (CurrentImproIdx :initform -1 :initarg :CurrentImproIdx :accessor CurrentImproIdx)
+   ((CurrentImproIdx :initform -1 :initarg :CurrentImproIdx :accessor CurrentImproIdx)
     (StartingPointNextPhaseFound? :initform nil :initarg :StartingPointNextPhaseFound? :accessor StartingPointNextPhaseFound?) 
     ;"true" only if last step in navigation succesfully called "find-prefix-label-match"
     (improTrace :initform (make-hash-table :test '=) :initarg :improTrace :accessor improTrace)
-    ))
+    (output :initform nil :initarg :output :accessor output)
+    (gen-callback :initform nil :initarg :gen-callback :accessor gen-callback)))
+
+(defmethod (setf CurrentImproIdx) (index (self realtimeimprovizer))
+  (setf (slot-value self 'CurrentImproIdx) index)
+  (print index)
+  (if (functionp (gen-callback self))
+      (funcall (gen-callback self) index)))
 
 ;==========================
-;= INITIALIZE & GET METHODS =
+;= INITIALIZE & GET METHODS 
 ;==========================
 
 (defmethod NewRealtimeImprovizer (&optional memory-list eventdur &key max-continuity)
@@ -74,20 +80,24 @@
     ;(format *om-stream* "~%~%****** Launching new navigation beginning at idx ~D in impro~%" eventIdxInImpro)
     
     (go-backwards-with-improtrace? self eventIdxInImpro)
+
+    (setf (output self) nil)
     
     (setf (StartingPointNextPhaseFound? self) nil)
     (loop for i from 1 to (min length (maxetat self))
-          for label =  (pop scenario) 
+          for label = (pop scenario) 
           do
           (setf current-scenario-suffix next-scenario-suffix)
           (setf next-scenario-suffix scenario)
-          collect (Improvize-next-state self current-scenario-suffix)
+          (setf next-state (Improvize-next-state self current-scenario-suffix))
+          (setf (output self) (append (output self) (list next-state)))
+          collect next-state
           ;while (not (StartingPointNextPhaseFound? self)))))
           while t)))
 
 (defmethod ImprovizeFormat_OnePhase ((self RealtimeImprovizer) &optional (scenario nil) (eventduration t) (eventIdxInImpro t))
-  (let ((GeneratedImpro (ImprovizeImprovize_OnePhase self (list-length scenario) scenario eventIdxInImpro))
-        (FormatOutputSequence GeneratedImpro eventduration))))
+  (let ((GeneratedImpro (ImprovizeImprovize_OnePhase self (list-length scenario) scenario eventIdxInImpro)))
+    (FormatOutputSequence GeneratedImpro eventduration)))
 
 ;ex Improvize&send-groupsAnte-loop-next-factor
 (defmethod ImprovizeFormatSend_OnePhase ((self RealtimeImprovizer) &optional (scenario nil) (eventduration t) (eventIdxInImpro t) (hostsend t) (portsend t) (adresssend simple-base-string) (numVoice t))
@@ -99,15 +109,17 @@
 ; si nécessaire
 ; --------------------------------------------------------------------------
 (defmethod go-backwards-with-improtrace? ((self RealtimeImprovizer) (eventIdxInImpro t))
+  ;(format *om-stream* "GENERATE AT ~D~%" eventIdxInImpro)
   (if (< eventIdxInImpro 2) 
-      ;(format *om-stream* "I FEEL LIKE RESETING !!~%")
+      (format *om-stream* "I FEEL LIKE RESETING !!~%")
     (if (not (= eventIdxInImpro (1+ (CurrentImproIdx self))))
         (progn
           (setf (CurrentImproIdx self) (- eventIdxInImpro 1))
+          ;(format *om-stream* "NEW CURRENT IMPRO INDEX DOES NOT FOLLOW THE PREVIOUS ONE --> ~D ~%" (CurrentImproIdx self))
           (if (StateIdx-at-ImproIdx-in-traceimpro self (CurrentImproIdx self))
             ; when a previous phase already generated something for this index
               (progn 
-                (format *om-stream* "---> GOING BACK TO STATE ~D IN ORACLE~%" (StateIdx-at-ImproIdx-in-traceimpro self (CurrentImproIdx self)))
+                ;(format *om-stream* "---> GOING BACK TO STATE ~D IN ORACLE~%" (StateIdx-at-ImproIdx-in-traceimpro self (CurrentImproIdx self)))
                 (setf (CurrentStateIdx self) (StateIdx-at-ImproIdx-in-traceimpro self (CurrentImproIdx self)))
                 ;MAJCONT 15/10/13
                 (setf (continuity self) (Continuity-at-ImproIdx-in-traceimpro self (CurrentImproIdx self))))))))

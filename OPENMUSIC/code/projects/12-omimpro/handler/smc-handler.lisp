@@ -37,6 +37,11 @@ This object can automate improvization generation based on the rtimprovizer clas
                                      (load-realtimeImprovizer-fromSavedImprovizer (db-path handler))
                                    (NewRealtimeImprovizer))
           (slice-max-pos handler) (length (expanded-scenario handler)))
+    (setf (gen-callback (rtimprovizer handler))
+          #'(lambda (val) 
+              (loop for proc in (waiting-processes handler) do
+                    (mp:process-poke proc))
+              ))
     ;;;ca restera pas toute la vie
     (ImprovizerExBeat->MidiHarmBeat (rtimprovizer handler))
     ;(om-inspect (rtimprovizer handler))
@@ -45,7 +50,7 @@ This object can automate improvization generation based on the rtimprovizer clas
 ;;;Run the first generation step
 (defmethod init-impro-handler ((self impro-handler) &optional (start-pos 0))
   (loop while (<= (empty-pos self) start-pos) do
-        (proceed-impro-handler self)))
+        (proceed-impro-handler self start-pos)))
 
 ;;;Run one generation step
 (defmethod proceed-impro-handler ((self impro-handler) gen-start)
@@ -69,13 +74,15 @@ This object can automate improvization generation based on the rtimprovizer clas
             ) 
       ;;;When the generation gave a non-null result
       (when result-slice-list
-        (setq output-list
-              (loop for slice in result-slice-list collect
-                    (funcall (output-slice-fun self)
-                             slice 
-                             (+ gen-start (incf i)) 
-                             (reduce #'+ (nthcar (+ gen-start i) (slice-list self)) :key #'duration)
-                             )))))
+        (setq output-list result-slice-list
+              ;(loop for slice in result-slice-list collect
+              ;      (funcall (output-slice-fun self)
+              ;               slice 
+              ;               (+ gen-start (incf i)) 
+              ;               (reduce #'+ (nthcar (+ gen-start i) (slice-list self)) :key #'duration)
+              ;               ))
+              )
+        ))
     output-list))
 
 (defmethod! modify-scenario ((self impro-handler) new-fragment start-index)
@@ -84,8 +91,7 @@ This object can automate improvization generation based on the rtimprovizer clas
     (setf (scenario self) new-scenario)))
 
 (defmethod force-proceed-impro-handler ((self impro-handler))
-  (setf (slice-index self) (+ (slice-pos self) (epsilon self)))
-  (proceed-impro-handler self))
+  (proceed-impro-handler self (setf (slice-index self) (+ (slice-pos self) (epsilon self)))))
 
 
 (defmacro get-impro-slot-callback (slot)
