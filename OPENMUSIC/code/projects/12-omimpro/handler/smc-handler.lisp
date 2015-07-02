@@ -3,16 +3,14 @@
 (defclass impro-handler ()
   ((name :initform "Improvizer-Handler" :accessor name :initarg :name :type string)
    ;;;Improvizer
-   (rtimprovizer :initform nil :accessor rtimprovizer)
+   (rtimprovizer :initform nil :accessor rtimprovizer :initarg :rtimprovizer)
    (scenario :initform nil :accessor scenario :initarg :scenario :type list)
    (expanded-scenario :initform nil :accessor expanded-scenario :initarg :expanded-scenario :type list)
-   (db-path :initform nil :accessor db-path :initarg :db-path :type (or null string))
+   ;(db-path :initform nil :accessor db-path :initarg :db-path :type (or null string))
    ;;;Slice Data
    (slice-list :initform nil :accessor slice-list :type list)
    ;(slice-index :initform 0.0 :accessor slice-index :type single-sloat)
-   (slice-max-pos :initform 0 :accessor slice-max-pos :type integer)
-   (slice-pos :initform 0 :accessor slice-pos :type integer)
-   (slice-date :initform 0 :accessor slice-date :type integer)
+   (perf-time :initform 0 :accessor perf-time :type integer)
    (empty-pos :initform 0 :accessor empty-pos :type integer)
    ;;;Handler
    (output-slice-fun :initform nil :accessor output-slice-fun :initarg :output-slice-fun :type (or null function))
@@ -25,27 +23,23 @@ A handler for Improtek (Copyright 2013 (C) J.Nika).
 This object can automate improvization generation based on the rtimprovizer class from Improtek."))
 
 ;;;Build an Improvizer Handler from a scenario and a database
-(defun build-impro-handler (&key name scenario db-path epsilon output-fun expanded-scenario)
+(defun build-impro-handler (&key name scenario rtimprovizer epsilon output-fun expanded-scenario)
   (let ((handler (make-instance 'impro-handler 
                                 :name (or name "Improvizer-Handler")
                                 :scenario scenario
                                 :expanded-scenario expanded-scenario;(expand_grid scenario)
-                                :db-path db-path
+                                :rtimprovizer (or rtimprovizer (NewRealtimeImprovizer))
                                 :epsilon (or epsilon 3)
                                 :output-slice-fun output-fun))) 
-    (setf (rtimprovizer handler) (if db-path
-                                     (load-realtimeImprovizer-fromSavedImprovizer (db-path handler))
-                                   (NewRealtimeImprovizer))
-          (slice-max-pos handler) (length (expanded-scenario handler)))
     (setf (gen-callback (rtimprovizer handler))
           #'(lambda (val) 
               (loop for proc in (waiting-processes handler) do
                     (mp:process-poke proc))
               ))
-    ;;;ca restera pas toute la vie
-    (ImprovizerExBeat->MidiHarmBeat (rtimprovizer handler))
-    ;(om-inspect (rtimprovizer handler))
     handler))
+
+(defmethod slice-max-pos ((self impro-handler))
+  (length (expanded-scenario self)))
 
 ;;;Run the first generation step
 (defmethod init-impro-handler ((self impro-handler) &optional (start-pos 0))
@@ -91,12 +85,12 @@ This object can automate improvization generation based on the rtimprovizer clas
     (setf (scenario self) new-scenario)))
 
 (defmethod force-proceed-impro-handler ((self impro-handler))
-  (proceed-impro-handler self (setf (slice-index self) (+ (slice-pos self) (epsilon self)))))
+  (proceed-impro-handler self (setf (slice-index self) (+ (perf-time self) (epsilon self)))))
 
 
 (defmacro get-impro-slot-callback (slot)
   (case slot 
-    ('slice-pos
+    ('perf-time
      `#'(lambda (self)
           (when (and (< (- (empty-pos self) new-val) (epsilon self))
                      (< (empty-pos self) (slice-max-pos self)))
@@ -106,29 +100,24 @@ This object can automate improvization generation based on the rtimprovizer clas
     ('scenario
      `#'(lambda (self)
           (let* ((new-expanded-scenario (expand_grid new-val))
-                 (pos (slice-pos self))
+                 (pos (perf-time self))
                  (switch-pos (position nil (mapcar 'equal (nthcdr pos (expanded-scenario self)) (nthcdr pos new-expanded-scenario)))))
             (when switch-pos
               (incf switch-pos pos)
-              (slot-value handler 'expanded-scenario) new-expanded-scenario
-              (slot-value handler 'slice-index) switch-pos
-              (slot-value handler 'slice-max-pos) (length new-expanded-scenario))
+              (setf (slot-value handler 'expanded-scenario) new-expanded-scenario)
+              (setf (slot-value handler 'slice-index) switch-pos)
+              (setf (slot-value handler 'slice-max-pos) (length new-expanded-scenario)))
               ;(proceed-impro-handler self)
             )))
     (otherwise #'(lambda (self)))))
 
 
 ;;;Macros to enable and disable slot reactivity
-(defmacro enable-slot-reactivity (slot class callback)
-  `(defmethod (setf ,slot) (new-val (self ,class))
-     (setf (slot-value self ',slot) new-val)
-     (funcall ,callback self)
-     new-val))
-
-(defmacro disable-slot-reactivity (slot class)
-  `(defmethod (setf ,slot) (new-val (self ,class))
-     (setf (slot-value self ',slot) new-val)))
-
+(defmethod set-improvizer-param ((self impro-handler) (slots list) (new-vals list) &optional gen-start)
+  (query-push (query-alloc :inputs slots
+                           :vals new-vals
+                           :handler self
+                           :gen-start (or gen-start (perf-time self)))))
 
 #|
 ;;;a mettre dans l'output
@@ -136,6 +125,17 @@ This object can automate improvization generation based on the rtimprovizer clas
       (loop for st in result-slice-list do
             (setf (MidiSet st) (timestretch (MidiSet st) (/ sdur (duration st)))
                   (duration st) sdur))
+`
+(defmacro enable-slot-reactivity (slot callback)
+  `(defmethod (set-param ,slot) (new-val (self impro-handler))
+     (setf (slot-value (rtimprovizer self) ',slot) new-val) ;;;MARCHE QUE POUR LE HANDLER
+     (funcall ,callback self)
+     new-val))
+
+(defmacro disable-slot-reactivity (slot class)
+  `(defmethod (setf ,slot) (new-val (self ,class))
+     (setf (slot-value self ',slot) new-val)))
+
 ;;;scheduling midi
 (when result-slice-list
         ;;;Turn the result beat list into a scheduling list

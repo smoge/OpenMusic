@@ -139,34 +139,33 @@
 (gethash 5 (nth 1 (MorrisPratt_failure&internalprefixes '(A B A B A B C A B A))))
 |#
 
-
 ;nth 0 : Morris&Pratt "failure fonction" 
 ;nth 1 : table lengths_ending_prefixes : table[idx] = list lengths of prefixes ending at idx
 ;----------------------------------------
-(defmethod MorrisPratt_failure&internalprefixes ((l list)  &optional CompareFunction)
-(let ((Compare 'equal))
-  (when CompareFunction (setf Compare Comparefunction))
-  ;(setf fail_table (make-hash-table :test #'CompareEvents))
-  (setf fail_table (make-hash-table))
-  ;(setf lengths_ending_prefixes (make-hash-table :test #'CompareEvents))
-  (setf lengths_ending_prefixes (make-hash-table))
-  (let* ((p 0) (i -1))
-    (setf (gethash 0 fail_table) -1)
-    (setf (gethash 0 lengths_ending_prefixes) '(1))
-    (loop while (< p (list-length l)) do
-          ;Failure i
-          ;(loop while (and (> i -1) (not (Compare (nth p l) (nth i l)))) do
-          (loop while (and (> i -1) (not (apply Compare (list (nth p l) (nth i l))))) do
-                 (setf i (gethash i fail_table)))
-          (incf p)
-          (incf i)
-          (setf (gethash p fail_table) i)
-          ;lengths_ending_prefixes i-1
-          (if (> p 1)
-              (setf (gethash (- p 1) lengths_ending_prefixes) (append (list p) (gethash (- (gethash p fail_table) 1) lengths_ending_prefixes))))
+(defmethod MorrisPratt_failure&internalprefixes ((l list) &optional CompareFunction)
+  (let ((Compare 'equal))
+    (when CompareFunction (setf Compare Comparefunction))
+    ;(setf fail_table (make-hash-table :test #'CompareEvents))
+    (setf fail_table (make-hash-table))
+    ;(setf lengths_ending_prefixes (make-hash-table :test #'CompareEvents))
+    (setf lengths_ending_prefixes (make-hash-table))
+    (let* ((p 0) (i -1))
+      (setf (gethash 0 fail_table) -1)
+      (setf (gethash 0 lengths_ending_prefixes) '(1))
+      (loop while (< p (list-length l)) do
+            ;Failure i
+            ;(loop while (and (> i -1) (not (Compare (nth p l) (nth i l)))) do
+            (loop while (and (> i -1) (not (apply Compare (list (nth p l) (nth i l))))) do
+                  (setf i (gethash i fail_table)))
+            (incf p)
+            (incf i)
+            (setf (gethash p fail_table) i)
+            ;lengths_ending_prefixes i-1
+            (if (> p 1)
+                (setf (gethash (- p 1) lengths_ending_prefixes) (append (list p) (gethash (- (gethash p fail_table) 1) lengths_ending_prefixes))))
 
-          )
-    (list fail_table lengths_ending_prefixes))))
+            )
+      (list fail_table lengths_ending_prefixes))))
 
 
 

@@ -92,8 +92,8 @@
           (setf next-state (Improvize-next-state self current-scenario-suffix))
           (setf (output self) (append (output self) (list next-state)))
           collect next-state
-          ;while (not (StartingPointNextPhaseFound? self)))))
-          while t)))
+          while (not (StartingPointNextPhaseFound? self)))))
+          ;while t)))
 
 (defmethod ImprovizeFormat_OnePhase ((self RealtimeImprovizer) &optional (scenario nil) (eventduration t) (eventIdxInImpro t))
   (let ((GeneratedImpro (ImprovizeImprovize_OnePhase self (list-length scenario) scenario eventIdxInImpro)))
@@ -111,8 +111,9 @@
 (defmethod go-backwards-with-improtrace? ((self RealtimeImprovizer) (eventIdxInImpro t))
   ;(format *om-stream* "GENERATE AT ~D~%" eventIdxInImpro)
   (if (< eventIdxInImpro 2) 
-      (format *om-stream* "I FEEL LIKE RESETING !!~%")
-    (if (not (= eventIdxInImpro (1+ (CurrentImproIdx self))))
+      ;(format *om-stream* "I FEEL LIKE RESETING !!~%")
+      (reset-navigation-params self)
+      (if (not (= eventIdxInImpro (1+ (CurrentImproIdx self))))
         (progn
           (setf (CurrentImproIdx self) (- eventIdxInImpro 1))
           ;(format *om-stream* "NEW CURRENT IMPRO INDEX DOES NOT FOLLOW THE PREVIOUS ONE --> ~D ~%" (CurrentImproIdx self))
